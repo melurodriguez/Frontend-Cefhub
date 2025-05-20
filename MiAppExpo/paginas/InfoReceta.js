@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { StyleSheet, View, Text, Image, Pressable, ImageBackground,Dimensions  } from "react-native"
-import CardIngredient from "../components/CarIngredient"
+import CardIngredient from "../components/CardIngredient"
 import CardInstructions from "../components/CardInstructions"
 import PopUp from "../components/PopUp"
 import CardCreator from "../components/CardCreator"

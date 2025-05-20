@@ -1,9 +1,49 @@
-import {View} from 'react-native'
+import {StyleSheet, View, Text, Image} from 'react-native'
+import CardNotification from '../components/CardNotification'
+import {sizes, fonts, colors} from '../utils/themes'
+import { notifUserId } from '../backend/notifController'
+import { FlatList } from 'react-native'
+
+const notifCat=require("../assets/notifCat.svg")
+const notifs=notifUserId(1)
+console.log("notifs", notifs); // Debería mostrar un array
 
 export default function Notificaciones({navigation}) {
     return(
-        <View>
+        <FlatList 
+            contentContainerStyle={styles.container}
+            data={notifs}
+            keyExtractor={(item)=> item.id.toString()}
+            ListHeaderComponent={
+                <View style={styles.header}>
+                    <Image source={notifCat}/>
+                    <Text style={styles.title}>Notificaciones</Text>
+                </View>
+            }
+            renderItem={({item})=>(
+                <CardNotification media={item.media} subject={item.subject}/>
 
-        </View>
+            )}
+            
+        />
+        
     )
 }
+
+const styles=StyleSheet.create({
+    container:{
+        flex:1,
+        justifyContent:"center",
+        alignItems:"center"
+
+    },
+    header:{
+        flexDirection:"row",
+        justifyContent:"space-evenly",
+        paddingVertical:20
+    },
+    title:{
+        fontWeight:fonts.bold,
+        fontSize:fonts.large
+    }
+})

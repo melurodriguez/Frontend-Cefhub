@@ -7,13 +7,21 @@ export const sizes = {
   height,
   padding: 16,
   margin: 16,
-  radius: 12,
+  radius: 15,
 };
 
 export const fonts = {
-  small: 14,
-  medium: 18,
+  small: 15,
+  medium: 20,
   large: 24,
+  bold:"700"
 };
 
-export default { sizes, fonts };
+export const colors={
+  primary:"#505c86",
+  secondary:"#FFF2E5",
+  backgroundColorLight:"#f1f5f5",
+  backgroundColorDark:"#E5CFB8"
+}
+
+export default { sizes, fonts, colors };

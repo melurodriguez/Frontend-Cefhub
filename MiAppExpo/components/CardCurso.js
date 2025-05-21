@@ -47,8 +47,8 @@ const styles=StyleSheet.create({
 
          },
          img:{
-             width:116,
-             height:83,
+             width:130,
+             height:120,
              borderRadius:15
          },
          cursoContainer:{

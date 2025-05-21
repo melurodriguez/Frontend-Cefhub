@@ -4,8 +4,8 @@ import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native"
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
 
-const menu=require("../assets/menu.svg")
-const searchIcon=require("../assets/search.svg")
+const menu=require("../assets/menu.png")
+const searchIcon=require("../assets/search.png")
 const filter=require("../assets/filter.png")
 
 import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
@@ -68,19 +68,19 @@ const styles=StyleSheet.create({
       alignItems:"center"
     },
     input:{
-        width:344,
-        height: 50,
-        borderColor: '#d9d9d9',
-        borderWidth: 1,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-        borderRadius:15,
-        backgroundColor:"#f1f5f5"
-    },
+            width:330,
+            borderColor: '#d9d9d9',
+            borderWidth: 1,
+            paddingHorizontal: 15,
+            borderRadius:15,
+            backgroundColor:"#f1f5f5"
+        },
     header:{
         flexDirection:"row",
-        justifyContent:"space-evenly",
-        padding:20
+        justifyContent:"space-between",
+        padding:10,
+        marginBottom:10,
+        marginTop:40
     },
     pageTitle:{
         fontSize:24,
@@ -96,10 +96,10 @@ const styles=StyleSheet.create({
         marginBottom:15
     },
     resultTitle:{
-      flexDirection:"row",
-      justifyContent:"space-evenly",
-      padding:20,
-
+          flexDirection:"row",
+          justifyContent:"space-between",
+          alignItems: "center",
+          padding:20
     },
 
 })

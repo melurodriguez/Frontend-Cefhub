@@ -1,62 +1,43 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
 
 import RecipeCard from "../components/recipeCard";
+import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
 
 const menu=require("../assets/menu.svg")
-const userIcon=require("../assets/user.svg")
-const star=require("../assets/star.svg")
-const cheesecake=require("../assets/cheesecake.jpg")
 const searchIcon=require("../assets/search.svg")
+const filter=require("../assets/filter.png")
 
-const recetas=[{
-  titulo:"Cheesecake",
-  descripcion:"Base crocante de vainilla y el relleno mas cremoso y suave.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:4.0,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Burritos",
-  descripcion:"Tortilla de harina rellena de variedad de ingredientes. Hacelo a tu gusto!",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:3.7,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Pizza estilo Napolitana",
-  descripcion:"Masa fina y blanda, de lenta fermentación y alata temperatura de cocción.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:4.8,
-    icono:star
-  }
-  
-}]
+import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 
-const filter=require("../assets/filter.svg")
+
 export default function SearchPage({navigation}) {
+    const [search, setSearch] = useState('');
+    const [recetas, setRecetas] = useState([]);
+    const [cursos, setCursos] = useState([]);
 
-    const [search, setSearch]=useState("")
+          useEffect(() => {
+            fetch(`${API_BASE_URL}/recetas`)
+              .then((res) => res.json())
+              .then((data) => setRecetas(data))
+              .catch((err) => {
+                console.error("Error al obtener recetas:", err);
+              });
+          }, []);
+
+          useEffect(() => {
+                      fetch(`${API_BASE_URL}/curso`)
+                        .then((res) => res.json())
+                        .then((data) => setCursos(data))
+                        .catch((err) => {
+                          console.error("Error al obtener recetas:", err);
+                        });
+                    }, []);
+
+
+
+
     return(
         <ScrollView>
             <View style={styles.header}>
@@ -73,17 +54,37 @@ export default function SearchPage({navigation}) {
             <View>
               <View style={styles.resultTitle}>
                 <Text style={styles.rr}>Recetas Recientes</Text>
-                <Pressable>
-                  <Image source={filter}/>
+                <Pressable onPress={() => navigation.navigate('TodasRecetas')}>
+                    <Text style={styles.verTodos}>Ver todos →</Text>
+                 </Pressable>
+             </View>
+                
+                {recetas.slice(0, 3).map((receta, index) => (
+                  <View style={styles.card} key={index}>
+                    <RecipeCard
+                      data={receta}
+                      onPress={() => navigation.navigate('InfoReceta', { receta })}
+                    />
+                  </View>
+                ))}
+
+            </View>
+            <View>
+              <View style={styles.resultTitle}>
+                <Text style={styles.rr}>Cursos Populares</Text>
+                <Pressable onPress={() => navigation.navigate('TodosCursos')}>
+                    <Text style={styles.verTodos}>Ver todos →</Text>
                 </Pressable>
-                
               </View>
-                
-                {recetas.map((receta, index)=>(
-                                    <View style={styles.card} key={index}>
-                                      <RecipeCard data={receta}/>
-                                    </View>
-                                ))}
+
+                {cursos.slice(0, 3).map((curso, index) => (
+                  <View style={styles.card} key={index}>
+                      <Cursosu
+                        data={curso}
+                        onPress={() => navigation.navigate('InfoCurso', { curso })}
+                      />
+                   </View>
+                ))}
 
             </View>
       </ScrollView>

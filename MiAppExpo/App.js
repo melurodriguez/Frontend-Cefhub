@@ -9,7 +9,8 @@ import HomePage from './paginas/HomePage';
 import SearchPage from './paginas/SearchPage';
 import LoginPage from './paginas/LoginPage';
 import InfoReceta from './paginas/InfoReceta';
-
+import TodasRecetas from './paginas/TodasRecetas';
+import TodosCursos from './paginas/TodosCursos';
 import InfoCurso from './paginas/InfoCurso';
 import Profile from './paginas/Profile';
 import Notificaciones from './paginas/Notificaciones';
@@ -66,6 +67,9 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginPage} />
         <Stack.Screen name="InfoCurso" component={InfoCurso} />
         <Stack.Screen name="InfoReceta" component={InfoReceta} />
+        <Stack.Screen name="TodosCursos" component={TodosCursos} />
+        <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
+
       </Stack.Navigator>
 
 

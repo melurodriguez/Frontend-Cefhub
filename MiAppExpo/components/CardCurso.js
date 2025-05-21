@@ -2,38 +2,28 @@ import { StyleSheet, View, Text, Image, Pressable } from "react-native";
 import InfoCurso from "../paginas/InfoCurso";
 
 
-export default function CardCurso({data}) {
-
-    function handleClick(){
-        
-    }
+const onPress =()=>{
+    console.log("clickeada")
+}
+export default function CardCurso({data, onPress }) {
 
     return(
-         <Pressable onPress={handleClick()} >
+         <Pressable onPress={onPress } >
                     <View style={styles.innerShadow}></View>
                     <View style={styles.container}>
                         <View style={styles.fila}>
                             <View style={styles.imgContainer}>
-                                <Image source={data.img} style={styles.img}/>
+                                <Image
+                                  source={{ uri: `http://10.0.2.2:8000/static/${data.imagen_curso_url}` }}
+                                  style={styles.img}/>
                             </View>
-                            <View style={styles.recipeContainer}>
-                                <Text style={styles.title}>{data.titulo}</Text>
-                                <Text style={styles.desc}>{data.descripcion}</Text>
+                            <View style={styles.cursoContainer}>
+                                <Text style={styles.title}>{data.nombre}</Text>
+                                <Text style={styles.desc}>{data.descripcion_breve}</Text>
                             </View>
                         </View>
                         <View>
         
-                        </View>
-                        <View style={styles.fila}>
-                            <View style={styles.userInfo}>
-                                <Text style={{paddingLeft:10, fontSize:12}}>{data.completion}</Text>
-                            </View>
-                            
-                            <View style={styles.rating}>
-                                <Text style={{paddingRight:10}}>{data.sede.nombre}</Text>
-                                <Image source={data.sede.icono}/>
-                            </View>
-                        
                         </View>
         
                     </View>
@@ -45,67 +35,55 @@ export default function CardCurso({data}) {
 
 const styles=StyleSheet.create({
      container:{
-        backgroundColor:"#FFF2E5",
-        padding:20,
-        borderRadius:15,
-        width:345,
-        height:166,
+             backgroundColor:"#FFF2E5",
+             padding:20,
+             borderRadius:15,
+             width:345,
+             height:166,
+             elevation: 6
 
+         },
+         imgContainer:{
 
-    },
-    imgContainer:{
-      
-    },
-    img:{
-        width:116,
-        height:83,
-        borderRadius:15
-    },
-    recipeContainer:{
-        paddingLeft:20,
-        width:200,
-        height:85
-    },
-    title:{
-        fontWeight:"700",
-        flex:1,
-        fontSize:16
-    },
-    desc:{
-        fontWeight:"400",
-        flex:1,
-        fontSize:14
-    },
+         },
+         img:{
+             width:116,
+             height:83,
+             borderRadius:15
+         },
+         cursoContainer:{
+             paddingLeft:20,
+             width:200,
+             height:85
+         },
+         title:{
+             fontWeight:"700",
+             flex:1,
+             fontSize:14
+         },
+         desc:{
+             fontWeight: 400,
+             flex:1,
+             fontSize:12
+         },
 
-    fila:{
-        flexDirection:"row"
-    },
-    rating:{
-        paddingTop:20,
-        alignContent:"flex-end",
-        flexDirection:"row"
-    },
-    userInfo:{
-        paddingTop:20,
-        flex:2,
-        alignContent:"flex-start",
-        flexDirection:"row"
-        
-    },
-    innerShadow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 15,
-        backgroundColor: 'transparent',
-        zIndex: 0,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        width:345,
-        height:166
-    },
+         fila:{
+             flexDirection:"row"
+         },
+         innerShadow: {
+             position: 'absolute',
+             top: 0,
+             left: 0,
+             right: 0,
+             bottom: 0,
+             borderRadius: 15,
+             backgroundColor: 'transparent',
+             zIndex: 0,
+             shadowColor: "#000",
+             shadowOffset: { width: 0, height: 4 },
+             shadowOpacity: 0.15,
+             shadowRadius: 10,
+             width:345,
+             height:166
+         },
 })

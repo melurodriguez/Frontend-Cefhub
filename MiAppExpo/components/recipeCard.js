@@ -1,44 +1,47 @@
 import { View, Image, StyleSheet, Text, Pressable } from "react-native";
+const star=require("../assets/star.png")
+const userIcon=require("../assets/user.png")
 
-const handleClick=()=>{
+const onPress =()=>{
     console.log("clickeada")
 }
 
-export default function RecipeCard({data}) {
-    return(
-        <Pressable onPress={handleClick()} >
-            <View style={styles.innerShadow}></View>
-            <View style={styles.container}>
-                <View style={styles.fila}>
-                    <View style={styles.imgContainer}>
-                        <Image source={data.img} style={styles.img}/>
-                    </View>
-                    <View style={styles.recipeContainer}>
-                        <Text style={styles.title}>{data.titulo}</Text>
-                        <Text style={styles.desc}>{data.descripcion}</Text>
-                    </View>
-                </View>
-                <View>
-
-                </View>
-                <View style={styles.fila}>
-                    <View style={styles.userInfo}>
-                        <Image source={data.autor.profilepic} style={{width:20, height:20}}/>
-                        <Text style={{paddingLeft:10, fontSize:12}}>{data.autor.usuario}</Text>
-                    </View>
-                    
-                    <View style={styles.rating}>
-                        <Text style={{paddingRight:10}}>{data.rating.puntos}</Text>
-                        <Image source={data.rating.icono}/>
-                    </View>
-                
-                </View>
-
+export default function RecipeCard({data, onPress }) {
+    return (
+        <Pressable onPress={onPress }>
+          <View style={styles.innerShadow}></View>
+          <View style={styles.container}>
+            <View style={styles.fila}>
+              <View style={styles.imgContainer}>
+                <Image
+                  source={{ uri: `http://10.0.2.2:8000/static/${data.imagen_receta_url}` }}
+                  style={styles.img}
+                />
+              </View>
+              <View style={styles.recipeContainer}>
+                <Text style={styles.title}>{data.nombre}</Text>
+                <Text style={styles.desc}>{data.descripcion}</Text>
+              </View>
             </View>
-                
+
+            <View style={styles.fila}>
+              <View style={styles.userInfo}>
+              <Image source={userIcon} style={{width:20, height:20}}/>
+                <Text style={{ paddingLeft: 10, fontSize: 12 }}>
+                  {data.usuarioCreador}
+                </Text>
+              </View>
+
+              <View style={styles.rating}>
+                <Text style={{ paddingRight: 10 }}>
+                  {data.valoracion !== null ? data.valoracion.toFixed(1) : "—"}
+                </Text>
+                <Image source={star}/>
+              </View>
+            </View>
+          </View>
         </Pressable>
-        
-    )
+      );
 };
 
 const styles= StyleSheet.create({
@@ -49,6 +52,7 @@ const styles= StyleSheet.create({
         borderRadius:15,
         width:345,
         height:166,
+        elevation: 6
 
     },
     imgContainer:{
@@ -67,12 +71,12 @@ const styles= StyleSheet.create({
     title:{
         fontWeight:"700",
         flex:1,
-        fontSize:16
+        fontSize:14
     },
     desc:{
-        fontWeight:"400",
+        fontWeight: 400,
         flex:1,
-        fontSize:14
+        fontSize:12
     },
 
     fila:{

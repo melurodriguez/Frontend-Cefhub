@@ -1,60 +1,22 @@
-import { ScrollView } from 'react-native-web';
+import { ScrollView } from 'react-native';
 import RecipeCard from '../components/recipeCard';
+import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Image, Pressable } from 'react-native';
-const welcomeIcon=require("../assets/welcomeIcon.svg");
-const userIcon=require("../assets/user.svg")
-const star=require("../assets/star.svg")
-const cheesecake=require("../assets/cheesecake.jpg")
+const welcomeIcon=require("../assets/welcomeIcon.png");
 
-const recetas=[{
-  titulo:"Cheesecake",
-  descripcion:"Base crocante de vainilla y el relleno mas cremoso y suave.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:4.0,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Burritos",
-  descripcion:"Tortilla de harina rellena de variedad de ingredientes. Hacelo a tu gusto!",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:3.7,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Pizza estilo Napolitana",
-  descripcion:"Masa fina y blanda, de lenta fermentación y alata temperatura de cocción.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:userIcon
-  },
-  rating:{
-    puntos:4.8,
-    icono:star
-  }
-  
-}]
-
-
-
-
+import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 
 export default function HomePage({navigation}) {
+    const [recetas, setRecetas] = useState([]);
 
+      useEffect(() => {
+        fetch(`${API_BASE_URL}/recetas/ultimas`)
+          .then((res) => res.json())
+          .then((data) => setRecetas(data))
+          .catch((err) => {
+            console.error("Error al obtener recetas:", err);
+          });
+      }, []);
 
 
   return(
@@ -93,7 +55,9 @@ const styles= StyleSheet.create({
     header:{
         justifyContent:"center",
         alignItems:"center",
-        marginBottom:40
+        marginBottom:20,
+        padding:20,
+        marginTop:40
     },
     p:{
         color:"#000",
@@ -102,7 +66,8 @@ const styles= StyleSheet.create({
         fontSize:24,
     },
     card:{
-        padding:5
+        padding:5,
+        margin: 5
     },
     container:{
       justifyContent:"center",

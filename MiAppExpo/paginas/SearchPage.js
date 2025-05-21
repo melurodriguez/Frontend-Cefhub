@@ -2,7 +2,7 @@ import { useState } from "react"
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
 
 import RecipeCard from "../components/recipeCard";
-import { ScrollView } from "react-native-web";
+import { ScrollView } from "react-native";
 
 const menu=require("../assets/menu.svg")
 const userIcon=require("../assets/user.svg")

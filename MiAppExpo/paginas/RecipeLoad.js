@@ -1,5 +1,5 @@
 import {View, Text, Image, StyleSheet} from 'react-native'
-import { ScrollView } from 'react-native-web'
+import { ScrollView } from 'react-native'
 import LoadForm from '../components/LoadForm'
 
 const writingCat=require('../assets/writingCat.svg')

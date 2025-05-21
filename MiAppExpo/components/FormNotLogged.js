@@ -1,6 +1,7 @@
 import { Pressable, View, Image, Text, StyleSheet } from "react-native";
+import { sizes } from "../utils/themes";
 
-const welcomeIcon=require("../assets/thinking.svg");
+const thinkingCat=require("../assets/thinkingCat.png");
 
 export default function FormNotLogged() {
     return(
@@ -8,7 +9,7 @@ export default function FormNotLogged() {
             <Text style={styles.title}>No estás registrado</Text>
             <View style={styles.card}>
                 <View style={styles.innerShadow}></View>
-                <Image source={welcomeIcon} style={styles.catImage}></Image>
+                <Image source={thinkingCat} style={styles.catImage}></Image>
                 <View style={styles.buttonContainer}>
                     <Pressable style={styles.button}>
                         <Text style={styles.text}>Ingresar</Text>
@@ -61,6 +62,8 @@ const styles=StyleSheet.create({
         top: -90, // la mitad de la altura para que sobresalga
         alignSelf: 'center',
         zIndex: 1,
+        width:sizes.width*0.05,
+        height:sizes.height*0.05
     },
     container:{
         alignItems:"center"

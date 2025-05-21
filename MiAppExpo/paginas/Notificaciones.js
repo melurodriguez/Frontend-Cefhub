@@ -4,7 +4,7 @@ import {sizes, fonts, colors} from '../utils/themes'
 import { notifUserId } from '../backend/notifController'
 import { FlatList } from 'react-native'
 
-const notifCat=require("../assets/notifCat.svg")
+const notifCat=require("../assets/notifCat.png")
 const notifs=notifUserId(1)
 console.log("notifs", notifs); // Debería mostrar un array
 

@@ -2,7 +2,7 @@ import { useState } from "react"
 import { StyleSheet, View, Text, Image, Pressable, TextInput } from "react-native"
 import { usernameAvailable } from "../backend/userController";
 
-const welcomeIcon=require("../assets/welcomeIcon.svg")
+const welcomeIcon=require("../assets/welcomeIcon.png")
 
 export default function RegisterForm() {
 

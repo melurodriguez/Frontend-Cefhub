@@ -3,12 +3,12 @@ import { Pressable, View, Text, Image, StyleSheet } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 
-const location=require("../assets/location.svg")
-const menu=require("../assets/menu.svg")
-const user=require("../assets/user.svg")
-const cheesecake=require("../assets/cheesecake.jpg")
-const star=require("../assets/star.svg")
-const pasteleria=require("../assets/pasteleriaCurso.avif")
+const location=require("../assets/location.png")
+const menu=require("../assets/menu.png")
+const user=require("../assets/user.png")
+const cheesecake=require("../assets/cheesecake.png")
+const star=require("../assets/star.png")
+const pasteleria=require("../assets/pasteleriaCurso.png")
 
 const recetas=[{
   titulo:"Cheesecake",

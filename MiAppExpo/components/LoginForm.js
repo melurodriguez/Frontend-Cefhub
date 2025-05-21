@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, Image, TextInput, Pressable} from "react-native
 import login from "../backend/userController";
 import Checkbox from "expo-checkbox";
 
-const welcomeIcon= require("../assets/welcomeIcon.svg");
+const welcomeIcon= require("../assets/welcomeIcon.png");
 
 export default function LoginForm(value, placeholder, onChangeText) {
 

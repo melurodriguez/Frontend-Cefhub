@@ -3,10 +3,10 @@ import { Pressable, View, StyleSheet, Image } from "react-native";
 import HomePage from "../paginas/HomePage";
 import SearchPage from "../paginas/SearchPage";
 
-const home=require("../assets/home.svg")
-const search=require("../assets/search.svg")
-const notif=require("../assets/notif.svg")
-const profile=require("../assets/profile.svg")
+const home=require("../assets/home.png")
+const search=require("../assets/search.png")
+const notif=require("../assets/notif.png")
+const profile=require("../assets/profile.png")
 
 
 

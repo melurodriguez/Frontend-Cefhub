@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, Image } from "react-native"
 
-const user=require("../assets/user.svg")
+const user=require("../assets/user.png")
 
 export default function CardCreator() {
     return(

@@ -5,13 +5,13 @@ import CardInstructions from "../components/CardInstructions"
 import PopUp from "../components/PopUp"
 import CardCreator from "../components/CardCreator"
 
-const medialunas=require("../assets/medialunas.avif")
-const cancel=require("../assets/cancel.svg")
-const fav=require("../assets/fav.svg")
-const favClicked=require("../assets/favClicked.svg")
-const paso1=require('../assets/paso1.avif')
+const medialunas=require("../assets/medialunas.png")
+const cancel=require("../assets/cancel.png")
+const fav=require("../assets/fav.png")
+const favClicked=require("../assets/favClicked.png")
+const paso1=require('../assets/paso1.png')
 
-const {width, height}=Dimensions.get('window')
+const {width, height}=Dimensions.get('window') //CAMBIAR
 
 export default function InfoReceta() {
 

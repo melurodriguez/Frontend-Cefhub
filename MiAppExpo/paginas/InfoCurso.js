@@ -2,10 +2,10 @@ import { ImageBackground, StyleSheet, View, Text, Dimensions, Pressable, Image }
 import CardSedes from "../components/CardSedes";
 
 
-const {height}=Dimensions.get('window')
+const {height}=Dimensions.get('window') //CAMBIAR
 
-const cancel=require('../assets/cancel.svg')
-const pasteleria=require('../assets/pasteleriaCurso.avif')
+const cancel=require('../assets/cancel.png')
+const pasteleria=require('../assets/pasteleriaCurso.png')
 
 export default function InfoCurso() {
 

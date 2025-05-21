@@ -1,7 +1,7 @@
 import {View, Text, Image, Pressable, StyleSheet} from 'react-native'
 import { TextInput } from 'react-native-paper'
 
-const welcomeIcon=require('../assets/welcomeIcon.svg')
+const welcomeIcon=require('../assets/welcomeIcon.png')
 
 export default function CodeForm() {
 

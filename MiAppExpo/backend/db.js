@@ -26,19 +26,16 @@ export const notificaciones=[
     {
         id:1,
         userId:1,
-        media:require("../assets/thinking.svg"),
         subject:"Probando db, back, front"
     },
     {
         id:2,
         userId:2,
-        media:require("../assets/thinking.svg"),
         subject:"Probando db, back, front"
     },
     {
         id:3,
         userId:1,
-        media:require("../assets/thinking.svg"),
         subject:"Probando db, back, front"
     }
 ]

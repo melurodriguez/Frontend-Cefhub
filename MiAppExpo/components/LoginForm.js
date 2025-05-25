@@ -7,7 +7,7 @@ import Checkbox from "expo-checkbox";
 
 const welcomeIcon= require("../assets/welcomeIcon.png");
 
-export default function LoginForm(value, placeholder, onChangeText) {
+export default function LoginForm({navigation}) {
 
    const [form, setForm] = useState({
         username: '',
@@ -49,7 +49,7 @@ export default function LoginForm(value, placeholder, onChangeText) {
                 <Pressable style={styles.button} onPress={()=>{sendData(form.username, form.password)}}>
                     <Text style={styles.btnText}>Ingresar</Text>
                 </Pressable>
-                <Pressable style={styles.btn}><Text>No tenés cuenta? Registrate</Text></Pressable>
+                <Pressable style={styles.btn} onPress={()=>navigation.navigate('RegisterPage')}><Text>No tenés cuenta? Registrate</Text></Pressable>
                 <Pressable ><Text>Olvidaste tu contraseña? Recuperala</Text></Pressable>
             </View>
            

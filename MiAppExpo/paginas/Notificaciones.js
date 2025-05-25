@@ -16,7 +16,7 @@ export default function Notificaciones({navigation}) {
             keyExtractor={(item)=> item.id.toString()}
             ListHeaderComponent={
                 <View style={styles.header}>
-                    <Image source={notifCat}/>
+                    <Image source={notifCat} style={styles.catImage}/>
                     <Text style={styles.title}>Notificaciones</Text>
                 </View>
             }
@@ -45,5 +45,9 @@ const styles=StyleSheet.create({
     title:{
         fontWeight:fonts.bold,
         fontSize:fonts.large
+    },
+    catImage:{
+        width:sizes.width*0.05,
+        height:sizes.height*0.1
     }
 })

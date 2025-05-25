@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { StyleSheet, View, Text, Image, Pressable, TextInput } from "react-native"
-import { usernameAvailable } from "../backend/userController";
+import { sizes } from "../utils/themes";
+
 
 const welcomeIcon=require("../assets/welcomeIcon.png")
 
-export default function RegisterForm() {
+export default function RegisterForm({navigation}) {
+
 
     const [form, setForm] = useState({
         username: '',
@@ -37,33 +39,35 @@ export default function RegisterForm() {
 
                 </View>  
             </View>
-
         </View>
+
     )
 }
 
 const styles=StyleSheet.create({
     container:{
-        backgroundColor:"#E5CFB8",
-        flex:1
+        flex:1,
+        justifyContent:"center",
+        alignItems:"center",
+        height:sizes.height*0.5
     },
     form:{
         justifyContent:"center",
         alignItems:"center",
-        flex:1,
         backgroundColor:"#fff",
-        borderRadius:15
+        borderRadius:15,
+        width:sizes.width*0.8,
+        height:sizes.height*0.45
     },
     catImage: {
         width:132,
         height:133,
-        //position: 'absolute',
-        //top: -90, // la mitad de la altura para que sobresalga
+        position: 'absolute',
+        top: -90, // la mitad de la altura para que sobresalga
         alignSelf: 'center',
         zIndex: 1,
     },
     content:{
-        //top:90
         justifyContent:"center",
         alignItems:"center",
     },

@@ -15,6 +15,9 @@ import InfoCurso from './paginas/InfoCurso';
 import Profile from './paginas/Profile';
 import Notificaciones from './paginas/Notificaciones';
 import RecipeLoad from './paginas/RecipeLoad';
+import ProfileNotLogged from './paginas/ProfileNotLogged';
+import RegisterPage from './paginas/RegisterPage';
+import LoadedRecipe from './paginas/LoadedRecipe';
 
 //Stack.Navigator no deja espacio para elementos externos.
 //Bottom Tabs Navigation es lo adecuado para barras inferiores:
@@ -28,6 +31,9 @@ const Tab = createBottomTabNavigator();
 
 
 function TabNavigator() {
+  const logged=false;
+
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -49,6 +55,7 @@ function TabNavigator() {
       <Tab.Screen name="Cargar" component={RecipeLoad}/>
       <Tab.Screen name="Notificaciones" component={Notificaciones}/>
       <Tab.Screen name="Perfil" component={Profile}/>
+      <Tab.Screen name="Perfile" component={ProfileNotLogged}/>
       
       
     </Tab.Navigator>
@@ -64,11 +71,14 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={TabNavigator} />
 
-        <Stack.Screen name="Login" component={LoginPage} />
+
+        <Stack.Screen name="LoginPage" component={LoginPage} />
         <Stack.Screen name="InfoCurso" component={InfoCurso} />
         <Stack.Screen name="InfoReceta" component={InfoReceta} />
         <Stack.Screen name="TodosCursos" component={TodosCursos} />
         <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
+        <Stack.Screen name="RegisterPage" component={RegisterPage} />
+        <Stack.Screen name="LoadedRecipe" component={LoadedRecipe}/>
 
       </Stack.Navigator>
 

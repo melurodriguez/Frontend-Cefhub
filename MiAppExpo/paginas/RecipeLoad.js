@@ -1,10 +1,11 @@
 import {View, Text, Image, StyleSheet} from 'react-native'
 import { ScrollView } from 'react-native'
 import LoadForm from '../components/LoadForm'
+import {sizes} from '../utils/themes'
 
 const writingCat=require('../assets/writingCat.png')
 
-export default function RecipeLoad() {
+export default function RecipeLoad({navigation}) {
     return(
         <ScrollView contentContainerStyle={styles.container}>
 
@@ -13,7 +14,7 @@ export default function RecipeLoad() {
                 <Image source={writingCat}/>
             </View>
             <View>
-                <LoadForm/>
+                <LoadForm navigation={navigation}/>
             </View>
 
         </ScrollView>
@@ -32,5 +33,9 @@ const styles=StyleSheet.create({
         padding:20,
 
     },
+    catImage:{
+        width:sizes.width*0.05,
+        height:sizes.height*0.05
+    }
    
 })

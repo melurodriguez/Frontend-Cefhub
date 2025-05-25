@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {View, Text, Image, TextInput, Pressable, StyleSheet} from 'react-native'
 
-export default function LoadForm() {
+export default function LoadForm({navigation}) {
 
     const [recipe, setRecipe]=useState({
         name:"",
@@ -46,7 +46,7 @@ export default function LoadForm() {
                 
             </View>
             <View style={styles.btnContainer}>
-                <Pressable style={styles.button}><Text style={styles.btnText}>Cargar Receta</Text></Pressable>
+                <Pressable style={styles.button}onPress={()=>navigation.navigate('LoadedRecipe', {navigation})}><Text style={styles.btnText} >Cargar Receta</Text></Pressable>
             </View>
         </View>
     )

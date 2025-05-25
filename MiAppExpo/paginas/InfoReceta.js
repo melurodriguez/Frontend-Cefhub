@@ -4,6 +4,8 @@ import CardIngredient from "../components/CardIngredient"
 import CardInstructions from "../components/CardInstructions"
 import PopUp from "../components/PopUp"
 import CardCreator from "../components/CardCreator"
+import { useRoute } from '@react-navigation/native';
+
 
 const medialunas=require("../assets/medialunas.png")
 const cancel=require("../assets/cancel.png")
@@ -13,7 +15,9 @@ const paso1=require('../assets/paso1.png')
 
 const {width, height}=Dimensions.get('window') //CAMBIAR
 
-export default function InfoReceta() {
+export default function InfoReceta({navigation}) {
+    const route=useRoute()
+    const {receta}= route.params
 
 
     const [isPressed,setPressed]=useState(0);
@@ -84,7 +88,7 @@ export default function InfoReceta() {
             
             <ImageBackground source={medialunas} style={styles.img} resizeMode="cover">
                 <View style={styles.btnContainer}>
-                    <Pressable><Image source={cancel}/></Pressable>
+                    <Pressable onPress={()=>navigation.navigate('')}><Image source={cancel}/></Pressable>
                     <Pressable onPress={handleLike} ><Image source={like ? favClicked : fav}/></Pressable>
                 </View>
                 

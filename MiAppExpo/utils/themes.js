@@ -21,7 +21,10 @@ export const colors={
   primary:"#505c86",
   secondary:"#FFF2E5",
   backgroundColorLight:"#f1f5f5",
-  backgroundColorDark:"#E5CFB8"
+  backgroundColorDark:"#E5CFB8",
+  white:"#fff",
+  black:"#000",
+  red:"#DA0404"
 }
 
 export default { sizes, fonts, colors };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
+import axios from 'axios';
 
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
@@ -17,13 +18,13 @@ export default function TodasRecetas({navigation}) {
     const [showFilters, setShowFilters] = useState(false);
 
               useEffect(() => {
-                fetch(`${API_BASE_URL}/recetas`)
-                  .then((res) => res.json())
-                  .then((data) => setRecetas(data))
+                axios.get(`${API_BASE_URL}/recetas`)
+                  .then((res) => setRecetas(res.data))
                   .catch((err) => {
                     console.error("Error al obtener recetas:", err);
                   });
               }, []);
+
 
         return(
             <ScrollView>

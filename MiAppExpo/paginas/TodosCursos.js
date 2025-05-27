@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
+import axios from 'axios';
 
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
@@ -16,13 +17,13 @@ export default function TodosCursos({navigation}) {
     const [cursos, setCursos] = useState([]);
 
     useEffect(() => {
-      fetch(`${API_BASE_URL}/curso`)
-        .then((res) => res.json())
-        .then((data) => setCursos(data))
+      axios.get(`${API_BASE_URL}/curso`)
+        .then((res) => setCursos(res.data))
         .catch((err) => {
-          console.error("Error al obtener recetas:", err);
+          console.error("Error al obtener cursos:", err);
         });
     }, []);
+
 
         return(
             <ScrollView>

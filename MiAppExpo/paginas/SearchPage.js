@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
+import axios from 'axios';
+
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
@@ -20,22 +22,20 @@ export default function SearchPage({navigation}) {
     const [visible, setVisible]=useState(false);//prueba del sidemenu
 
           useEffect(() => {
-            fetch(`${API_BASE_URL}/recetas`)
-              .then((res) => res.json())
-              .then((data) => setRecetas(data))
-              .catch((err) => {
-                console.error("Error al obtener recetas:", err);
-              });
-          }, []);
+              axios.get(`${API_BASE_URL}/recetas`)
+                .then((res) => setRecetas(res.data))
+                .catch((err) => {
+                  console.error("Error al obtener recetas:", err);
+                });
+            }, []);
 
-          useEffect(() => {
-                      fetch(`${API_BASE_URL}/curso`)
-                        .then((res) => res.json())
-                        .then((data) => setCursos(data))
-                        .catch((err) => {
-                          console.error("Error al obtener recetas:", err);
-                        });
-                    }, []);
+            useEffect(() => {
+              axios.get(`${API_BASE_URL}/curso`)
+                .then((res) => setCursos(res.data))
+                .catch((err) => {
+                  console.error("Error al obtener cursos:", err);
+                });
+            }, []);
 
     const searchRecipe= async ()=>{
       try{

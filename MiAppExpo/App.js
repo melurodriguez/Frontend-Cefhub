@@ -18,6 +18,7 @@ import RecipeLoad from './paginas/RecipeLoad';
 import ProfileNotLogged from './paginas/ProfileNotLogged';
 import RegisterPage from './paginas/RegisterPage';
 import LoadedRecipe from './paginas/LoadedRecipe';
+import Splash from './paginas/Splash';
 
 //Stack.Navigator no deja espacio para elementos externos.
 //Bottom Tabs Navigation es lo adecuado para barras inferiores:
@@ -68,10 +69,10 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar style="auto"/>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName='Splash' screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={TabNavigator} />
 
-
+        <Stack.Screen name="Splash" component={Splash}/>
         <Stack.Screen name="LoginPage" component={LoginPage} />
         <Stack.Screen name="InfoCurso" component={InfoCurso} />
         <Stack.Screen name="InfoReceta" component={InfoReceta} />

@@ -24,7 +24,8 @@ export const colors={
   backgroundColorDark:"#E5CFB8",
   white:"#fff",
   black:"#000",
-  red:"#DA0404"
+  red:"#DA0404",
+  orange:"#c45335"
 }
 
 export default { sizes, fonts, colors };

@@ -12,13 +12,8 @@ export default function LoginForm({navigation}) {
    const [form, setForm] = useState({
         username: '',
         password: '',
+        rememberMe: false
     });
-
-    const [clicked, setClick]=useState(false)
-
-    function handleClick(){
-        setClick(!clicked)
-    }
 
     const handleChange = (name, value) => {
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -43,7 +38,7 @@ export default function LoginForm({navigation}) {
                 <TextInput style={styles.input} value={form.username} placeholder="Username" onChangeText={(value)=>{handleChange("username", value)}}></TextInput>
                 <TextInput style={styles.input} value={form.password} secureTextEntry placeholder="Password" onChangeText={(value)=>{handleChange("password", value)}}></TextInput>
                 <View style={styles.check}>
-                    <Checkbox value={clicked} onValueChange={handleClick}></Checkbox>
+                    <Checkbox value={form.rememberMe} onValueChange={()=>handleChange("rememberMe", !form.rememberMe)}></Checkbox>
                     <Text>Recordarme</Text>
                 </View>
                 <Pressable style={styles.button} onPress={()=>{sendData(form.username, form.password)}}>

@@ -1,15 +1,18 @@
 
-import { useState } from "react";
-import { View, Text, StyleSheet, Image, TextInput, Pressable} from "react-native";
-
-import login from "../backend/userController";
+import { useState , useEffect, useContext} from "react";
+import { View, Text, StyleSheet, Image, TextInput, Pressable, Alert} from "react-native";
 import Checkbox from "expo-checkbox";
+import AuthContext from '../auth/AuthContext';
+import * as SecureStore from 'expo-secure-store';
+import { sizes } from "../utils/themes";
 
 const welcomeIcon= require("../assets/welcomeIcon.png");
 
 export default function LoginForm({navigation}) {
 
-   const [form, setForm] = useState({
+    const { login } = useContext(AuthContext); //extraigo la funcion login del authprovider
+
+    const [form, setForm] = useState({
         username: '',
         password: '',
         rememberMe: false
@@ -20,13 +23,31 @@ export default function LoginForm({navigation}) {
     };
 
 
-    function sendData(username, password){
-        if(login(username, password)){
-            console.log("acceso admitido")
-        }else{
-            console.log("acceso denegado")
+
+    useEffect(()=>{
+        const cargarCredenciales= async ()=>{
+            const savedUsername= await SecureStore.getItemAsync('username')
+            const savedPassword= await SecureStore.getItemAsync('password')
+            if (savedUsername && savedPassword){
+                setForm((prev) => ({
+                    ...prev,
+                    username: savedUsername,
+                    password: savedPassword,
+                    rememberMe: true,
+                }));
+            }
         }
-    } 
+        cargarCredenciales()
+    },[])
+
+    const handleLogin = async () => {
+        try {
+            await login(form.username, form.password, form.rememberMe);
+            navigation.navigate('Main')
+        } catch (error) {
+            Alert.alert('Error', 'Credenciales inválidas o problema de red.');
+        }
+    };
 
     return(
   
@@ -41,7 +62,7 @@ export default function LoginForm({navigation}) {
                     <Checkbox value={form.rememberMe} onValueChange={()=>handleChange("rememberMe", !form.rememberMe)}></Checkbox>
                     <Text>Recordarme</Text>
                 </View>
-                <Pressable style={styles.button} onPress={()=>{sendData(form.username, form.password)}}>
+                <Pressable style={styles.button} onPress={handleLogin}>
                     <Text style={styles.btnText}>Ingresar</Text>
                 </Pressable>
                 <Pressable style={styles.btn} onPress={()=>navigation.navigate('RegisterPage')}><Text>No tenés cuenta? Registrate</Text></Pressable>
@@ -61,7 +82,8 @@ const styles=StyleSheet.create({
         height:442,
         justifyContent:"center",
         alignItems:"center",
-        borderColor:"#000"
+        borderColor:"#000",
+        borderRadius:sizes.radius
     },
     input:{
         width:277,

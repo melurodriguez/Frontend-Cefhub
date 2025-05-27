@@ -1,5 +1,7 @@
+import axios from 'axios'
 import { useState } from 'react'
 import {View, Text, Image, TextInput, Pressable, StyleSheet} from 'react-native'
+import API_BASE_URL from '../utils/config'
 
 export default function LoadForm({navigation}) {
 
@@ -18,6 +20,24 @@ export default function LoadForm({navigation}) {
         setRecipe((prev) => ({ ...prev, [name]: value }))
     }
 
+    const uploadRecipe= async()=>{
+        try{
+            const res= await axios.post(`${API_BASE_URL}/recetas`, {
+                                                                        name: recipe.name,
+                                                                        description: recipe.description,
+                                                                        ingredients: recipe.ingredients,
+                                                                        instructions: recipe.instructions,
+                                                                        tag: recipe.tag
+                                                                    })
+            const data= await res.data()
+
+            navigation.navigate('LoadedRecipe.js', {navigation})
+
+        }catch(err){
+            console.error("Error al crear receta: ", err)
+        }
+    }
+
 
 
     return(
@@ -25,7 +45,7 @@ export default function LoadForm({navigation}) {
             <View>
                 <View>
                     <Text>Nombre del plato</Text>
-                    <TextInput style={styles.input} value={recipe.name} onChangeText={(value)=>{handleChange('name', value)}}/>
+                    <TextInput style={styles.input} value={recipe.name} onChangeText={(value)=>{handleChange('name', value)}} />
                 </View>
                 <View>
                     <Text>Descripción del plato</Text>
@@ -33,11 +53,11 @@ export default function LoadForm({navigation}) {
                 </View>
                 <View>
                     <Text>Ingredientes</Text>
-                    <TextInput style={styles.input} value={recipe.ingredients} onChangeText={(value)=>{handleChange('ingredients', value)}}/>
+                    <TextInput style={styles.input} value={recipe.ingredients[recipe.ingredients.length-1]} onChangeText={(value)=>{handleChange('ingredients', value)}}/>
                 </View>
                 <View>
                     <Text>Pasos</Text>
-                    <TextInput style={styles.input} value={recipe.instructions.step} onChangeText={(value)=>{handleChange('instructions', value)}}/>
+                    <TextInput style={styles.input} value={recipe.instructions[recipe.instructions.length-1].step} onChangeText={(value)=>{handleChange('instructions', value)}}/>
                 </View>
                 <View>
                     <Text>Tags</Text>
@@ -46,7 +66,7 @@ export default function LoadForm({navigation}) {
                 
             </View>
             <View style={styles.btnContainer}>
-                <Pressable style={styles.button}onPress={()=>navigation.navigate('LoadedRecipe', {navigation})}><Text style={styles.btnText} >Cargar Receta</Text></Pressable>
+                <Pressable style={styles.button}onPress={uploadRecipe}><Text style={styles.btnText} >Cargar Receta</Text></Pressable>
             </View>
         </View>
     )

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View, Text, Image, StyleSheet } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
+import API_BASE_URL from "../utils/config";
 
 const location=require("../assets/location.png")
 const menu=require("../assets/menu.png")
@@ -10,102 +11,48 @@ const cheesecake=require("../assets/cheesecake.png")
 const star=require("../assets/star.png")
 const pasteleria=require("../assets/pasteleriaCurso.png")
 
-const recetas=[{
-  titulo:"Cheesecake",
-  descripcion:"Base crocante de vainilla y el relleno mas cremoso y suave.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:user
-  },
-  rating:{
-    puntos:4.0,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Burritos",
-  descripcion:"Tortilla de harina rellena de variedad de ingredientes. Hacelo a tu gusto!",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:user
-  },
-  rating:{
-    puntos:3.7,
-    icono:star
-  }
-  
-},
-{
-  titulo:"Pizza estilo Napolitana",
-  descripcion:"Masa fina y blanda, de lenta fermentación y alata temperatura de cocción.",
-  img: cheesecake,
-  autor:{
-    usuario:"Melina",
-    profilepic:user
-  },
-  rating:{
-    puntos:4.8,
-    icono:star
-  }
-  
-}]
-
-const cursos=[
-    {
-        titulo:"Titulo del Curso",
-        descripcion:"Descripcion del Curso Descripcion del Curso Descripcion del Curso Descripcion del Curso",
-        img:pasteleria,
-        completion:"70% Completado",
-        sede:{
-            icono:location,
-            nombre:"Sede Montserrat"
-        }
-    },
-    {
-        titulo:"Titulo del Curso",
-        descripcion:"Descripcion del Curso Descripcion del Curso Descripcion del Curso Descripcion del Curso",
-        img:pasteleria,
-        completion:"70% Completado",
-        sede:{
-            icono:location,
-            nombre:"Sede Montserrat"
-        }
-    },
-    {
-        titulo:"Titulo del Curso",
-        descripcion:"Descripcion del Curso Descripcion del Curso Descripcion del Curso Descripcion del Curso",
-        img:pasteleria,
-        completion:"70% Completado",
-        sede:{
-            icono:location,
-            nombre:"Sede Montserrat"
-        }
-    },
-    {
-        titulo:"Titulo del Curso",
-        descripcion:"Descripcion del Curso Descripcion del Curso Descripcion del Curso Descripcion del Curso",
-        img:pasteleria,
-        completion:"70% Completado",
-        sede:{
-            icono:location,
-            nombre:"Sede Montserrat"
-        }
-    }
-]
 
 export default function Profile() {
 
     const [pressed, setPressed]=useState(0)
+    const [recetas, setRecetas]=useState([])
+    const [cursos, setCursos]=useState([])
 
     const buttons=["Mis Favoritos", "Mis Cursos"]
 
     function handleClick(index){
         setPressed(index)
+        if (index === 0){
+            favorite_recipes()
+        }else{
+            courses()
+        }
     }
 
+    const favorite_recipes= async ()=>{
+        try{
+            const res= await fetch(`${API_BASE_URL}/me/recetas_favoritas`)
+            const data= await res.json()
+            setRecetas(data)
+        }catch(error){
+            console.error("Error al obtener recetas favoritas: ", error)
+        }
+    }
+
+    const courses= async ()=>{
+        try{
+            const res= await fetch(`${API_BASE_URL}/me/cursos`)
+            const data= await res.json()
+            setCursos(data)
+        }catch(error){
+            console.error("Error al obtener mis cursos: ", error)
+        }
+    }
+
+   
+    useEffect(() => {
+        favorite_recipes();
+    }, []);
 
     return(
         <View>
@@ -129,7 +76,7 @@ export default function Profile() {
                     </Pressable>
                 ))}
             </View>
-            <Text style={{fontWeight:"700", fontSize:20}}>{pressed === 1 ? buttons[1] : buttons[0]}</Text>
+            <Text style={{fontWeight:"700", fontSize:20}}>{buttons[pressed]}</Text>
             <View>
                 {pressed === 0 && recetas.map((receta, index)=>(
                     <View key={index} style={styles.receta}>

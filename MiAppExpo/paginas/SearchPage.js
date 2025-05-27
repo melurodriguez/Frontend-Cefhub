@@ -1,38 +1,57 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
-import axios from 'axios';
-
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
+import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
+import SideMenu from "../components/SideMenu.js";
 
 const menu=require("../assets/menu.png")
 const searchIcon=require("../assets/search.png")
 const filter=require("../assets/filter.png")
 
-import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
+
 
 
 export default function SearchPage({navigation}) {
     const [search, setSearch] = useState('');
     const [recetas, setRecetas] = useState([]);
     const [cursos, setCursos] = useState([]);
+    const [visible, setVisible]=useState(false);//prueba del sidemenu
 
           useEffect(() => {
-              axios.get(`${API_BASE_URL}/recetas`)
-                .then((res) => setRecetas(res.data))
-                .catch((err) => {
-                  console.error("Error al obtener recetas:", err);
-                });
-            }, []);
+            fetch(`${API_BASE_URL}/recetas`)
+              .then((res) => res.json())
+              .then((data) => setRecetas(data))
+              .catch((err) => {
+                console.error("Error al obtener recetas:", err);
+              });
+          }, []);
 
-            useEffect(() => {
-              axios.get(`${API_BASE_URL}/curso`)
-                .then((res) => setCursos(res.data))
-                .catch((err) => {
-                  console.error("Error al obtener cursos:", err);
-                });
-            }, []);
+          useEffect(() => {
+                      fetch(`${API_BASE_URL}/curso`)
+                        .then((res) => res.json())
+                        .then((data) => setCursos(data))
+                        .catch((err) => {
+                          console.error("Error al obtener recetas:", err);
+                        });
+                    }, []);
+
+    const searchRecipe= async ()=>{
+      try{
+        const res= await fetch(`${API_BASE_URL}/recetas?q=${search}`)
+        const data= await res.json()
+        setRecetas(data)
+        console.log('receta traida')
+      }catch(error){
+        console.error("Error al buscar recetas: ", error )
+      }
+    }
+
+    const handleMenu=()=>{
+      setVisible(!visible)
+    }
+    
 
 
 
@@ -41,13 +60,13 @@ export default function SearchPage({navigation}) {
         <ScrollView>
             <View style={styles.header}>
                 <Text style={styles.pageTitle}>Búsqueda</Text>
-                <Pressable><Image source={menu}></Image></Pressable>
-                
+                <Pressable onPress={handleMenu}><Image source={menu}></Image></Pressable>
+                { visible && <SideMenu/>}
             </View>
             
             <View style={styles.resultTitle}>
                <TextInput value={search} placeholder="Search" onChangeText={setSearch} style={styles.input}></TextInput>
-               <Pressable><Image source={searchIcon} style={{tintColor:"#000"}}/></Pressable>
+               <Pressable onPress={searchRecipe}><Image source={searchIcon} style={{tintColor:"#000"}}/></Pressable>
             </View>
 
             <View>

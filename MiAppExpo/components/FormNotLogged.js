@@ -3,18 +3,20 @@ import { sizes } from "../utils/themes";
 
 const thinkingCat=require("../assets/thinkingCat.png");
 
-export default function FormNotLogged() {
+export default function FormNotLogged({navigation}) {
+
+
     return(
         <View style={styles.container}>
             <Text style={styles.title}>No estás registrado</Text>
             <View style={styles.card}>
-                <View style={styles.innerShadow}></View>
+                <View style={styles.innerShadow}></View>   
                 <Image source={thinkingCat} style={styles.catImage}></Image>
                 <View style={styles.buttonContainer}>
-                    <Pressable style={styles.button}>
+                    <Pressable style={styles.button} onPress={()=> navigation.navigate('LoginPage')}>
                         <Text style={styles.text}>Ingresar</Text>
                     </Pressable>
-                    <Pressable style={styles.button}>
+                    <Pressable style={styles.button} onPress={()=> navigation.navigate('RegisterForm')}>
                         <Text style={styles.text}>Registrarme</Text>
                     </Pressable>
                 </View>
@@ -26,8 +28,8 @@ export default function FormNotLogged() {
 const styles=StyleSheet.create({
     card:{
         backgroundColor:"#f1f5f5",
-        width:327,
-        height:297,
+        width:sizes.width*0.8,
+        height:sizes.height*0.33,
         borderRadius:15,
         position: 'relative',
 
@@ -62,13 +64,13 @@ const styles=StyleSheet.create({
         top: -90, // la mitad de la altura para que sobresalga
         alignSelf: 'center',
         zIndex: 1,
-        width:sizes.width*0.05,
-        height:sizes.height*0.05
+        width:sizes.width*0.27,
+        height:sizes.height*0.17
     },
     container:{
         alignItems:"center"
     },
-    innerShadow: {
+    innerShadow: {  //retocar sombra
         position: 'absolute',
         top: 0,
         left: 0,
@@ -79,8 +81,8 @@ const styles=StyleSheet.create({
         zIndex: 0,
         shadowColor: '#000',
         shadowOffset: {
-          width: -2,
-          height: -2,
+          width: 2,
+          height: 2,
         },
         shadowOpacity: 0.15,
         shadowRadius: 8,

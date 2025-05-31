@@ -2,7 +2,8 @@ import { StyleSheet, View, Text, Image } from "react-native"
 
 const user=require("../assets/user.png")
 
-export default function CardCreator() {
+export default function CardCreator({alias}) {
+
     return(
         <View style={styles.container}>
             <Text style={styles.creador}>Creador</Text>
@@ -11,8 +12,8 @@ export default function CardCreator() {
                     <Image source={user} style={styles.img}/>
                 </View>
                 <View style={styles.datosContainer}>
-                    <Text>Nombre creador</Text>
-                    <Text>lalalalallallalalalallalal</Text>
+                    <Text>{alias}</Text>
+                    
                 </View>
 
             </View>

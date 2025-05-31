@@ -18,9 +18,10 @@ import RegisterPage from './paginas/RegisterPage';
 import LoadedRecipe from './paginas/LoadedRecipe';
 import Splash from './paginas/Splash';
 import { useContext } from 'react';
-import AuthContext from './auth/AuthContext';
+import {AuthContext} from './auth/AuthContext';
 import FormNotLogged from './components/FormNotLogged';
-import AuthProvider from './auth/AuthProvider';
+import SecondStepRegister from './paginas/SecondStepRegister';
+import ThirdStepRegister from './paginas/ThirdStepRegister';
 
 
 const Stack= createNativeStackNavigator();
@@ -59,7 +60,7 @@ function TabNavigator() {
 }
 
 function AppNavigator() {
-  const { userToken } = useContext(AuthContext);
+  const { userToken, loading } = useContext(AuthContext);
   const context = useContext(AuthContext);
   console.log("Contexto actual:", context);
 
@@ -68,6 +69,7 @@ function AppNavigator() {
     <NavigationContainer>
       <StatusBar style="auto" />
       <Stack.Navigator initialRouteName='Splash' screenOptions={{ headerShown: false }}>
+       
         {userToken
           ? <Stack.Screen name="Main" component={TabNavigator} />
           : <Stack.Screen name="Perfile" component={FormNotLogged} />
@@ -82,6 +84,9 @@ function AppNavigator() {
         <Stack.Screen name="RegisterPage" component={RegisterPage} />
         <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
         <Stack.Screen name="Main" component={TabNavigator} />
+        <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />
+        <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

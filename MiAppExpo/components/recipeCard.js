@@ -1,20 +1,19 @@
 import { View, Image, StyleSheet, Text, Pressable } from "react-native";
+import API_BASE_URL from "../utils/config";
 const star=require("../assets/star.png")
 const userIcon=require("../assets/user.png")
 
-const onPress =()=>{
-    console.log("clickeada")
-}
 
-export default function RecipeCard({data, onPress }) {
+
+export default function RecipeCard({data, onPress, navigation }) {
     return (
-        <Pressable onPress={onPress }>
+        <Pressable onPress={onPress} >
           <View style={styles.innerShadow}></View>
           <View style={styles.container}>
             <View style={styles.fila}>
               <View style={styles.imgContainer}>
                 <Image
-                  source={{ uri: `http://10.0.2.2:8000/static/${data.imagen_receta_url}` }}
+                  source={{ uri: `${API_BASE_URL}/static/${data.imagen_receta_url}` }}
                   style={styles.img}
                 />
               </View>

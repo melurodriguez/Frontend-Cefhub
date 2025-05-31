@@ -2,6 +2,9 @@ import axios from 'axios'
 import { useState } from 'react'
 import {View, Text, Image, TextInput, Pressable, StyleSheet} from 'react-native'
 import API_BASE_URL from '../utils/config'
+import { colors, fonts, sizes } from '../utils/themes'
+
+const plus=require('../assets/plus.png')
 
 export default function LoadForm({navigation}) {
 
@@ -13,7 +16,7 @@ export default function LoadForm({navigation}) {
             step:"",
             media:"",
         }],
-        tag:""
+        tags:[]
     })
 
     const handleChange=(name, value)=>{
@@ -27,7 +30,7 @@ export default function LoadForm({navigation}) {
                                                                         description: recipe.description,
                                                                         ingredients: recipe.ingredients,
                                                                         instructions: recipe.instructions,
-                                                                        tag: recipe.tag
+                                                                        tags: recipe.tags
                                                                     })
             const data= await res.data()
 
@@ -61,7 +64,21 @@ export default function LoadForm({navigation}) {
                 </View>
                 <View>
                     <Text>Tags</Text>
-                    <TextInput style={styles.input} value={recipe.tag} onChangeText={(value)=>{handleChange('tag', value)}}/>
+
+
+                    <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 10 }}>
+                        {recipe.tags.map((tag, index) => (
+                            <View key={index} style={[styles.tag, { margin: 5, padding: 8, borderRadius: 12 }]}>
+                                <Text style={styles.tagText}>{tag}</Text>
+                            </View>
+                        ))}
+                    </View>
+
+                    <View style={styles.row}>
+                        <TextInput style={styles.input} value={recipe.tags[recipe.tags.length-1]} onChangeText={(value)=>{handleChange('tag', value)}}/>
+                        <Pressable><Image source={plus}/></Pressable>
+                    </View>
+                    
                 </View>
                 
             </View>
@@ -83,27 +100,42 @@ const styles=StyleSheet.create({
         height: 50,
         borderColor: '#d9d9d9',
         borderWidth: 1,
-        marginBottom: 20,
+        marginVertical: 20,
         paddingHorizontal: 10,
         borderRadius:15,
         backgroundColor:"#f1f5f5"
     },
     btnContainer:{
         justifyContent:"center",
-        alignItems:"flex-end"
+        alignItems:"flex-end",
+        width:sizes.width
     },
     button:{
         backgroundColor:"#505c86",
         borderRadius:15,
         justifyContent:"center",
         alignItems:"center",
-        width:277,
+        width:"auto",
         height:50,
         margin: 20,
+        padding:sizes.padding,
+        alignSelf:"flex-end"
     },
     btnText:{
         color:"#fff",
         fontWeight:700,
-        fontSize:20
+        fontSize:fonts.small
     },
+    row:{
+        flexDirection:"row",
+        alignItems:"center"
+    },
+    tag:{
+        backgroundColor:colors.primary,
+    },
+    tagText:{
+        color:colors.white,
+        fontSize:fonts.small,
+        fontWeight:fonts.bold
+    }
 })

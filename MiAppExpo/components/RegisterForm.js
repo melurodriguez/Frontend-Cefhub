@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { StyleSheet, View, Text, Image, Pressable, TextInput } from "react-native"
 import { sizes } from "../utils/themes";
+import API_BASE_URL from "../utils/config";
 
 
 const welcomeIcon=require("../assets/welcomeIcon.png")
@@ -18,11 +19,29 @@ export default function RegisterForm({navigation}) {
     };
 
 
-    function sendData(email, username){
-        if(usernameAvailable(username)){
-            console.log("ussername valido, siguiente paso")
-        }else{
-            console.log("username no valido, reintentar")
+
+    const handleFirstStep=async()=>{
+        try{
+
+            const res= await fetch(`${API_BASE_URL}/register`,{
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            email: form.email,
+                                            username: form.username,
+                                    })
+                                })
+
+            const data = await res.json();
+            console.log("Respuesta del backend:", data);
+            navigation.navigate('SecondStepRegister')
+
+
+        }catch(err){
+            console.error("Error al registrar:", err);
+
         }
     }
 
@@ -35,7 +54,7 @@ export default function RegisterForm({navigation}) {
                     <TextInput value={form.email} placeholder="Correo" onChangeText={(value) => handleChange('email', value)} style={styles.input}/>
                     <TextInput value={form.username}  placeholder="Nombre de Usuario" onChangeText={(value) => handleChange('username', value)} style={styles.input}/>
 
-                    <Pressable style={styles.button} onPress={()=>{sendData(form.email, form.username)}}><Text style={styles.btnText}>Registarme</Text></Pressable>
+                    <Pressable style={styles.button} onPress={handleFirstStep}><Text style={styles.btnText}>Registarme</Text></Pressable>
 
                 </View>  
             </View>

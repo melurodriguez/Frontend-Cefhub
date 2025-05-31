@@ -7,10 +7,12 @@ import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
 import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 import SideMenu from "../components/SideMenu.js";
+import { colors } from "../utils/themes.js";
 
 const menu=require("../assets/menu.png")
 const searchIcon=require("../assets/search.png")
 const filter=require("../assets/filter.png")
+const backArrow=require('../assets/backArrow.png')
 
 
 
@@ -59,6 +61,7 @@ export default function SearchPage({navigation}) {
     return(
         <ScrollView>
             <View style={styles.header}>
+                <Pressable onPress={()=>navigation.goBack()}><Image source={backArrow} style={{tintColor:colors.black}}/></Pressable>
                 <Text style={styles.pageTitle}>Búsqueda</Text>
                 <Pressable onPress={handleMenu}><Image source={menu}></Image></Pressable>
                 { visible && <SideMenu/>}

@@ -1,5 +1,6 @@
 import { StyleSheet, View, Text, Image, Pressable } from "react-native";
 import InfoCurso from "../paginas/InfoCurso";
+import API_BASE_URL from "../utils/config";
 
 
 const onPress =()=>{
@@ -14,7 +15,7 @@ export default function CardCurso({data, onPress }) {
                         <View style={styles.fila}>
                             <View style={styles.imgContainer}>
                                 <Image
-                                  source={{ uri: `http://10.0.2.2:8000/static/${data.imagen_curso_url}` }}
+                                  source={{ uri: `${API_BASE_URL}/static/${data.imagen_curso_url}` }}
                                   style={styles.img}/>
                             </View>
                             <View style={styles.cursoContainer}>

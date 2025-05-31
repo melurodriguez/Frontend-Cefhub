@@ -3,11 +3,12 @@ import { TextInput } from 'react-native-paper'
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
 
-export default function CodeForm() {
+export default function CodeForm({navigation}) {
 
 
     function sendData(){
         console.log("sent")
+        navigation.navigate('ThirdStepRegister')
     }
     return(
         <View style={styles.container}>

@@ -3,16 +3,18 @@ import CardNotification from '../components/CardNotification'
 import {sizes, fonts, colors} from '../utils/themes'
 import { notifUserId } from '../backend/notifController'
 import { FlatList } from 'react-native'
+import AuthContext from '../auth/AuthContext'
+import { useContext } from 'react'
 
 const notifCat=require("../assets/notifCat.png")
-const notifs=notifUserId(1)
-console.log("notifs", notifs); // Debería mostrar un array
+//const { notifications } = useContext(AuthContext);
+
 
 export default function Notificaciones({navigation}) {
     return(
         <FlatList 
             contentContainerStyle={styles.container}
-            data={notifs}
+            data={notifications}
             keyExtractor={(item)=> item.id.toString()}
             ListHeaderComponent={
                 <View style={styles.header}>
@@ -47,7 +49,7 @@ const styles=StyleSheet.create({
         fontSize:fonts.large
     },
     catImage:{
-        width:sizes.width*0.05,
-        height:sizes.height*0.1
+        width:80,
+        height:80
     }
 })

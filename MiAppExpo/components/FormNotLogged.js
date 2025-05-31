@@ -16,7 +16,7 @@ export default function FormNotLogged({navigation}) {
                     <Pressable style={styles.button} onPress={()=> navigation.navigate('LoginPage')}>
                         <Text style={styles.text}>Ingresar</Text>
                     </Pressable>
-                    <Pressable style={styles.button} onPress={()=> navigation.navigate('RegisterForm')}>
+                    <Pressable style={styles.button} onPress={()=> navigation.navigate('RegisterPage')}>
                         <Text style={styles.text}>Registrarme</Text>
                     </Pressable>
                 </View>

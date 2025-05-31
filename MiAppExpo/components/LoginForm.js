@@ -2,7 +2,7 @@
 import { useState , useEffect, useContext} from "react";
 import { View, Text, StyleSheet, Image, TextInput, Pressable, Alert} from "react-native";
 import Checkbox from "expo-checkbox";
-import AuthContext from '../auth/AuthContext';
+import {AuthContext} from '../auth/AuthContext';
 import * as SecureStore from 'expo-secure-store';
 import { sizes } from "../utils/themes";
 
@@ -38,11 +38,21 @@ export default function LoginForm({navigation}) {
             }
         }
         cargarCredenciales()
+        //handleLogin() --> es menos seguro
     },[])
 
     const handleLogin = async () => {
         try {
             await login(form.username, form.password, form.rememberMe);
+
+            if (form.rememberMe) {
+                await SecureStore.setItemAsync('username', form.username);
+                await SecureStore.setItemAsync('password', form.password);
+            } else {
+                await SecureStore.deleteItemAsync('username');
+                await SecureStore.deleteItemAsync('password');
+            }
+
             navigation.navigate('Main')
         } catch (error) {
             Alert.alert('Error', 'Credenciales inválidas o problema de red.');

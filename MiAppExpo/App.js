@@ -1,4 +1,4 @@
-import AuthProvider from './auth/AuthProvider';
+import { AuthProvider } from './auth/AuthContext';
 import AppNavigator from './AppNavigator';
 
 //Stack.Navigator no deja espacio para elementos externos.
@@ -8,12 +8,9 @@ import AppNavigator from './AppNavigator';
 //navbar fuera del scroll view para q se manetnga fija
 
 
-
-
-
-
 export default function App() {
-
+  console.log(AuthProvider)
+  console.log(AppNavigator)
   return (
     <AuthProvider>
       <AppNavigator/>

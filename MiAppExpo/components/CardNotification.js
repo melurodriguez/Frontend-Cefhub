@@ -4,6 +4,9 @@ import {sizes, fonts, colors} from '../utils/themes'
 
 
 export default function CardNotification({media, subject}) {
+
+    
+
     return(
         <View style={styles.container} >
             <View style={styles.innerShadow}></View>

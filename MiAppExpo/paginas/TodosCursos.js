@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
 import axios from 'axios';
+import { colors } from "../utils/themes.js";
 
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
@@ -8,6 +9,7 @@ import { ScrollView } from "react-native";
 const menu=require("../assets/menu.png")
 const searchIcon=require("../assets/search.png")
 const filter=require("../assets/filter.png")
+const backArrow=require('../assets/backArrow.png')
 
 import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 
@@ -28,6 +30,7 @@ export default function TodosCursos({navigation}) {
         return(
             <ScrollView>
                 <View style={styles.header}>
+                    <Pressable onPress={()=>navigation.goBack()}><Image source={backArrow} style={{tintColor:colors.black}}/></Pressable>
                     <Text style={styles.pageTitle}>Búsqueda</Text>
                     <Pressable><Image source={menu}></Image></Pressable>
 
@@ -47,7 +50,7 @@ export default function TodosCursos({navigation}) {
                   </View>
 
                     {cursos.map((curso, index) => (
-                      <Pressable style={styles.card} key={index} onPress={() => navigation.navigate('InfoCurso')}>
+                      <Pressable style={styles.card} key={index} onPress={() => navigation.navigate('InfoCurso', {curso})}>
                         <CardCurso data={curso} />
                       </Pressable>))}
 
@@ -74,6 +77,7 @@ const styles=StyleSheet.create({
     header:{
         flexDirection:"row",
         justifyContent:"space-between",
+        width:"100%",
         padding:10,
         marginBottom:10,
         marginTop:40

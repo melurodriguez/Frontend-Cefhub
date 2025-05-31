@@ -5,6 +5,7 @@ import CardInstructions from "../components/CardInstructions"
 import PopUp from "../components/PopUp"
 import CardCreator from "../components/CardCreator"
 import { useRoute } from '@react-navigation/native';
+import axios from "axios"
 
 
 const medialunas=require("../assets/medialunas.png")
@@ -15,7 +16,7 @@ const paso1=require('../assets/paso1.png')
 
 const {width, height}=Dimensions.get('window') //CAMBIAR
 
-export default function InfoReceta({navigation}) {
+export default function InfoReceta({ navigation}) {
     const route=useRoute()
     const {receta}= route.params
 
@@ -28,67 +29,31 @@ export default function InfoReceta({navigation}) {
         setPressed(index)
     }
 
-    function handleLike(){
-        setLike(!like)
-        setPopUpVisible(!visible)
+    const handleLike = async ()=>{
+        try{
+            const res= await fetch(`${API_BASE_URL}/me/recetas_favoritas/${receta.id}`)
+            setLike(!like)
+            setPopUpVisible(!visible)
+
+        }catch(err){
+            
+        }
+        
     }
 
 
     const ingredientes="Ingredientes"
     const instrucciones="Instrucciones"
     const buttons=[ingredientes, instrucciones]
-    const ingredients=[
-        {
-            id:1,
-            name:"Harina",
-            quantity:"250 gr"
-        },
-        {
-            id:2,
-            name:"Azucar",
-            quantity:"100 gr"
-        },
-        {
-            id:3,
-            name:"Manteca",
-            quantity:"50 gr"
-        },
-        {
-            id:4,
-            name:"Huevos",
-            quantity:"3 unidades"
-        }
-    ]
-    const instructions=[
-        {
-            id:1,
-            instruccion:"paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1",
-            media:paso1,
-        },
-        {
-            id:2,
-            instruccion:"paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1",
-            media:paso1,
-        },
-        {
-            id:3,
-            instruccion:"paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1",
-            media:paso1,
-        },
-        {
-            id:4,
-            instruccion:"paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1 paso 1",
-            media:paso1,
-        }
-    ]
+   
 
     return(
         <View style={styles.container}>
             
             
-            <ImageBackground source={medialunas} style={styles.img} resizeMode="cover">
+            <ImageBackground source={receta.imagen_receta_url} style={styles.img} resizeMode="cover">
                 <View style={styles.btnContainer}>
-                    <Pressable onPress={()=>navigation.navigate('')}><Image source={cancel}/></Pressable>
+                    <Pressable onPress={()=>navigation.goBack()}><Image source={cancel}/></Pressable>
                     <Pressable onPress={handleLike} ><Image source={like ? favClicked : fav}/></Pressable>
                 </View>
                 
@@ -98,8 +63,8 @@ export default function InfoReceta({navigation}) {
             </ImageBackground>
             <View style={styles.infoContainer}>
 
-                <Text style={styles.titulo}>Titulo de la Receta</Text>
-                <Text>Descripcion de la receta Descripcion de la receta Descripcion de la receta Descripcion de la receta</Text>
+                <Text style={styles.titulo}>{receta.nombre}</Text>
+                <Text>{receta.descripcion}</Text>
                 <View style={styles.botones}>
                     {buttons.map((title, index)=>[
                         <Pressable key={index} onPress={()=>handleClick(index)} style={[styles.btn, isPressed === index && styles.pressed]}>
@@ -111,17 +76,17 @@ export default function InfoReceta({navigation}) {
                 </View>
                 <Text style={styles.seleccionado}>{isPressed === 1 ? instrucciones : ingredientes}</Text>
                 <View>
-                    {isPressed === 0 && ingredients.map((i, index)=>(
-                        <CardIngredient key={i.id} name={i.name} quantity={i.quantity}/>
+                    {isPressed === 0 && receta.ingredientes?.map((i, index)=>(
+                        <CardIngredient key={index} name={i.nombre} quantity={i.cantidad}/>
                     )) }
 
-                    {isPressed === 1 && instructions.map((inst, index)=>(
-                        <CardInstructions key={inst.id} desc={inst.instruccion} media={inst.media} index={index}/>
+                    {isPressed === 1 && receta.pasos?.map((inst, index)=>(
+                        <CardInstructions key={index} desc={inst.descripcion} media={inst.video_url} index={index}/>
                     ))}
 
                 </View>
 
-                <CardCreator/>
+                <CardCreator alias={receta.usuarioCreador}/>
             </View>
            
 
@@ -170,7 +135,7 @@ const styles=StyleSheet.create({
     
     btn:{
         backgroundColor:"#f1f5f5",
-        width:width*0.1,    //en mobile la medida puede cambiar
+        width:165,    //en mobile la medida puede cambiar
         height:41,
         borderRadius:15,
         alignItems:"center",

@@ -1,5 +1,6 @@
 import { ImageBackground, StyleSheet, View, Text, Dimensions, Pressable, Image } from "react-native";
 import CardSedes from "../components/CardSedes";
+import { useRoute } from "@react-navigation/native";
 
 
 const {height}=Dimensions.get('window') //CAMBIAR
@@ -7,8 +8,10 @@ const {height}=Dimensions.get('window') //CAMBIAR
 const cancel=require('../assets/cancel.png')
 const pasteleria=require('../assets/pasteleriaCurso.png')
 
-export default function InfoCurso() {
+export default function InfoCurso({navigation}) {
 
+    const route=useRoute()
+    const {curso}=route.params
 
 
     const sedes=[
@@ -50,18 +53,28 @@ export default function InfoCurso() {
 
     return(
         <View style={styles.container}>
-            <ImageBackground source={pasteleria} resizeMode="cover" style={styles.imgBg}>
+            <ImageBackground source={curso.imagen_curso_url} resizeMode="cover" style={styles.imgBg}>
                 <View>
-                    <Pressable><Image source={cancel}/></Pressable>                   
+                    <Pressable onPress={()=>{navigation.goBack()}}><Image source={cancel}/></Pressable>                   
                 </View>
             </ImageBackground>
             <View style={styles.infoContainer}>
-                <Text style={styles.titulo}>Nombre del Curso</Text>
-                <Text style={styles.desc}>Descripcion del curso Descripcion del curso Descripcion del curso Descripcion del curso Descripcion del curso</Text>
+                <Text style={styles.titulo}>{curso.nombre}</Text>
+                <Text style={styles.desc}>{curso.descripcion_breve}</Text>
                 <Text style={styles.objetivo}>Objetivo</Text>
-                <Text style={styles.objDesc}>Brindar a los participantes los conocimientos y técnicas fundamentales de la pastelería clásica y moderna, para que puedan elaborar una variedad de tortas, tartas, masas y postres con precisión y creatividad. 
-                El curso apunta a desarrollar habilidades prácticas que permitan tanto iniciarse en el mundo de la pastelería como perfeccionar lo aprendido, fomentando la confianza y el disfrute en cada preparación.</Text>
-
+                <Text style={styles.objDesc}>{curso.descripcion_completa}</Text>
+                <Text style={styles.objetivo}>Temas</Text>
+                {curso.temas?.map((tema, index)=>{
+                    <Text key={index}>{tema[index]}</Text>
+                })}
+                <Text style={styles.objetivo}>Prácticas</Text>
+                {curso.practicas?.map((practica, index)=>{
+                    <Text key={index}>{practica[index]}</Text>
+                })}
+                <Text style={styles.objetivo}>Insumos</Text>
+                {curso.insumos?.map((insumo, index)=>{
+                    <Text key={index}>{insumo[index]}</Text>
+                })}
 
                 {sedes.map((sede, index)=>(
                     <CardSedes key={sede.id} sede={sede} />

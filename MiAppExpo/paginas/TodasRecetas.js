@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, Image, Pressable} from "react-native";
 import axios from 'axios';
+import { colors } from "../utils/themes.js";
 
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
@@ -8,11 +9,15 @@ import { ScrollView } from "react-native";
 const menu=require("../assets/menu.png")
 const searchIcon=require("../assets/search.png")
 const filter=require("../assets/filter.png")
+const backArrow=require('../assets/backArrow.png')
 
 import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 
 
 export default function TodasRecetas({navigation}) {
+
+
+
     const [search, setSearch] = useState('');
     const [recetas, setRecetas] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
@@ -29,6 +34,7 @@ export default function TodasRecetas({navigation}) {
         return(
             <ScrollView>
                 <View style={styles.header}>
+                    <Pressable onPress={()=>navigation.goBack()}><Image source={backArrow} style={{tintColor:colors.black}}/></Pressable>
                     <Text style={styles.pageTitle}>Búsqueda</Text>
                     <Pressable><Image source={menu}></Image></Pressable>
 

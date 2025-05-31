@@ -33,8 +33,8 @@ const styles=StyleSheet.create({
         alignItems:"center"
     },
     icon:{
-        height:sizes.height*0.3,
-        width:sizes.width*0.2
+        height:135,
+        width:135
     },
     text:{
         color: colors.orange,

@@ -1,25 +1,31 @@
-import { useState } from "react"
-import { StyleSheet, View, Text, Image, Pressable, ImageBackground,Dimensions  } from "react-native"
+import { useState, useEffect } from "react"
+import { StyleSheet, View, Text, Image, Pressable, ImageBackground,Dimensions, ScrollView  } from "react-native"
 import CardIngredient from "../components/CardIngredient"
 import CardInstructions from "../components/CardInstructions"
 import PopUp from "../components/PopUp"
 import CardCreator from "../components/CardCreator"
 import { useRoute } from '@react-navigation/native';
 import axios from "axios"
+import API_BASE_URL from "../utils/config"
 
-
-const medialunas=require("../assets/medialunas.png")
 const cancel=require("../assets/cancel.png")
 const fav=require("../assets/fav.png")
 const favClicked=require("../assets/favClicked.png")
-const paso1=require('../assets/paso1.png')
+
 
 const {width, height}=Dimensions.get('window') //CAMBIAR
 
 export default function InfoReceta({ navigation}) {
-    const route=useRoute()
-    const {receta}= route.params
+    const route = useRoute();
+    const { id } = route.params;
 
+    const[receta, setReceta]=useState(null)
+
+    useEffect(() => {
+        axios.get(`${API_BASE_URL}/recetas/${id}`)
+            .then(res => setReceta(res.data))
+            .catch(err => console.error(err));
+    }, []);
 
     const [isPressed,setPressed]=useState(0);
     const[like, setLike]=useState(false);
@@ -35,9 +41,10 @@ export default function InfoReceta({ navigation}) {
             setLike(!like)
             setPopUpVisible(!visible)
 
-        }catch(err){
-            
+        } catch (err) {
+            console.error('Error al marcar como favorito:', err);
         }
+
         
     }
 
@@ -46,9 +53,15 @@ export default function InfoReceta({ navigation}) {
     const instrucciones="Instrucciones"
     const buttons=[ingredientes, instrucciones]
    
+    if (!receta) {
+    return <Text style={{justifyContent:"center", alignItems:"center", fontWeight:"700"}}>Cargando receta...</Text>; 
+    }
+
 
     return(
-        <View style={styles.container}>
+        <ScrollView>
+             <View style={styles.container}>
+            
             
             
             <ImageBackground source={receta.imagen_receta_url} style={styles.img} resizeMode="cover">
@@ -57,8 +70,12 @@ export default function InfoReceta({ navigation}) {
                     <Pressable onPress={handleLike} ><Image source={like ? favClicked : fav}/></Pressable>
                 </View>
                 
-                {like && <PopUp action={"Se ha añadido tu receta a favoritos"} visible={visible} onClose={()=>setPopUpVisible(false)}  duration={2000} />}
-                { !like && <PopUp action={"Se ha eliminado tu receta de favoritos"} visible={visible} onClose={()=>setPopUpVisible(false)}  duration={2000}/>}
+                <PopUp 
+                    action={like ? "Se ha añadido tu receta a favoritos" : "Se ha eliminado tu receta de favoritos"} 
+                    visible={visible} 
+                    onClose={() => setPopUpVisible(false)} 
+                    duration={2000}
+                />
                 
             </ImageBackground>
             <View style={styles.infoContainer}>
@@ -66,12 +83,12 @@ export default function InfoReceta({ navigation}) {
                 <Text style={styles.titulo}>{receta.nombre}</Text>
                 <Text>{receta.descripcion}</Text>
                 <View style={styles.botones}>
-                    {buttons.map((title, index)=>[
+                    {buttons.map((title, index)=>(
                         <Pressable key={index} onPress={()=>handleClick(index)} style={[styles.btn, isPressed === index && styles.pressed]}>
                             <Text style={[styles.btnText, isPressed === index && styles.pressed]}>{title}</Text>
                         </Pressable>
 
-                    ])}
+                    ))}
                     
                 </View>
                 <Text style={styles.seleccionado}>{isPressed === 1 ? instrucciones : ingredientes}</Text>
@@ -91,6 +108,8 @@ export default function InfoReceta({ navigation}) {
            
 
         </View>
+        </ScrollView>
+       
     )
 }
 

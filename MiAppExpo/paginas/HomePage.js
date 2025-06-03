@@ -18,6 +18,8 @@ export default function HomePage({navigation}) {
           });
       }, []);
 
+    
+
 
   return(
       <ScrollView contentContainerStyle={styles.container}>
@@ -29,8 +31,8 @@ export default function HomePage({navigation}) {
           <Text style={styles.rr}>Recetas Recientes</Text>
       
             {recetas.map((receta, index)=>(
-                  <Pressable style={styles.card} key={index} onPress={()=>navigation.navigate('InfoReceta', {receta})}>
-                    <RecipeCard data={receta}/>
+                  <Pressable style={styles.card} key={index} >
+                    <RecipeCard data={receta} onPress={()=>navigation.navigate('InfoReceta', {id:receta.id})}/>
                   </Pressable>
               ))}
 

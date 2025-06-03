@@ -1,6 +1,8 @@
 import { ImageBackground, StyleSheet, View, Text, Dimensions, Pressable, Image } from "react-native";
 import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
+import { useEffect } from "react";
+import API_BASE_URL from "../utils/config";
 
 
 const {height}=Dimensions.get('window') //CAMBIAR
@@ -51,6 +53,7 @@ export default function InfoCurso({navigation}) {
 
 
 
+
     return(
         <View style={styles.container}>
             <ImageBackground source={curso.imagen_curso_url} resizeMode="cover" style={styles.imgBg}>
@@ -64,17 +67,17 @@ export default function InfoCurso({navigation}) {
                 <Text style={styles.objetivo}>Objetivo</Text>
                 <Text style={styles.objDesc}>{curso.descripcion_completa}</Text>
                 <Text style={styles.objetivo}>Temas</Text>
-                {curso.temas?.map((tema, index)=>{
-                    <Text key={index}>{tema[index]}</Text>
-                })}
+                {curso.temas?.map((tema, index)=>(
+                    <Text key={index}>{tema}</Text>
+                ))}
                 <Text style={styles.objetivo}>Prácticas</Text>
-                {curso.practicas?.map((practica, index)=>{
-                    <Text key={index}>{practica[index]}</Text>
-                })}
+                {curso.practicas?.map((practica, index)=>(
+                    <Text key={index}>{practica}</Text>
+                ))}
                 <Text style={styles.objetivo}>Insumos</Text>
-                {curso.insumos?.map((insumo, index)=>{
-                    <Text key={index}>{insumo[index]}</Text>
-                })}
+                {curso.insumos?.map((insumo, index)=>(
+                    <Text key={index}>{insumo}</Text>
+                ))}
 
                 {sedes.map((sede, index)=>(
                     <CardSedes key={sede.id} sede={sede} />

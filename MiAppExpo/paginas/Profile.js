@@ -4,12 +4,10 @@ import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import API_BASE_URL from "../utils/config";
 
-const location=require("../assets/location.png")
+
 const menu=require("../assets/menu.png")
 const user=require("../assets/user.png")
-const cheesecake=require("../assets/cheesecake.png")
-const star=require("../assets/star.png")
-const pasteleria=require("../assets/pasteleriaCurso.png")
+
 
 
 export default function Profile() {

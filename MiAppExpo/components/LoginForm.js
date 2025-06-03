@@ -7,16 +7,20 @@ import * as SecureStore from 'expo-secure-store';
 import { sizes } from "../utils/themes";
 
 const welcomeIcon= require("../assets/welcomeIcon.png");
+const eye_open=require("../assets/eye-check.png")
+const eye_closed=require("../assets/eye-closed.png")
 
 export default function LoginForm({navigation}) {
 
     const { login } = useContext(AuthContext); //extraigo la funcion login del authprovider
 
     const [form, setForm] = useState({
-        username: '',
+        email: '',
         password: '',
         rememberMe: false
     });
+
+    const [visibility, setVisibility]=useState(true)
 
     const handleChange = (name, value) => {
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -43,17 +47,12 @@ export default function LoginForm({navigation}) {
 
     const handleLogin = async () => {
         try {
-            await login(form.username, form.password, form.rememberMe);
-
-            if (form.rememberMe) {
-                await SecureStore.setItemAsync('username', form.username);
-                await SecureStore.setItemAsync('password', form.password);
-            } else {
-                await SecureStore.deleteItemAsync('username');
-                await SecureStore.deleteItemAsync('password');
-            }
-
-            navigation.navigate('Main')
+            const success=await login(form.email, form.password, form.rememberMe);  
+            if (success){
+                navigation.navigate('Main')
+            }        
+            
+            
         } catch (error) {
             Alert.alert('Error', 'Credenciales inválidas o problema de red.');
         }
@@ -66,8 +65,11 @@ export default function LoginForm({navigation}) {
             <Image source={welcomeIcon} style={styles.catImage}></Image>
             <View style={styles.content}>
                 <Text style={styles.text}>Iniciar Sesión</Text>
-                <TextInput style={styles.input} value={form.username} placeholder="Username" onChangeText={(value)=>{handleChange("username", value)}}></TextInput>
-                <TextInput style={styles.input} value={form.password} secureTextEntry placeholder="Password" onChangeText={(value)=>{handleChange("password", value)}}></TextInput>
+                <TextInput style={styles.input} value={form.email} placeholder="Email" onChangeText={(value)=>{handleChange("email", value)}}></TextInput>
+                <View style={{flexDirection:"row", alignItems:"center"}}>
+                    <TextInput style={styles.input} value={form.password} secureTextEntry={visibility} placeholder="Password" onChangeText={(value)=>{handleChange("password", value)}}></TextInput>
+                    <Pressable onPress={()=>setVisibility(!visibility)}><Image source={visibility ? eye_open : eye_closed} style={{width:20, height:20}}/></Pressable>
+                </View>
                 <View style={styles.check}>
                     <Checkbox value={form.rememberMe} onValueChange={()=>handleChange("rememberMe", !form.rememberMe)}></Checkbox>
                     <Text>Recordarme</Text>

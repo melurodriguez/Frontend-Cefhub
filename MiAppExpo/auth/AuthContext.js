@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import API_BASE_URL from '../utils/config';
+import { Platform } from 'react-native';
 
 export const AuthContext = createContext();
 
@@ -10,27 +11,50 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // opcional
   const [loading, setLoading]=useState(true); //para manejar el splash (falta hacer)
 
-  //loggeo usando el fromato de OAuth (URLSearchParams)
-  const login = async (username, password, rememberMe) => {
-    const form = new URLSearchParams();
-    form.append("username", username);
-    form.append("password", password);
-    
 
-    const response = await axios.post(`${API_BASE_URL}/login`, form, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    const accessToken = response.data.access_token;
-    setLoading(false);
-    setToken(accessToken);
-
-    //recordarme
-    if (rememberMe) {
-      await AsyncStorage.setItem('token', accessToken);
+  const saveToken = async (token, rememberMe) => {
+    if (Platform.OS === 'web') {
+      if (rememberMe) {
+        localStorage.setItem('token', token);
+      } else {
+        localStorage.removeItem('token');
+      }
     } else {
-      await AsyncStorage.removeItem('token'); 
+      if (rememberMe) {
+        await AsyncStorage.setItem('token', token);
+      } else {
+        await AsyncStorage.removeItem('token');
+      }
     }
+  };
+
+  const login = async (email, password, rememberMe) => {
+    const dataToSend = {
+      email: email, 
+      password: password,
+    };
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, dataToSend);
+      const accessToken = response.data.access_token;
+      const userData = response.data.user;
+
+      setToken(accessToken);
+      setUser(userData);
+      await saveToken(accessToken, rememberMe);
+
+      console.log('Login exitoso:', userData);
+    } catch (err) {
+      console.error("Error en el inicio de sesión:", err);
+      throw err;
+    } finally {
+      setLoading(false);
+      return true;
+    }
+
+
+    //falta implement recordarme
+   
   };
 
   //función para cerrar sesión

@@ -6,7 +6,7 @@ import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
 import API_BASE_URL from '../utils/config.js' ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
-import SideMenu from "../components/SideMenu.js";
+import SideMenu from "../components/CustomDrawer.js";
 import { colors } from "../utils/themes.js";
 
 const menu=require("../assets/menu.png")
@@ -54,7 +54,15 @@ export default function SearchPage({navigation}) {
       setVisible(!visible)
     }
     
+    const searchCurso = async(curso) =>{
+      try{
+        const res=await axios.get(`${API_BASE_URL}/curso/${curso.id}`)
+        const data= await res.json()
+        
+      }catch(err){
 
+      }
+    }
 
 
 
@@ -84,7 +92,7 @@ export default function SearchPage({navigation}) {
                   <View style={styles.card} key={index}>
                     <RecipeCard
                       data={receta}
-                      onPress={() => navigation.navigate('InfoReceta', { receta })}
+                      onPress={() => navigation.navigate('InfoReceta', { id:receta.id })}
                     />
                   </View>
                 ))}
@@ -102,7 +110,7 @@ export default function SearchPage({navigation}) {
                   <View style={styles.card} key={index}>
                       <CardCurso
                         data={curso}
-                        onPress={() => navigation.navigate('InfoCurso', { curso })}
+                        onPress={()=>navigation.navigate('InfoCurso', { curso })} 
                       />
                    </View>
                 ))}

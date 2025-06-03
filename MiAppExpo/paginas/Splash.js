@@ -1,17 +1,27 @@
 import {View, Image, Text, StyleSheet} from 'react-native'
 import {sizes, fonts, colors} from '../utils/themes'
-import { useEffect } from 'react'
+import { useEffect, useContext } from 'react'
 import { ActivityIndicator } from 'react-native-paper'
+import { AuthContext } from '../auth/AuthContext';
 
 const icon=require('../assets/notebookCat.png')
 
 export default function Splash({navigation}){
 
+    const { user } = useContext(AuthContext);
+
+
     useEffect(()=>{
-        setTimeout(()=>{
-            navigation.navigate('Main')
-        }, 2000)
-    }, [])
+    const timer = setTimeout(() => {
+      if (user) {
+        navigation.replace('Main');
+      } else {
+        navigation.replace('MainVisitor');
+      }
+    }, 1500); // Tiempo opcional para mostrar el splash
+
+    return () => clearTimeout(timer);
+    }, [user])
 
 
     return(

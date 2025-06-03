@@ -1,11 +1,14 @@
 import { View, Image, StyleSheet, Text, Pressable } from "react-native";
 import API_BASE_URL from "../utils/config";
+import { useState } from "react";
 const star=require("../assets/star.png")
 const userIcon=require("../assets/user.png")
 
 
-
 export default function RecipeCard({data, onPress, navigation }) {
+
+
+
     return (
         <Pressable onPress={onPress} >
           <View style={styles.innerShadow}></View>

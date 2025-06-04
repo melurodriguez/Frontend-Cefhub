@@ -3,25 +3,35 @@ import {View, Text, StyleSheet} from 'react-native'
 export default function CardIngredient({name, quantity}) {
     return(
         <View style={styles.card}>
-            <Text style={styles.n}>{name}</Text>
-            <Text style={styles.d}>{quantity}</Text>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.quantity}>    {quantity}</Text>
         </View>
     )
 }
 
-const styles=StyleSheet.create({
-        
+const styles = StyleSheet.create({
     card: {
-        marginVertical: 5,
-        padding: 10,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
+        backgroundColor: '#f1f5f5',
+        marginVertical: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    n:{
-        fontWeight:700,
-        fontSize:16
-    },
-    d:{
-        fontSize:16
-    }
-})
+
+        name: {
+            fontWeight: 'bold',
+            fontSize: 16,
+            color: '#333',
+            marginBottom: 10,
+        },
+        quantity: {
+            fontSize: 15,
+            color: '#666',
+
+        },
+});

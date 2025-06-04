@@ -18,7 +18,6 @@ const {width, height}=Dimensions.get('window') //CAMBIAR
 export default function InfoReceta({ navigation}) {
     const route = useRoute();
     const { id } = route.params;
-
     const[receta, setReceta]=useState(null)
 
     useEffect(() => {
@@ -61,10 +60,13 @@ export default function InfoReceta({ navigation}) {
     return(
         <ScrollView>
              <View style={styles.container}>
-            
-            
-            
-            <ImageBackground source={receta.imagen_receta_url} style={styles.img} resizeMode="cover">
+
+            <ImageBackground
+              source={{ uri: `${API_BASE_URL}/static/${receta.imagen_receta_url}` }}
+              style={styles.img}
+              resizeMode="cover"
+            >
+
                 <View style={styles.btnContainer}>
                     <Pressable onPress={()=>navigation.goBack()}><Image source={cancel}/></Pressable>
                     <Pressable onPress={handleLike} ><Image source={like ? favClicked : fav}/></Pressable>

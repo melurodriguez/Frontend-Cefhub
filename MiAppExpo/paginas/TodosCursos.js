@@ -48,11 +48,17 @@ export default function TodosCursos({navigation}) {
                         <Image source={filter} style={styles.filterIcon} />
                      </Pressable>
                   </View>
-
                     {cursos.map((curso, index) => (
-                      <Pressable style={styles.card} key={index} onPress={() => navigation.navigate('InfoCurso', {curso})}>
-                        <CardCurso data={curso} />
-                      </Pressable>))}
+                                      <View style={styles.card} key={index}>
+                                          <CardCurso
+                                            data={curso}
+                                            onPress={()=>{
+                                                            navigation.navigate('InfoCurso', { id: curso.id });
+                                                  }}
+                                          />
+                                       </View>
+
+                                    ))}
 
                 </View>
 

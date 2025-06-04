@@ -7,7 +7,6 @@ const onPress =()=>{
     console.log("clickeada")
 }
 export default function CardCurso({data, onPress }) {
-
     return(
          <Pressable onPress={onPress } >
                     <View style={styles.innerShadow}></View>

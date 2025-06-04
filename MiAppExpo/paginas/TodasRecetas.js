@@ -57,7 +57,7 @@ export default function TodasRecetas({navigation}) {
                                       <View style={styles.card} key={index}>
                                         <RecipeCard
                                           data={receta}
-                                          onPress={() => navigation.navigate('InfoReceta', { receta })}
+                                          onPress={() => navigation.navigate('InfoReceta', { id: receta.id })}
                                         />
                                       </View>
                                     ))}

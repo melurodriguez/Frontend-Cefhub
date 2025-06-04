@@ -13,7 +13,7 @@ export default function CardInstructions({desc, media, index}) {
     }
 
     return(
-        <View style={styles.container}>
+        <View style={styles.card}>
             <View>
                 <Text style={styles.title}>Paso {index+1}</Text>
                 <Text style={styles.desc}>{desc}</Text>
@@ -28,34 +28,47 @@ export default function CardInstructions({desc, media, index}) {
     )
 }
 
-const styles= StyleSheet.create({
-    container:{
-        backgroundColor:"#f1f5f5",
-        marginBottom:20,
-        borderRadius:15,
+
+const styles = StyleSheet.create({
+    card: {
+        backgroundColor: '#f1f5f5',
+        marginVertical: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
         flexDirection:"row",
         justifyContent:"space-between"
     },
-    title:{
-        fontWeight:700,
-        fontSize:16,
-        padding:10
-    },
-    desc:{
-        fontSize:14,
-        paddingLeft:10,
-    },
-    img:{
-        width:110,
-        height:73,
-        borderRadius:15,
-        margin:20
-    },
-    checkContainer:{
-        justifyContent:"center",
-        alignItems:"center",
-    },
-    checkbox:{
-        marginRight:20
-    }
-})
+
+        title: {
+            fontWeight: 'bold',
+            fontSize: 16,
+            color: '#333',
+            marginBottom: 10,
+        },
+
+
+          desc:{
+              fontSize:14,
+              paddingLeft:10,
+          },
+          img:{
+              width:110,
+              height:73,
+              borderRadius:15,
+              margin:20
+          },
+          checkContainer:{
+              justifyContent:"center",
+              alignItems:"center",
+          },
+          checkbox:{
+              marginRight:20
+          }
+});
+

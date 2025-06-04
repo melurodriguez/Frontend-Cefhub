@@ -1,8 +1,10 @@
 import { ImageBackground, StyleSheet, View, Text, Dimensions, Pressable, Image } from "react-native";
 import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import API_BASE_URL from "../utils/config";
+import axios from "axios"
+
 
 
 const {height}=Dimensions.get('window') //CAMBIAR
@@ -11,9 +13,17 @@ const cancel=require('../assets/cancel.png')
 const pasteleria=require('../assets/pasteleriaCurso.png')
 
 export default function InfoCurso({navigation}) {
-
     const route=useRoute()
-    const {curso}=route.params
+    const {id}=route.params
+    console.log(id)
+    const [curso, setCurso] = useState(null)
+
+
+        useEffect(() => {
+            axios.get(`${API_BASE_URL}/curso/${id}`)
+                .then(res => setCurso(res.data))
+                .catch(err => console.error(err));
+        }, []);
 
 
     const sedes=[
@@ -52,13 +62,15 @@ export default function InfoCurso({navigation}) {
     
 
 
-
+    if (!curso) {
+        return <Text style={{justifyContent:"center", alignItems:"center", fontWeight:"700"}}>Cargando receta...</Text>;
+        }
 
     return(
         <View style={styles.container}>
-            <ImageBackground source={curso.imagen_curso_url} resizeMode="cover" style={styles.imgBg}>
+            <ImageBackground source={{ uri: `${API_BASE_URL}/static/${curso.imagen_curso_url}` }} resizeMode="cover" style={styles.imgBg}>
                 <View>
-                    <Pressable onPress={()=>{navigation.goBack()}}><Image source={cancel}/></Pressable>                   
+                    <Pressable onPress={()=>{navigation.goBack()}}><Image source={cancel}/></Pressable>
                 </View>
             </ImageBackground>
             <View style={styles.infoContainer}>

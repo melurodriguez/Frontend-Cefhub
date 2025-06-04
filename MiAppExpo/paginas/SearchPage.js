@@ -87,15 +87,14 @@ export default function SearchPage({navigation}) {
                     <Text style={styles.verTodos}>Ver todos →</Text>
                  </Pressable>
              </View>
-                
                 {recetas.slice(0, 3).map((receta, index) => (
-                  <View style={styles.card} key={index}>
-                    <RecipeCard
-                      data={receta}
-                      onPress={() => navigation.navigate('InfoReceta', { id:receta.id })}
-                    />
-                  </View>
-                ))}
+                                                      <View style={styles.card} key={index}>
+                                                        <RecipeCard
+                                                          data={receta}
+                                                          onPress={() => navigation.navigate('InfoReceta', { id: receta.id })}
+                                                        />
+                                                      </View>
+                                                    ))}
 
             </View>
             <View>
@@ -110,9 +109,12 @@ export default function SearchPage({navigation}) {
                   <View style={styles.card} key={index}>
                       <CardCurso
                         data={curso}
-                        onPress={()=>navigation.navigate('InfoCurso', { curso })} 
+                        onPress={()=>{
+                                        navigation.navigate('InfoCurso', { id: curso.id });
+                              }}
                       />
                    </View>
+
                 ))}
 
             </View>

@@ -94,6 +94,7 @@ function TabNavigatorVisitante(){
       })}
     >
       <Tab.Screen name="Menú" component={HomePage}/>
+      <Tab.Screen name="Cargar" component={RecipeLoad}/>
       <Tab.Screen name="Búsqueda" component={SearchPage}/>
       <Tab.Screen name="Perfile" component={ProfileNotLogged}/>
     </Tab.Navigator>

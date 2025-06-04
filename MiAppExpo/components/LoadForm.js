@@ -1,141 +1,159 @@
-import axios from 'axios'
-import { useState } from 'react'
-import {View, Text, Image, TextInput, Pressable, StyleSheet} from 'react-native'
-import API_BASE_URL from '../utils/config'
-import { colors, fonts, sizes } from '../utils/themes'
-
-const plus=require('../assets/plus.png')
-
-export default function LoadForm({navigation}) {
-
-    const [recipe, setRecipe]=useState({
-        name:"",
-        description:"",
-        ingredients:[""],
-        instructions:[{
-            step:"",
-            media:"",
-        }],
-        tags:[]
-    })
-
-    const handleChange=(name, value)=>{
-        setRecipe((prev) => ({ ...prev, [name]: value }))
-    }
-
-    const uploadRecipe= async()=>{
-        try{
-            const res= await axios.post(`${API_BASE_URL}/recetas`, {
-                                                                        name: recipe.name,
-                                                                        description: recipe.description,
-                                                                        ingredients: recipe.ingredients,
-                                                                        instructions: recipe.instructions,
-                                                                        tags: recipe.tags
-                                                                    })
-            const data= await res.data()
-
-            navigation.navigate('LoadedRecipe.js', {navigation})
-
-        }catch(err){
-            console.error("Error al crear receta: ", err)
-        }
-    }
+import React, { useState } from 'react';
+import { View, Text, TextInput, Pressable, Image, ScrollView, StyleSheet } from 'react-native';
 
 
+export default function LoadForm() {
+  const [recipe, setRecipe] = useState({
+    ingredients: [{ name: '', quantity: '' }],
+    instructions: [{ descripcion: '', video_url: null, foto_url: [] }],
+  });
 
-    return(
-        <View style={styles.container}>
-            <View>
-                <View>
-                    <Text>Nombre del plato</Text>
-                    <TextInput style={styles.input} value={recipe.name} onChangeText={(value)=>{handleChange('name', value)}} />
-                </View>
-                <View>
-                    <Text>Descripción del plato</Text>
-                    <TextInput style={styles.input} value={recipe.description} onChangeText={(value)=>{handleChange('description', value)}}/>
-                </View>
-                <View>
-                    <Text>Ingredientes</Text>
-                    <TextInput style={styles.input} value={recipe.ingredients[recipe.ingredients.length-1]} onChangeText={(value)=>{handleChange('ingredients', value)}}/>
-                </View>
-                <View>
-                    <Text>Pasos</Text>
-                    <TextInput style={styles.input} value={recipe.instructions[recipe.instructions.length-1].step} onChangeText={(value)=>{handleChange('instructions', value)}}/>
-                </View>
-                <View>
-                    <Text>Tags</Text>
+  // Ingredientes
+  function handleIngredientChange(index, field, value) {
+    const newIngredients = [...recipe.ingredients];
+    newIngredients[index][field] = value;
+    setRecipe({ ...recipe, ingredients: newIngredients });
+  }
+
+  function addIngredient() {
+    setRecipe({
+      ...recipe,
+      ingredients: [...recipe.ingredients, { name: '', quantity: '' }]
+    });
+  }
+
+  // Pasos
+  function handleStepChange(index, field, value) {
+    const newInstructions = [...recipe.instructions];
+    newInstructions[index][field] = value;
+    setRecipe({ ...recipe, instructions: newInstructions });
+  }
+
+  function addStep() {
+    setRecipe({
+      ...recipe,
+      instructions: [...recipe.instructions, { descripcion: '', video_url: null, foto_url: [] }]
+    });
+  }
 
 
-                    <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 10 }}>
-                        {recipe.tags.map((tag, index) => (
-                            <View key={index} style={[styles.tag, { margin: 5, padding: 8, borderRadius: 12 }]}>
-                                <Text style={styles.tagText}>{tag}</Text>
+  return (
+    <ScrollView style={styles.container}>
+      {/* Ingredientes */}
+      <View>
+                          <Text style={styles.sectionTitle}>Nombre del plato</Text>
+                          <TextInput style={styles.input} value={recipe.name} onChangeText={(value)=>{handleChange('name', value)}} />
+                      </View>
+      <View>
+                          <Text style={styles.sectionTitle}>Descripción del plato</Text>
+                          <TextInput style={styles.input} value={recipe.description} onChangeText={(value)=>{handleChange('description', value)}}/>
+                      </View>
+      <View>
+                          <Text style={styles.sectionTitle}>Tipo de plato</Text>
+                          <TextInput style={styles.input} value={recipe.tipo} onChangeText={(value)=>{handleChange('description', value)}}/>
+                      </View>
+      <View>
+                                <Text style={styles.sectionTitle}>Cantidad Porciones</Text>
+                                <TextInput style={styles.input} value={recipe.porciones} onChangeText={(value)=>{handleChange('description', value)}}/>
                             </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.row}>
-                        <TextInput style={styles.input} value={recipe.tags[recipe.tags.length-1]} onChangeText={(value)=>{handleChange('tag', value)}}/>
-                        <Pressable><Image source={plus}/></Pressable>
-                    </View>
-                    
-                </View>
-                
-            </View>
-            <View style={styles.btnContainer}>
-                <Pressable style={styles.button}onPress={uploadRecipe}><Text style={styles.btnText} >Cargar Receta</Text></Pressable>
-            </View>
+      <Text style={styles.sectionTitle}>Ingredientes</Text>
+      {recipe.ingredients.map((ing, i) => (
+        <View key={i} style={styles.ingredientRow}>
+          <TextInput
+            style={[styles.input, {flex: 2, marginRight: 10}]}
+            placeholder="Nombre"
+            value={ing.name}
+            onChangeText={text => handleIngredientChange(i, 'name', text)}
+          />
+          <TextInput
+            style={[styles.input, {flex: 1}]}
+            placeholder="Cantidad"
+            value={ing.quantity}
+            onChangeText={text => handleIngredientChange(i, 'quantity', text)}
+          />
         </View>
-    )
+      ))}
+      <Pressable style={styles.addButton} onPress={addIngredient}>
+        <Text style={styles.addButtonText}>+ Agregar Ingrediente</Text>
+      </Pressable>
+
+      {/* Pasos */}
+      <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Pasos</Text>
+      {recipe.instructions.map((step, i) => (
+        <View key={i} style={styles.stepContainer}>
+          <TextInput
+            style={[styles.input, { minHeight: 60 }]}
+            placeholder={`Descripción paso ${i + 1}`}
+            multiline
+            value={step.descripcion}
+            onChangeText={text => handleStepChange(i, 'descripcion', text)}
+          />
+          {/* Botones para video y fotos (implementar pickers) */}
+          <View style={styles.mediaButtons}>
+            <Pressable style={styles.mediaButton} onPress={() => pickVideo(i)}>
+              <Text>Agregar Video</Text>
+            </Pressable>
+            <Pressable style={styles.mediaButton} onPress={() => pickImages(i)}>
+              <Text>Agregar Fotos</Text>
+            </Pressable>
+          </View>
+
+          {/* Mostrar preview simple (ejemplo) */}
+          {step.video_url ? (
+            <Text style={{color: 'blue'}}>Video cargado</Text>
+          ) : null}
+          {step.foto_url.length > 0 && (
+            <ScrollView horizontal>
+              {step.foto_url.map((uri, idx) => (
+                <Image key={idx} source={{ uri }} style={styles.imagePreview} />
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      ))}
+      <Pressable style={styles.addButton} onPress={addStep}>
+        <Text style={styles.addButtonText}>+ Agregar Paso</Text>
+      </Pressable>
+
+      {/* Botón para guardar receta */}
+      <Pressable style={styles.saveButton} onPress={() => {/* tu función aquí */}}>
+        <Text style={styles.saveButtonText}>Cargar Receta</Text>
+      </Pressable>
+    </ScrollView>
+  );
 }
 
-const styles=StyleSheet.create({
-    container:{
-      flex:1,
-      justifyContent:"center",
-      alignItems:"center"
-    },
-    input:{
-        width:344,
-        height: 50,
-        borderColor: '#d9d9d9',
-        borderWidth: 1,
-        marginVertical: 20,
-        paddingHorizontal: 10,
-        borderRadius:15,
-        backgroundColor:"#f1f5f5"
-    },
-    btnContainer:{
-        justifyContent:"center",
-        alignItems:"flex-end",
-        width:sizes.width
-    },
-    button:{
-        backgroundColor:"#505c86",
-        borderRadius:15,
-        justifyContent:"center",
-        alignItems:"center",
-        width:"auto",
-        height:50,
-        margin: 20,
-        padding:sizes.padding,
-        alignSelf:"flex-end"
-    },
-    btnText:{
-        color:"#fff",
-        fontWeight:700,
-        fontSize:fonts.small
-    },
-    row:{
-        flexDirection:"row",
-        alignItems:"center"
-    },
-    tag:{
-        backgroundColor:colors.primary,
-    },
-    tagText:{
-        color:colors.white,
-        fontSize:fonts.small,
-        fontWeight:fonts.bold
-    }
-})
+const styles = StyleSheet.create({
+  container: { padding: 20 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  input: {
+    borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 8, marginBottom: 10,
+  },
+  ingredientRow: { flexDirection: 'row', marginBottom: 10 },
+  addButton: {
+    backgroundColor: '#ddd', padding: 10, alignItems: 'center', borderRadius: 6,
+  },
+  addButtonText: { fontWeight: 'bold' },
+  stepContainer: { marginBottom: 20 },
+  mediaButtons: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  mediaButton: {
+    backgroundColor: '#eee',
+    padding: 8,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  imagePreview: {
+    width: 60,
+    height: 60,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  saveButton: {
+    backgroundColor: '#2196F3',
+    padding: 15,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  saveButtonText: { color: 'white', fontWeight: 'bold' },
+});

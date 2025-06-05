@@ -1,168 +1,196 @@
-
-import { useState , useEffect, useContext} from "react";
-import { View, Text, StyleSheet, Image, TextInput, Pressable, Alert} from "react-native";
+import { useState, useEffect, useContext } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  Pressable,
+  Alert,
+} from "react-native";
 import Checkbox from "expo-checkbox";
-import {AuthContext} from '../auth/AuthContext';
-import * as SecureStore from 'expo-secure-store';
+import { AuthContext } from "../auth/AuthContext";
+import * as SecureStore from "expo-secure-store";
 import { sizes } from "../utils/themes";
 
-const welcomeIcon= require("../assets/welcomeIcon.png");
-const eye_open=require("../assets/eye-check.png")
-const eye_closed=require("../assets/eye-closed.png")
+const welcomeIcon = require("../assets/welcomeIcon.png");
+const eye_open = require("../assets/eye-check.png");
+const eye_closed = require("../assets/eye-closed.png");
 
-export default function LoginForm({navigation}) {
+export default function LoginForm({ navigation }) {
+  const { login } = useContext(AuthContext); //extraigo la funcion login del authprovider
 
-    const { login } = useContext(AuthContext); //extraigo la funcion login del authprovider
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
 
-    const [form, setForm] = useState({
-        email: '',
-        password: '',
-        rememberMe: false
-    });
+  const [visibility, setVisibility] = useState(true);
 
-    const [visibility, setVisibility]=useState(true)
+  const handleChange = (name, value) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleChange = (name, value) => {
-        setForm((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    const cargarCredenciales = async () => {
+      const savedUsername = await SecureStore.getItemAsync("username");
+      const savedPassword = await SecureStore.getItemAsync("password");
+      if (savedUsername && savedPassword) {
+        setForm((prev) => ({
+          ...prev,
+          username: savedUsername,
+          password: savedPassword,
+          rememberMe: true,
+        }));
+      }
     };
+    cargarCredenciales();
+    //handleLogin() --> es menos seguro
+  }, []);
 
+  const handleLogin = async () => {
+    try {
+      const success = await login(form.email, form.password, form.rememberMe);
+      if (success) {
+        navigation.navigate("Main");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Credenciales inválidas o problema de red.");
+    }
+  };
 
-
-    useEffect(()=>{
-        const cargarCredenciales= async ()=>{
-            const savedUsername= await SecureStore.getItemAsync('username')
-            const savedPassword= await SecureStore.getItemAsync('password')
-            if (savedUsername && savedPassword){
-                setForm((prev) => ({
-                    ...prev,
-                    username: savedUsername,
-                    password: savedPassword,
-                    rememberMe: true,
-                }));
-            }
-        }
-        cargarCredenciales()
-        //handleLogin() --> es menos seguro
-    },[])
-
-    const handleLogin = async () => {
-        try {
-            const success=await login(form.email, form.password, form.rememberMe);  
-            if (success){
-                navigation.navigate('Main')
-            }        
-            
-            
-        } catch (error) {
-            Alert.alert('Error', 'Credenciales inválidas o problema de red.');
-        }
-    };
-
-    return(
-  
-        <View style={styles.view}>
-            <View style={styles.innerShadow}></View>
-            <Image source={welcomeIcon} style={styles.catImage}></Image>
-            <View style={styles.content}>
-                <Text style={styles.text}>Iniciar Sesión</Text>
-                <TextInput style={styles.input} value={form.email} placeholder="Email" onChangeText={(value)=>{handleChange("email", value)}}></TextInput>
-                <View style={{flexDirection:"row", alignItems:"center"}}>
-                    <TextInput style={styles.input} value={form.password} secureTextEntry={visibility} placeholder="Password" onChangeText={(value)=>{handleChange("password", value)}}></TextInput>
-                    <Pressable onPress={()=>setVisibility(!visibility)}><Image source={visibility ? eye_open : eye_closed} style={{width:20, height:20}}/></Pressable>
-                </View>
-                <View style={styles.check}>
-                    <Checkbox value={form.rememberMe} onValueChange={()=>handleChange("rememberMe", !form.rememberMe)}></Checkbox>
-                    <Text>Recordarme</Text>
-                </View>
-                <Pressable style={styles.button} onPress={handleLogin}>
-                    <Text style={styles.btnText}>Ingresar</Text>
-                </Pressable>
-                <Pressable style={styles.btn} onPress={()=>navigation.navigate('RegisterPage')}><Text>No tenés cuenta? Registrate</Text></Pressable>
-                <Pressable ><Text>Olvidaste tu contraseña? Recuperala</Text></Pressable>
-            </View>
-           
+  return (
+    <View style={styles.view}>
+      <View style={styles.innerShadow}></View>
+      <Image source={welcomeIcon} style={styles.catImage}></Image>
+      <View style={styles.content}>
+        <Text style={styles.text}>Iniciar Sesión</Text>
+        <TextInput
+          style={styles.input}
+          value={form.email}
+          placeholder="Email"
+          onChangeText={(value) => {
+            handleChange("email", value);
+          }}
+        ></TextInput>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TextInput
+            style={styles.input}
+            value={form.password}
+            secureTextEntry={visibility}
+            placeholder="Password"
+            onChangeText={(value) => {
+              handleChange("password", value);
+            }}
+          ></TextInput>
+          <Pressable onPress={() => setVisibility(!visibility)}>
+            <Image
+              source={visibility ? eye_open : eye_closed}
+              style={{ width: 20, height: 20 }}
+            />
+          </Pressable>
         </View>
-       
-    )
+        <View style={styles.check}>
+          <Checkbox
+            value={form.rememberMe}
+            onValueChange={() => handleChange("rememberMe", !form.rememberMe)}
+          ></Checkbox>
+          <Text>Recordarme</Text>
+        </View>
+        <Pressable style={styles.button} onPress={handleLogin}>
+          <Text style={styles.btnText}>Ingresar</Text>
+        </Pressable>
+        <Pressable
+          style={styles.btn}
+          onPress={() => navigation.navigate("RegisterPage")}
+        >
+          <Text>No tenés cuenta? Registrate</Text>
+        </Pressable>
+        <Pressable>
+          <Text>Olvidaste tu contraseña? Recuperala</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 }
 
-const styles=StyleSheet.create({
-
-    view:{
-        backgroundColor:"#fff",
-        width:344,
-        height:442,
-        justifyContent:"center",
-        alignItems:"center",
-        borderColor:"#000",
-        borderRadius:sizes.radius
+const styles = StyleSheet.create({
+  view: {
+    backgroundColor: "#fff",
+    width: 344,
+    height: 442,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "#000",
+    borderRadius: sizes.radius,
+  },
+  input: {
+    width: 277,
+    height: 50,
+    borderColor: "#d9d9d9",
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    backgroundColor: "#f1f5f5",
+  },
+  catImage: {
+    width: 132,
+    height: 133,
+    position: "absolute",
+    top: -90, // la mitad de la altura para que sobresalga
+    alignSelf: "center",
+    zIndex: 1,
+  },
+  innerShadow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
+    backgroundColor: "transparent",
+    zIndex: 0,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: -2,
+      height: -2,
     },
-    input:{
-        width:277,
-        height: 50,
-        borderColor: '#d9d9d9',
-        borderWidth: 1,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-        borderRadius:15,
-        backgroundColor:"#f1f5f5"
-    },
-    catImage: {
-        width:132,
-        height:133,
-        position: 'absolute',
-        top: -90, // la mitad de la altura para que sobresalga
-        alignSelf: 'center',
-        zIndex: 1,
-    },
-    innerShadow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 15,
-        backgroundColor: 'transparent',
-        zIndex: 0,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: -2,
-          height: -2,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 2, // para Android
-    },
-    content:{
-        justifyContent:"space-around",
-        alignItems:"center",
-        marginTop:45,
-        borderColor:"#000"
-    },
-    text:{
-        fontSize:24,
-        fontWeight:700,
-        padding:20
-    },
-    button:{
-        backgroundColor:"#505c86",
-        borderRadius:15,
-        justifyContent:"center",
-        alignItems:"center",
-        width:277,
-        height:50,
-        margin: 20,
-    },
-    btnText:{
-        color:"#fff",
-        fontWeight:700,
-        fontSize:20
-    },
-    check:{
-        flexDirection:"row",
-        justifyContent:"flex-start"
-    },
-    btn:{
-        paddingBottom:10
-    }
-})
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 2, // para Android
+  },
+  content: {
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 45,
+    borderColor: "#000",
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 700,
+    padding: 20,
+  },
+  button: {
+    backgroundColor: "#505c86",
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 277,
+    height: 50,
+    margin: 20,
+  },
+  btnText: {
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  check: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+  },
+  btn: {
+    paddingBottom: 10,
+  },
+});

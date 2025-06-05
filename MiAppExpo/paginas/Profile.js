@@ -3,14 +3,17 @@ import { Pressable, View, Text, Image, StyleSheet } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import api from "../api/axiosInstance";
+import { AuthContext } from "../auth/AuthContext";
 
 const menu = require("../assets/menu.png");
-const user = require("../assets/user.png");
+const userAvatar = require("../assets/user.png");
 
 export default function Profile() {
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const[user, setUser]=useState(null)
+
 
   const buttons = ["Mis Favoritos", "Mis Cursos"];
 
@@ -25,7 +28,8 @@ export default function Profile() {
 
   const getUserInfo = async () => {
     try {
-      const response = await api.get('/me');
+      const response = await api.get('user/me');
+      setUser(response.data)
       return response.data;
     } catch (error) {
       console.error('Error al obtener la info del usuario:', error);
@@ -34,18 +38,30 @@ export default function Profile() {
   };
 
   const favorite_recipes = async () => {
-     try {
-       const response = await api.get('/me/recetas_favoritas');
-       return response.data;
-     } catch (error) {
-       console.error('Error al obtener recetas favoritas:', error);
-       throw error;
-     }
-    };
+  try {
+    const response = await api.get("user/me/recetas_favoritas");
+    const ids = response.data;
+    console.log("IDs favoritos:", ids);
+
+    const recetasCompletas = await Promise.all(
+      ids.map(async (id) => {
+        console.log("Consultando receta con ID:", id);
+        const res = await api.get(`recetas/${id}`);
+        return res.data;
+      })
+    );
+
+    setRecetas(recetasCompletas);
+  } catch (error) {
+    console.error("Error al obtener recetas favoritas:", error);
+  }
+};
+
 
   const courses =async () => {
    try {
-     const response = await api.get('/me/cursos');
+     const response = await api.get('user/me/cursos');
+     setCursos(response.data)
      return response.data;
    } catch (error) {
      console.error('Error al obtener los cursos del usuario:', error);
@@ -55,6 +71,7 @@ export default function Profile() {
 
   useEffect(() => {
     favorite_recipes();
+    getUserInfo();
   }, []);
 
   return (
@@ -67,10 +84,10 @@ export default function Profile() {
       </View>
 
       <View style={styles.userContainer}>
-        <Image source={user} />
+        <Image source={user?.avatar ?? userAvatar} />
         <View>
-          <Text>Mi Usuario</Text>
-          <Text>Tipo Usuario</Text>
+          <Text>{user?.alias ?? "Mi Usuario"}</Text>
+          <Text>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
       </View>
       <View style={styles.btnContainer}>

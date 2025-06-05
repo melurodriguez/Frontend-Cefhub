@@ -54,6 +54,12 @@ export default function InfoReceta({ navigation }) {
   }, [receta]);
 
   function parseCantidad(cantidadStr) {
+    console.log(typeof cantidadStr)
+    if (typeof cantidadStr !== 'string') {
+    console.warn('cantidadStr no es string:', typeof cantidadStr);
+    return null; // o un valor por defecto
+  }
+
     const match = cantidadStr.match(/^([\d.,]+)\s*(.*)$/);
     if (!match) return { valor: null, unidad: cantidadStr };
 
@@ -64,12 +70,15 @@ export default function InfoReceta({ navigation }) {
   }
 
   function ajustarCantidad(cantidadStr, factor) {
+    if (typeof cantidadStr !== 'string'){
+      return (cantidadStr * factor).toFixed(2)
+    }
     const { valor, unidad } = parseCantidad(cantidadStr);
 
     if (valor === null) return cantidadStr; // No se puede parsear
-
     const nuevoValor = (valor * factor).toFixed(2);
     return `${nuevoValor} ${unidad}`.trim();//elimina espacios en blanco al principio y al final
+    
   }
 
 

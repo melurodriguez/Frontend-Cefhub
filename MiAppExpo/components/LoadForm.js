@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, ScrollView, StyleSheet } from 'react-native';
-
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Image,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 
 export default function LoadForm() {
   const [recipe, setRecipe] = useState({
-    ingredients: [{ name: '', quantity: '' }],
-    instructions: [{ descripcion: '', video_url: null, foto_url: [] }],
+    ingredients: [{ name: "", quantity: "" }],
+    instructions: [{ descripcion: "", video_url: null, foto_url: [] }],
   });
 
   // Ingredientes
@@ -18,7 +25,7 @@ export default function LoadForm() {
   function addIngredient() {
     setRecipe({
       ...recipe,
-      ingredients: [...recipe.ingredients, { name: '', quantity: '' }]
+      ingredients: [...recipe.ingredients, { name: "", quantity: "" }],
     });
   }
 
@@ -32,44 +39,70 @@ export default function LoadForm() {
   function addStep() {
     setRecipe({
       ...recipe,
-      instructions: [...recipe.instructions, { descripcion: '', video_url: null, foto_url: [] }]
+      instructions: [
+        ...recipe.instructions,
+        { descripcion: "", video_url: null, foto_url: [] },
+      ],
     });
   }
-
 
   return (
     <ScrollView style={styles.container}>
       {/* Ingredientes */}
       <View>
-                          <Text style={styles.sectionTitle}>Nombre del plato</Text>
-                          <TextInput style={styles.input} value={recipe.name} onChangeText={(value)=>{handleChange('name', value)}} />
-                      </View>
+        <Text style={styles.sectionTitle}>Nombre del plato</Text>
+        <TextInput
+          style={styles.input}
+          value={recipe.name}
+          onChangeText={(value) => {
+            handleChange("name", value);
+          }}
+        />
+      </View>
       <View>
-                          <Text style={styles.sectionTitle}>Descripción del plato</Text>
-                          <TextInput style={styles.input} value={recipe.description} onChangeText={(value)=>{handleChange('description', value)}}/>
-                      </View>
+        <Text style={styles.sectionTitle}>Descripción del plato</Text>
+        <TextInput
+          style={styles.input}
+          value={recipe.description}
+          onChangeText={(value) => {
+            handleChange("description", value);
+          }}
+        />
+      </View>
       <View>
-                          <Text style={styles.sectionTitle}>Tipo de plato</Text>
-                          <TextInput style={styles.input} value={recipe.tipo} onChangeText={(value)=>{handleChange('description', value)}}/>
-                      </View>
+        <Text style={styles.sectionTitle}>Tipo de plato</Text>
+        <TextInput
+          style={styles.input}
+          value={recipe.tipo}
+          onChangeText={(value) => {
+            handleChange("description", value);
+          }}
+        />
+      </View>
       <View>
-                                <Text style={styles.sectionTitle}>Cantidad Porciones</Text>
-                                <TextInput style={styles.input} value={recipe.porciones} onChangeText={(value)=>{handleChange('description', value)}}/>
-                            </View>
+        <Text style={styles.sectionTitle}>Cantidad Porciones</Text>
+        <TextInput
+          style={styles.input}
+          value={recipe.porciones}
+          onChangeText={(value) => {
+            handleChange("description", value);
+          }}
+        />
+      </View>
       <Text style={styles.sectionTitle}>Ingredientes</Text>
       {recipe.ingredients.map((ing, i) => (
         <View key={i} style={styles.ingredientRow}>
           <TextInput
-            style={[styles.input, {flex: 2, marginRight: 10}]}
+            style={[styles.input, { flex: 2, marginRight: 10 }]}
             placeholder="Nombre"
             value={ing.name}
-            onChangeText={text => handleIngredientChange(i, 'name', text)}
+            onChangeText={(text) => handleIngredientChange(i, "name", text)}
           />
           <TextInput
-            style={[styles.input, {flex: 1}]}
+            style={[styles.input, { flex: 1 }]}
             placeholder="Cantidad"
             value={ing.quantity}
-            onChangeText={text => handleIngredientChange(i, 'quantity', text)}
+            onChangeText={(text) => handleIngredientChange(i, "quantity", text)}
           />
         </View>
       ))}
@@ -86,7 +119,7 @@ export default function LoadForm() {
             placeholder={`Descripción paso ${i + 1}`}
             multiline
             value={step.descripcion}
-            onChangeText={text => handleStepChange(i, 'descripcion', text)}
+            onChangeText={(text) => handleStepChange(i, "descripcion", text)}
           />
           {/* Botones para video y fotos (implementar pickers) */}
           <View style={styles.mediaButtons}>
@@ -100,7 +133,7 @@ export default function LoadForm() {
 
           {/* Mostrar preview simple (ejemplo) */}
           {step.video_url ? (
-            <Text style={{color: 'blue'}}>Video cargado</Text>
+            <Text style={{ color: "blue" }}>Video cargado</Text>
           ) : null}
           {step.foto_url.length > 0 && (
             <ScrollView horizontal>
@@ -116,7 +149,12 @@ export default function LoadForm() {
       </Pressable>
 
       {/* Botón para guardar receta */}
-      <Pressable style={styles.saveButton} onPress={() => {/* tu función aquí */}}>
+      <Pressable
+        style={styles.saveButton}
+        onPress={() => {
+          /* tu función aquí */
+        }}
+      >
         <Text style={styles.saveButtonText}>Cargar Receta</Text>
       </Pressable>
     </ScrollView>
@@ -125,19 +163,26 @@ export default function LoadForm() {
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
   input: {
-    borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 8, marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    padding: 8,
+    marginBottom: 10,
   },
-  ingredientRow: { flexDirection: 'row', marginBottom: 10 },
+  ingredientRow: { flexDirection: "row", marginBottom: 10 },
   addButton: {
-    backgroundColor: '#ddd', padding: 10, alignItems: 'center', borderRadius: 6,
+    backgroundColor: "#ddd",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 6,
   },
-  addButtonText: { fontWeight: 'bold' },
+  addButtonText: { fontWeight: "bold" },
   stepContainer: { marginBottom: 20 },
-  mediaButtons: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  mediaButtons: { flexDirection: "row", gap: 10, marginBottom: 10 },
   mediaButton: {
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     padding: 8,
     borderRadius: 6,
     marginRight: 10,
@@ -149,11 +194,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     padding: 15,
     borderRadius: 6,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 30,
   },
-  saveButtonText: { color: 'white', fontWeight: 'bold' },
+  saveButtonText: { color: "white", fontWeight: "bold" },
 });

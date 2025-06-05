@@ -16,6 +16,7 @@ import api from "../api/axiosInstance";
 export default function LoadForm() {
   const [camposHabilitados, setCamposHabilitados] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
+  const [recipeId, setRecipeId] = useState(null);
   const [modoReemplazo, setModoReemplazo] = useState(false); // NUEVO
   const [recipe, setRecipe] = useState({
     nombre: "",
@@ -40,13 +41,20 @@ export default function LoadForm() {
     setCamposHabilitados(false);
     setModoEdicion(false);
     setModoReemplazo(false);
+    setRecipeId(null);
   }
 
   async function cargarReceta(id) {
     try {
       const response = await api.get(`/recetas/${id}`);
-      setRecipe({ ...response.data});
-      console.log(response.data)
+      const { _id, ...restoDeLaReceta } = response.data;
+      setRecipe({
+        ...restoDeLaReceta,
+        porciones: String(restoDeLaReceta.porciones)
+      });
+      setRecipeId(_id);
+      console.log(_id)
+      console.log(restoDeLaReceta)
       setModoEdicion(true);
       setCamposHabilitados(true);
     } catch (error) {
@@ -168,9 +176,7 @@ export default function LoadForm() {
 
           const response = await api.post("/recetas/reemplazar", payload);
           Alert.alert("Éxito", "Receta reemplazada correctamente.");
-          setModoReemplazo(false);
-          setModoEdicion(false);
-          setRecetaId(null);
+          limpiarFormulario();
         } catch (error) {
           console.error("Error al reemplazar receta:", error);
           Alert.alert("Error", "No se pudo reemplazar la receta.");
@@ -178,12 +184,14 @@ export default function LoadForm() {
         return;
       }
 
-      if (modoEdicion && recetaId) {
-        response = await api.put(`/recetas`, payload);
+      if (modoEdicion && recipeId) {
+        response = await api.put(`/recetas/${recipeId}`, payload);
         Alert.alert("Éxito", "Receta actualizada.");
+        limpiarFormulario()
       } else {
         response = await api.post("/recetas", payload);
         Alert.alert("Éxito", "Receta cargada correctamente.");
+        limpiarFormulario()
       }
 
       console.log("Respuesta:", response.data);
@@ -229,7 +237,6 @@ export default function LoadForm() {
       <Text style={styles.sectionTitle}>Cantidad Porciones</Text>
       <TextInput
         style={[styles.input, !camposHabilitados && styles.inputDisabled,]}
-        keyboardType="numeric"
         editable={camposHabilitados}
         value={recipe.porciones}
         onChangeText={(value) => handleChange("porciones", value)}
@@ -250,6 +257,7 @@ export default function LoadForm() {
             placeholder="Cantidad"
             editable={camposHabilitados}
             value={ing.cantidad}
+            keyboardType="numeric"
             onChangeText={(text) => handleIngredientChange(i, "cantidad", text)}
           />
         </View>

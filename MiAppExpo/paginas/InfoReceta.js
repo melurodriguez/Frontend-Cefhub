@@ -16,6 +16,8 @@ import CardCreator from "../components/CardCreator";
 import { useRoute } from "@react-navigation/native";
 import api from "../api/axiosInstance";
 import API_BASE_URL from "../utils/config";
+import { useContext } from "react";
+import { AuthContext } from "../auth/AuthContext";
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -26,8 +28,16 @@ const { width, height } = Dimensions.get("window"); //CAMBIAR
 export default function InfoReceta({ navigation }) {
   const route = useRoute();
   const { id } = route.params;
+  const [isPressed, setPressed] = useState(0);
+  const [like, setLike] = useState(false);
+  const [visible, setPopUpVisible] = useState(false);
   const [receta, setReceta] = useState(null);
+  const { token } = useContext(AuthContext);
+  const [porcion, setPorcion]=useState(1)
+  const [ingredientesCalc, setIngredientesCalc] = useState([]);
 
+
+  //obtiene receta
   useEffect(() => {
     api
       .get(`/recetas/${id}`)
@@ -35,25 +45,97 @@ export default function InfoReceta({ navigation }) {
       .catch((err) => console.error(err));
   }, []);
 
-  const [isPressed, setPressed] = useState(0);
-  const [like, setLike] = useState(false);
-  const [visible, setPopUpVisible] = useState(false);
+  //carga valores iniciales receta
+  useEffect(() => {
+    if (receta?.porciones && receta?.ingredientes) {
+      setPorcion(receta.porciones); 
+      setIngredientesCalc(receta.ingredientes); 
+    }
+  }, [receta]);
+
+  function parseCantidad(cantidadStr) {
+    const match = cantidadStr.match(/^([\d.,]+)\s*(.*)$/);
+    if (!match) return { valor: null, unidad: cantidadStr };
+
+    return {
+      valor: parseFloat(match[1]),
+      unidad: match[2] ?? "",
+    };
+  }
+
+  function ajustarCantidad(cantidadStr, factor) {
+    const { valor, unidad } = parseCantidad(cantidadStr);
+
+    if (valor === null) return cantidadStr; // No se puede parsear
+
+    const nuevoValor = (valor * factor).toFixed(2);
+    return `${nuevoValor} ${unidad}`.trim();//elimina espacios en blanco al principio y al final
+  }
+
+
+ 
+  //ajuste de ingredientes segun porciones modificadas
+  useEffect(() => {
+    if (!receta) return;
+
+    const factor = porcion / receta.porciones;
+
+    const ingredientesAjustados = receta.ingredientes.map(i => ({
+      ...i,
+      cantidad: ajustarCantidad(i.cantidad, factor),
+    }));
+
+    setIngredientesCalc(ingredientesAjustados);
+  }, [porcion]);
+
+
+
 
   function handleClick(index) {
     setPressed(index);
   }
 
-  const handleLike = async () => {
+  const agregarFavorito = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/me/recetas_favoritas/${receta.id}`,
-      );
-      setLike(!like);
-      setPopUpVisible(!visible);
+      await api.post(`user/me/recetas_favoritas/${id}`);
+      setLike(true);
+      setPopUpVisible(true);
+      console.log("agregada a favs", receta.ingredientes[0].cantidad)
     } catch (err) {
       console.error("Error al marcar como favorito:", err);
     }
   };
+
+  const eliminarFavorito = async () => {
+    try {
+      await api.delete(`user/me/recetas_favoritas/${id}`);
+      setLike(false);
+      console.log("eliminada de favs")
+    } catch (err) {
+      console.error("Error al eliminar de favoritos: ", err);
+    }
+  };
+
+  const handleLike = async () => {
+      const nuevoLike=!like
+      setLike(nuevoLike);
+
+      if (nuevoLike){
+        agregarFavorito();
+      }else{
+        eliminarFavorito();
+      }
+      
+  };
+  
+  const sumarPorcion= () =>{
+    setPorcion(prev => prev + 1)
+  }
+
+  const restarPorcion =  ()=>{
+    setPorcion(prev => (prev > 1 ? prev - 1 : 1))
+  }
+
 
   const ingredientes = "Ingredientes";
   const instrucciones = "Instrucciones";
@@ -85,9 +167,10 @@ export default function InfoReceta({ navigation }) {
             <Pressable onPress={() => navigation.goBack()}>
               <Image source={cancel} />
             </Pressable>
-            <Pressable onPress={handleLike}>
+            {token && <Pressable onPress={handleLike}>
               <Image source={like ? favClicked : fav} />
-            </Pressable>
+            </Pressable>}
+            
           </View>
 
           <PopUp
@@ -122,12 +205,28 @@ export default function InfoReceta({ navigation }) {
               </Pressable>
             ))}
           </View>
-          <Text style={styles.seleccionado}>
+          <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+            <Text style={styles.seleccionado}>
             {isPressed === 1 ? instrucciones : ingredientes}
-          </Text>
+            </Text>
+            <View style={{alignItems:"center"}}>
+              <Text style={styles.seleccionado}>Porciones</Text>
+              <View style={{flexDirection:"row"}}> 
+                <Pressable onPress={restarPorcion}><Text style={{fontWeight:"700", fontSize:24}}>-</Text></Pressable>            
+                
+                <Text style={{fontWeight:"700", fontSize:24, paddingRight:10, paddingLeft:10}}> {porcion}</Text>
+
+                <Pressable onPress={sumarPorcion} ><Text style={{fontWeight:"700", fontSize:24}}>+</Text></Pressable>
+                
+              </View>
+            </View>
+            
+            
+          </View>
+          
           <View>
             {isPressed === 0 &&
-              receta.ingredientes?.map((i, index) => (
+              ingredientesCalc?.map((i, index) => (
                 <CardIngredient
                   key={index}
                   name={i.nombre}

@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const saveTokens = async (accessToken, refreshToken, rememberMe) => {
         await AsyncStorage.setItem("access_token", accessToken);
         await AsyncStorage.setItem("refresh_token", refreshToken);
-        console.log("guardados tokes")
+        console.log("guardados tokens")
   };
 
   const login = async (email, password, rememberMe) => {
@@ -70,13 +70,8 @@ export const AuthProvider = ({ children }) => {
 
     /*
   const register_first_step = async (alias, email) => {
-    const form = URLSearchParams();
-    form.append("alias", alias);
-    form.append("email", email);
     try {
-      const res = await axios.post(`${API_BASE_URL}/register`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/register`, {alias, email});
 
       return res.data;
     } catch (err) {
@@ -85,14 +80,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const verification_code = async (email, user_code) => {
-    const form = URLSearchParams();
-    form.append("email", email);
-    form.append("code", user_code);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/verify-code`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/verify-code`, {email, user_code});
 
       return res.data;
     } catch (err) {
@@ -101,14 +91,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const setPassword = async (email, password) => {
-    const form = URLSearchParams();
-    form.append("email", email);
-    form.append("password", password);
-
     try {
-      const res = await axios.post(`${API_BASE_URL}/create-password`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/create-password`,{email, password});
 
       return res.data;
     } catch (err) {
@@ -117,14 +101,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const setAvatar = async (email, avatar) => {
-    const form = URLSearchParams();
-    form.append("email", email);
-    form.append("avatar", avatar);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/choose-avatar`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/choose-avatar`, {email, avatar});
 
       return res.data;
     } catch (err) {
@@ -133,14 +112,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const chooseRole = async (email, role) => {
-    const form = URLSearchParams();
-    form.append("email", email);
-    form.append("role", role);
-
     try {
-      const res = await axios.post(`${API_BASE_URL}/choose-role`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/choose-role`, {email, role});
 
       return res.data;
     } catch (err) {
@@ -155,17 +128,9 @@ export const AuthProvider = ({ children }) => {
     cardExpireDate,
     cardCVV,
   }) => {
-    const form = URLSearchParams();
-    form.append("email", email);
-    form.append("cardNumber", cardNumber);
-    form.append("cardName", cardName);
-    form.append("cardExpireDate", cardExpireDate);
-    form.append("cardCVV", cardCVV);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/payment-method`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/payment-method`, {email, cardNumber, cardName, cardExpireDate, cardCCV});
 
       return res.data;
     } catch (err) {
@@ -174,15 +139,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const studentData = async ({ frontId, backId, procedureNumber }) => {
-    const form = URLSearchParams();
-    form.append("frontId", frontId);
-    form.append("backId", backId);
-    form.append("procedureNumber", procedureNumber);
-
     try {
-      const res = await axios.post(`${API_BASE_URL}/student-data`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      const res = await axios.post(`${API_BASE_URL}/student-data`, {frontId, backId, procedureNumber});
 
       return res.data;
     } catch (err) {

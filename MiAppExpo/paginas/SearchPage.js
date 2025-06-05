@@ -7,15 +7,14 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import axios from "axios";
 
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
-import API_BASE_URL from "../utils/config.js"; ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
+
 import SideMenu from "../components/CustomDrawer.js";
 import { colors } from "../utils/themes.js";
-
+import api from "../api/axiosInstance";
 const menu = require("../assets/menu.png");
 const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
@@ -28,8 +27,8 @@ export default function SearchPage({ navigation }) {
   const [visible, setVisible] = useState(false); //prueba del sidemenu
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/recetas`)
+    api
+      .get("/recetas")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);
@@ -37,8 +36,8 @@ export default function SearchPage({ navigation }) {
   }, []);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/curso`)
+    api
+      .get("/curso")
       .then((res) => setCursos(res.data))
       .catch((err) => {
         console.error("Error al obtener cursos:", err);

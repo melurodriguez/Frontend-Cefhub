@@ -1,78 +1,74 @@
 import React, { createContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 import axios from "axios";
 import API_BASE_URL from "../utils/config";
-import { Platform } from "react-native";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null); // opcional
-  const [loading, setLoading] = useState(true); //para manejar el splash (falta hacer)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const saveToken = async (token, rememberMe) => {
-    if (Platform.OS === "web") {
-      if (rememberMe) {
-        localStorage.setItem("token", token);
-      } else {
-        localStorage.removeItem("token");
-      }
-    } else {
-      if (rememberMe) {
-        await AsyncStorage.setItem("token", token);
-      } else {
-        await AsyncStorage.removeItem("token");
-      }
-    }
+  const saveTokens = async (accessToken, refreshToken, rememberMe) => {
+        await AsyncStorage.setItem("access_token", accessToken);
+        await AsyncStorage.setItem("refresh_token", refreshToken);
+        console.log("guardados tokes")
   };
 
   const login = async (email, password, rememberMe) => {
-    const dataToSend = {
-      email: email,
-      password: password,
-    };
-
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/login`,
-        dataToSend,
-      );
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password }); // 👈 axios directo
+
       const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
       const userData = response.data.user;
 
       setToken(accessToken);
       setUser(userData);
-      await saveToken(accessToken, rememberMe);
+      await saveTokens(accessToken, refreshToken, rememberMe);
 
       console.log("Login exitoso:", userData);
+      return true;
     } catch (err) {
       console.error("Error en el inicio de sesión:", err);
       throw err;
     } finally {
       setLoading(false);
-      return true;
     }
-
-    //falta implement recordarme
   };
 
-  //función para cerrar sesión
   const logout = async () => {
     setToken(null);
     setUser(null);
-    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("access_token");
+    await AsyncStorage.removeItem("refresh_token");
     setLoading(false);
   };
 
-  //función para cargar token entrecierres y aperturas de app
   const loadToken = async () => {
-    const storedToken = await AsyncStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
+    try {
+      const storedAccessToken =
+        Platform.OS === "web"
+          ? localStorage.getItem("access_token")
+          : await AsyncStorage.getItem("access_token");
+
+      if (storedAccessToken) {
+        setToken(storedAccessToken);
+      }
+    } catch (err) {
+      console.error("Error cargando los tokens:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadToken();
+  }, []);
+
+    /*
   const register_first_step = async (alias, email) => {
     const form = URLSearchParams();
     form.append("alias", alias);
@@ -197,7 +193,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadToken();
   }, []);
-
+ */
   return (
     <AuthContext.Provider value={{ token, user, login, logout, loading }}>
       {children}

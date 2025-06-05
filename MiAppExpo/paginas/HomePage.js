@@ -3,16 +3,15 @@ import RecipeCard from "../components/recipeCard";
 import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Image, Pressable } from "react-native";
 const welcomeIcon = require("../assets/welcomeIcon.png");
-import axios from "axios";
+import api from "../api/axiosInstance";
 
-import API_BASE_URL from "../utils/config.js"; ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
 
 export default function HomePage({ navigation }) {
   const [recetas, setRecetas] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/recetas/ultimas`)
+    api
+      .get("/recetas/ultimas")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);

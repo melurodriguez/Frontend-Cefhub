@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, View, Text, Image, StyleSheet } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
-import API_BASE_URL from "../utils/config";
+import api from "../api/axiosInstance";
 
 const menu = require("../assets/menu.png");
 const user = require("../assets/user.png");
@@ -23,25 +23,35 @@ export default function Profile() {
     }
   }
 
-  const favorite_recipes = async () => {
+  const getUserInfo = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/me/recetas_favoritas`);
-      const data = await res.json();
-      setRecetas(data);
+      const response = await api.get('/me');
+      return response.data;
     } catch (error) {
-      console.error("Error al obtener recetas favoritas: ", error);
+      console.error('Error al obtener la info del usuario:', error);
+      throw error;
     }
   };
 
-  const courses = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/me/cursos`);
-      const data = await res.json();
-      setCursos(data);
-    } catch (error) {
-      console.error("Error al obtener mis cursos: ", error);
-    }
-  };
+  const favorite_recipes = async () => {
+     try {
+       const response = await api.get('/me/recetas_favoritas');
+       return response.data;
+     } catch (error) {
+       console.error('Error al obtener recetas favoritas:', error);
+       throw error;
+     }
+    };
+
+  const courses =async () => {
+   try {
+     const response = await api.get('/me/cursos');
+     return response.data;
+   } catch (error) {
+     console.error('Error al obtener los cursos del usuario:', error);
+     throw error;
+   }
+ };
 
   useEffect(() => {
     favorite_recipes();

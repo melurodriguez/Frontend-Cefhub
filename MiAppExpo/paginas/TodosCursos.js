@@ -7,7 +7,7 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import axios from "axios";
+
 import { colors } from "../utils/themes.js";
 
 import CardCurso from "../components/CardCurso";
@@ -18,15 +18,15 @@ const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
 const backArrow = require("../assets/backArrow.png");
 
-import API_BASE_URL from "../utils/config.js"; ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
+import api from "../api/axiosInstance";
 
 export default function TodosCursos({ navigation }) {
   const [search, setSearch] = useState("");
   const [cursos, setCursos] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/curso`)
+    api
+      .get("/curso")
       .then((res) => setCursos(res.data))
       .catch((err) => {
         console.error("Error al obtener cursos:", err);

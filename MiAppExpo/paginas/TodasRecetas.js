@@ -7,7 +7,7 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import axios from "axios";
+
 import { colors } from "../utils/themes.js";
 
 import RecipeCard from "../components/recipeCard";
@@ -18,7 +18,7 @@ const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
 const backArrow = require("../assets/backArrow.png");
 
-import API_BASE_URL from "../utils/config.js"; ///ACA IMPORTA EL URL PARA PEGARLE AL ENDPOINT
+import api from "../api/axiosInstance";
 
 export default function TodasRecetas({ navigation }) {
   const [search, setSearch] = useState("");
@@ -26,8 +26,8 @@ export default function TodasRecetas({ navigation }) {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/recetas`)
+    api
+      .get("/recetas")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);

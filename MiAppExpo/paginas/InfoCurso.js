@@ -11,7 +11,7 @@ import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../utils/config";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const { height } = Dimensions.get("window"); //CAMBIAR
 
@@ -25,8 +25,8 @@ export default function InfoCurso({ navigation }) {
   const [curso, setCurso] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/curso/${id}`)
+    api
+      .get(`/curso/${id}`)
       .then((res) => setCurso(res.data))
       .catch((err) => console.error(err));
   }, []);

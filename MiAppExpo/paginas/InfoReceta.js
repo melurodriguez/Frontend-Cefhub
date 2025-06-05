@@ -14,7 +14,7 @@ import CardInstructions from "../components/CardInstructions";
 import PopUp from "../components/PopUp";
 import CardCreator from "../components/CardCreator";
 import { useRoute } from "@react-navigation/native";
-import axios from "axios";
+import api from "../api/axiosInstance";
 import API_BASE_URL from "../utils/config";
 
 const cancel = require("../assets/cancel.png");
@@ -29,8 +29,8 @@ export default function InfoReceta({ navigation }) {
   const [receta, setReceta] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/recetas/${id}`)
+    api
+      .get(`/recetas/${id}`)
       .then((res) => setReceta(res.data))
       .catch((err) => console.error(err));
   }, []);

@@ -28,7 +28,7 @@ export default function SearchPage({ navigation }) {
 
   useEffect(() => {
     api
-      .get("/recetas")
+      .get("/recetas?limit=3")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);
@@ -44,15 +44,10 @@ export default function SearchPage({ navigation }) {
       });
   }, []);
 
-  const searchRecipe = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/recetas?q=${search}`);
-      const data = await res.json();
-      setRecetas(data);
-      console.log("receta traida");
-    } catch (error) {
-      console.error("Error al buscar recetas: ", error);
-    }
+  const porNombre = () => {
+          api.get(`/recetas?nombre=${search}`).then((res) => setRecetas(res.data))
+          .catch((err) => console.error("Error al aplicar filtros:", err));
+
   };
 
   const handleMenu = () => {
@@ -85,8 +80,8 @@ export default function SearchPage({ navigation }) {
           placeholder="Search"
           onChangeText={setSearch}
           style={styles.input}
-        ></TextInput>
-        <Pressable onPress={searchRecipe}>
+        />
+        <Pressable onPress={porNombre}>
           <Image source={searchIcon} style={{ tintColor: "#000" }} />
         </Pressable>
       </View>
@@ -98,7 +93,7 @@ export default function SearchPage({ navigation }) {
             <Text style={styles.verTodos}>Ver todos →</Text>
           </Pressable>
         </View>
-        {recetas.slice(0, 3).map((receta, index) => (
+        {recetas.map((receta, index) => (
           <View style={styles.card} key={index}>
             <RecipeCard
               data={receta}
@@ -117,7 +112,7 @@ export default function SearchPage({ navigation }) {
           </Pressable>
         </View>
 
-        {cursos.slice(0, 3).map((curso, index) => (
+        {cursos.map((curso, index) => (
           <View style={styles.card} key={index}>
             <CardCurso
               data={curso}

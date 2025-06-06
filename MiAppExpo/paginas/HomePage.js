@@ -11,7 +11,7 @@ export default function HomePage({ navigation }) {
 
   useEffect(() => {
     api
-      .get("/recetas/ultimas")
+      .get("/recetas?sort=fecha_publicacion&order=desc&limit=3")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);

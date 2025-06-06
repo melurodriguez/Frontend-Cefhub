@@ -107,7 +107,7 @@ export default function Profile() {
         {pressed === 0 &&
           recetas.map((receta, index) => (
             <View key={index} style={styles.receta}>
-              <RecipeCard data={receta} />
+              <RecipeCard data={receta} onPress={() => navigation.navigate("InfoReceta", { id: receta.id }) }/>
             </View>
           ))}
 
@@ -133,35 +133,79 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   container: {
-      paddingTop: 40, // Espacio desde arriba para que no esté pegado
+      paddingTop: 40,
       paddingHorizontal: 20,
-      alignItems: "stretch",
+      alignItems: "center",
     },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  page: {
-    fontWeight: "700",
-    fontSize: 24,
-  },
-  userContainer: {
-    flexDirection: "row",
-    backgroundColor: "#c0c0c0",
-    borderRadius: 15,
-    padding: 10,
-  },
-  btnContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 20,
-  },
-  btnPressed: {
-    color: "#505c86",
-    fontWeight: "700",
-  },
-  receta: {
-    padding: 10,
-  },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+      marginBottom: 20,
+      marginTop:60
+    },
+    page: {
+      fontWeight: "700",
+      fontSize: 24,
+    },
+    userContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#c0c0c0",
+      borderRadius: 15,
+      padding: 10,
+      width: "100%",
+      marginBottom: 20,
+    },
+    avatar: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      marginRight: 10,
+    },
+    userInfo: {
+      flexShrink: 1,
+    },
+    alias: {
+      fontWeight: "bold",
+      fontSize: 18,
+    },
+    tipo: {
+      color: "#333",
+    },
+    line: {
+      backgroundColor: "#d9d9d9",
+      width: "100%",
+      height: 1,
+      marginBottom: 20,
+    },
+    btnContainer: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      width: "100%",
+      marginBottom: 10,
+    },
+    btn: {
+      fontSize: 16,
+      color: "#333",
+    },
+    btnPressed: {
+      color: "#505c86",
+      fontWeight: "700",
+    },
+    sectionTitle: {
+      fontWeight: "700",
+      fontSize: 20,
+      marginBottom: 15,
+    },
+    card: {
+      padding: 5,
+      marginBottom: 10,
+      width: "100%",
+    },
+    logout: {
+      color: "#d00",
+      fontWeight: "bold",
+      fontSize: 16,
+    },
 });

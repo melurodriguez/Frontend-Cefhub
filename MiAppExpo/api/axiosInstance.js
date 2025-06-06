@@ -35,6 +35,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        console.log("Token expirado --> Pido refresh del token")
         const refreshToken = await AsyncStorage.getItem("refresh_token");
         if (!refreshToken) throw new Error("No refresh token");
 

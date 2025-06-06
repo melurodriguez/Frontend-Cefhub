@@ -116,7 +116,6 @@ function TabNavigatorVisitante() {
       })}
     >
       <Tab.Screen name="Menú" component={HomePage} />
-      <Tab.Screen name="Cargar" component={RecipeLoad} />
       <Tab.Screen name="Búsqueda" component={SearchPage} />
       <Tab.Screen name="Perfile" component={ProfileNotLogged} />
     </Tab.Navigator>
@@ -124,35 +123,52 @@ function TabNavigatorVisitante() {
 }
 
 function AppNavigator() {
-  const { userToken, loading, user } = useContext(AuthContext);
+  const { token, loading, user } = useContext(AuthContext);
   const context = useContext(AuthContext);
+
+  if (loading) {
+      return <Splash />; // mientras carga el contexto, mostrar splash
+  }
+
   console.log("Contexto actual:", context);
-  console.log("user tokn: ", userToken);
+  console.log("user tokn: ", token);
   console.log("usuario: ", user);
 
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Splash" component={Splash} />
-        <Stack.Screen name="MainVisitor" component={TabNavigatorVisitante} />
-        <Stack.Screen name="Main" component={TabNavigator} />
-        <Stack.Screen name="LoginPage" component={LoginPage} />
-        <Stack.Screen name="InfoCurso" component={InfoCurso} />
-        <Stack.Screen name="InfoReceta" component={InfoReceta} />
-        <Stack.Screen name="TodosCursos" component={TodosCursos} />
-        <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
-        <Stack.Screen name="RegisterPage" component={RegisterPage} />
-        <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
-        <Stack.Screen
-          name="SecondStepRegister"
-          component={SecondStepRegister}
-        />
-        <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
-      </Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+              {/* Pantalla splash inicial */}
+              <Stack.Screen name="Splash" component={Splash} />
+
+              {/* Si NO está logueado */}
+              {!token ? (
+                <>
+                  <Stack.Screen name="MainVisitor" component={TabNavigatorVisitante} options={{ headerShown: false }} />
+                  <Stack.Screen name="LoginPage" component={LoginPage} />
+                  <Stack.Screen name="RegisterPage" component={RegisterPage} />
+                  <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />
+                  <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
+                  <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
+                  <Stack.Screen name="TodosCursos" component={TodosCursos} />
+                  <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                </>
+              ) : (
+                <>
+                  {/* Si está logueado */}
+                  <Stack.Screen name="Main" component={TabNavigator} />
+                  <Stack.Screen name="LoginPage" component={LoginPage} />
+                  <Stack.Screen name="RegisterPage" component={RegisterPage} />
+                  <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />
+                  <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
+                  <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
+                  <Stack.Screen name="TodosCursos" component={TodosCursos} />
+                  <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="InfoCurso" component={InfoCurso} />
+                  <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
+                </>
+              )}
+            </Stack.Navigator>
     </NavigationContainer>
   );
 }

@@ -7,11 +7,11 @@ import { AuthContext } from "../auth/AuthContext";
 const icon = require("../assets/notebookCat.png");
 
 export default function Splash({ navigation }) {
-  const { user } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (user) {
+      if (token) {
         navigation.replace("Main");
       } else {
         navigation.replace("MainVisitor");
@@ -19,7 +19,7 @@ export default function Splash({ navigation }) {
     }, 1500); // Tiempo opcional para mostrar el splash
 
     return () => clearTimeout(timer);
-  }, [user]);
+  }, [token]);
 
   return (
     <View style={styles.container}>

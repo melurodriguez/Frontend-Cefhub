@@ -12,7 +12,7 @@ import { useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
-
+import { Alert } from "react-native"; // agregalo arriba con los imports
 const { height } = Dimensions.get("window"); //CAMBIAR
 
 const cancel = require("../assets/cancel.png");
@@ -23,60 +23,71 @@ export default function InfoCurso({ navigation }) {
   const { id } = route.params;
   console.log(id);
   const [curso, setCurso] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     api
       .get(`/curso/${id}`)
       .then((res) => setCurso(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        if (err.response?.status === 403) {
+          //console.log("Acceso restringido", "Debes ser alumno para ver esta información");
+          setError("403");
+        } else if (err.response?.status === 404) {
+          //console.log("Error", "Curso no encontrado");
+          setError("404");
+        } else {
+          //console.error(err);
+          setError("unknown");
+        }
+      });
   }, []);
 
-  const sedes = [
-    {
-      id: 1,
-      sede: "Sede Montserrat",
-      direccion: {
-        calle: "Lima",
-        altura: "707",
-      },
-      telefono: "11111111",
-      correo: "ejemplo@gmail.com",
-    },
-    {
-      id: 2,
-      sede: "Sede Montserrat",
-      direccion: {
-        calle: "Lima",
-        altura: "707",
-      },
-      telefono: "11111111",
-      correo: "ejemplo@gmail.com",
-    },
-    {
-      id: 3,
-      sede: "Sede Montserrat",
-      direccion: {
-        calle: "Lima",
-        altura: "707",
-      },
-      telefono: "11111111",
-      correo: "ejemplo@gmail.com",
-    },
-  ];
+  useEffect(() => {
+    if (error) {
+      let title = "";
+      let message = "";
 
-  if (!curso) {
+      if (error === "403") {
+        title = "Acceso restringido";
+        message = "Debes ser alumno para ver esta información";
+      } else if (error === "404") {
+        title = "Error";
+        message = "Curso no encontrado";
+      } else {
+        title = "Error";
+        message = "Ocurrió un error inesperado";
+      }
+
+      Alert.alert(
+        title,
+        message,
+        [
+          {
+            text: "Aceptar",
+            onPress: () => {
+              navigation.goBack()
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  }, [error]);
+
+
+
+
+  if (!curso || error) {
     return (
-      <Text
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          fontWeight: "700",
-        }}
-      >
-        Cargando receta...
-      </Text>
+      <View style={styles.container}>
+        <Text>Cargando curso...</Text>
+      </View>
     );
   }
+
+
+
 
   return (
     <View style={styles.container}>
@@ -113,9 +124,7 @@ export default function InfoCurso({ navigation }) {
           <Text key={index}>{insumo}</Text>
         ))}
 
-        {sedes.map((sede, index) => (
-          <CardSedes key={sede.id} sede={sede} />
-        ))}
+
       </View>
     </View>
   );

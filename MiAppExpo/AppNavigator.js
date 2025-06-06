@@ -152,6 +152,8 @@ function AppNavigator() {
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="SearchPage" component={SearchPage} />
+                  <Stack.Screen name="InfoCurso" component={InfoCurso} />
                 </>
               ) : (
                 <>
@@ -166,6 +168,7 @@ function AppNavigator() {
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
+                  <Stack.Screen name="SearchPage" component={SearchPage} />
                 </>
               )}
             </Stack.Navigator>

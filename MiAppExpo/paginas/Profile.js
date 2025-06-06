@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Pressable, View, Text, Image, StyleSheet } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
@@ -9,6 +9,7 @@ const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
 
 export default function Profile() {
+  const { logout } = useContext(AuthContext);
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
@@ -117,14 +118,25 @@ export default function Profile() {
             </View>
           ))}
       </View>
+
+      <View style={{ alignItems: "center", marginTop: 30 }}>
+        <Pressable onPress={logout}>
+          <Text style={{ color: "#d00", fontWeight: "bold", fontSize: 16 }}>
+            Cerrar sesión
+          </Text>
+        </Pressable>
+      </View>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-  },
+      paddingTop: 40, // Espacio desde arriba para que no esté pegado
+      paddingHorizontal: 20,
+      alignItems: "stretch",
+    },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

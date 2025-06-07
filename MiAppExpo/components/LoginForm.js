@@ -53,7 +53,7 @@ export default function LoginForm({ navigation }) {
     try {
       const success = await login(form.email, form.password, form.rememberMe);
       if (success) {
-        navigation.navigate("Main");
+        navigation.navigate("Menú");
       }
     } catch (error) {
       Alert.alert("Error", "Credenciales inválidas o problema de red.");

@@ -1,6 +1,7 @@
 import { View, Text, Image, StyleSheet } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useState } from "react";
+import { sizes } from "../utils/themes";
 
 export default function CardInstructions({ desc, media, index }) {
   const [isChecked, setChecked] = useState(false);
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     flexDirection: "row",
     justifyContent: "space-between",
+    width:sizes.width*0.9
   },
 
   title: {
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
 
   desc: {
     fontSize: 14,
-    paddingLeft: 10,
+    //paddingLeft: 10,
   },
   img: {
     width: 110,

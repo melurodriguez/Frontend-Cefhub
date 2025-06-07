@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Dimensions,
   ScrollView,
+  TextInput,
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
 import CardInstructions from "../components/CardInstructions";
@@ -18,6 +19,7 @@ import api from "../api/axiosInstance";
 import API_BASE_URL from "../utils/config";
 import { useContext } from "react";
 import { AuthContext } from "../auth/AuthContext";
+import { colors, fonts, sizes } from "../utils/themes";
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -218,7 +220,7 @@ export default function InfoReceta({ navigation }) {
             <Text style={styles.seleccionado}>
             {isPressed === 1 ? instrucciones : ingredientes}
             </Text>
-            <View style={{alignItems:"center"}}>
+            <View style={{alignItems:"center", marginHorizontal:20}}>
               <Text style={styles.seleccionado}>Porciones</Text>
               <View style={{flexDirection:"row"}}> 
                 <Pressable onPress={restarPorcion}><Text style={{fontWeight:"700", fontSize:24}}>-</Text></Pressable>            
@@ -255,7 +257,36 @@ export default function InfoReceta({ navigation }) {
           </View>
 
           <CardCreator alias={receta.usuarioCreador} />
+
+          <View style={{flexDirection:"row", justifyContent:"space-between", marginVertical:30, alignItems:"center", marginHorizontal:20}}>
+            <View>
+              <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginVertical:10}}>Califica la receta!</Text>
+              <View style={{flexDirection:"row", paddingVertical:10}}>
+
+                <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
+                <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
+                <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
+                <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
+                <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
+
+              </View>
+              
+            </View>
+            <View style={{flexDirection:"row"}}>
+              <Text style={{paddingHorizontal:10}}>{receta.valoracion}</Text>
+              <Image source={require('../assets/star.png')}/>
+            </View>
+          </View>
+
+
+          <TextInput placeholder="Dejá tu comentario..." style={styles.comentario}/>
+
+          <View>
+            <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginHorizontal:20}}>Comentarios</Text>
+          </View>
         </View>
+
+        
       </View>
     </ScrollView>
   );
@@ -325,4 +356,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
   },
+
+  comentario:{
+    width:sizes.width*0.9,
+    backgroundColor:colors.backgroundColorLight,
+    height:200,
+    borderRadius:sizes.radius,
+    marginVertical:20,
+  }
 });

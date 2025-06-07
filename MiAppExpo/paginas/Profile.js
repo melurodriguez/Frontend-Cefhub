@@ -1,14 +1,15 @@
 import { useEffect, useState, useContext } from "react";
-import { Pressable, View, Text, Image, StyleSheet } from "react-native";
+import { Pressable, View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
+import { colors, fonts, sizes } from "../utils/themes";
 
 const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
 
-export default function Profile() {
+export default function Profile({navigation}) {
   const { logout } = useContext(AuthContext);
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
@@ -39,24 +40,24 @@ export default function Profile() {
   };
 
   const favorite_recipes = async () => {
-  try {
-    const response = await api.get("user/me/recetas_favoritas");
-    const ids = response.data;
-    console.log("IDs favoritos:", ids);
+    try {
+      const response = await api.get("user/me/recetas_favoritas");
+      const ids = response.data;
+      console.log("IDs favoritos:", ids);
 
-    const recetasCompletas = await Promise.all(
-      ids.map(async (id) => {
-        console.log("Consultando receta con ID:", id);
-        const res = await api.get(`recetas/${id}`);
-        return res.data;
-      })
-    );
+      const recetasCompletas = await Promise.all(
+        ids.map(async (id) => {
+          console.log("Consultando receta con ID:", id);
+          const res = await api.get(`recetas/${id}`);
+          return res.data;
+        })
+      );
 
-    setRecetas(recetasCompletas);
-  } catch (error) {
-    console.error("Error al obtener recetas favoritas:", error);
-  }
-};
+      setRecetas(recetasCompletas);
+    } catch (error) {
+      console.error("Error al obtener recetas favoritas:", error);
+    }
+  };
 
 
   const courses =async () => {
@@ -68,7 +69,12 @@ export default function Profile() {
      console.error('Error al obtener los cursos del usuario:', error);
      throw error;
    }
- };
+  };
+
+  const avatar= async()=>{
+    const path=user.avatar.replace("img/cocinero1.jpg", "assets/user.png")
+    return path;
+  }
 
   useEffect(() => {
     favorite_recipes();
@@ -76,7 +82,7 @@ export default function Profile() {
   }, []);
 
   return (
-    <View>
+    <ScrollView>
       <View style={styles.header}>
         <Text style={styles.page}>Mi Cuenta</Text>
         <Pressable>
@@ -85,13 +91,15 @@ export default function Profile() {
       </View>
 
       <View style={styles.userContainer}>
-        <Image source={user?.avatar ?? userAvatar} />
+        <View style={styles.innerShadow}></View>
+        <Image source={avatar}/>
         <View>
-          <Text>{user?.alias ?? "Mi Usuario"}</Text>
-          <Text>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
+          <Text style={{fontWeight:fonts.bold, fontSize:fonts.small}}>{user?.alias ?? "Mi Usuario"}</Text>
+          <Text style={{color:"#c0c0c0"}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
       </View>
       <View style={styles.btnContainer}>
+        
         {buttons.map((title, index) => (
           <Pressable key={index} onPress={() => handleClick(index)}>
             <Text style={[styles.btn, pressed === index && styles.btnPressed]}>
@@ -100,10 +108,10 @@ export default function Profile() {
           </Pressable>
         ))}
       </View>
-      <Text style={{ fontWeight: "700", fontSize: 20 }}>
+      <Text style={{ fontWeight: "700", fontSize: 20, margin:20}}>
         {buttons[pressed]}
       </Text>
-      <View>
+      <View style={{marginHorizontal:10, alignItems:"center"}}>
         {pressed === 0 &&
           recetas.map((receta, index) => (
             <View key={index} style={styles.receta}>
@@ -127,7 +135,7 @@ export default function Profile() {
         </Pressable>
       </View>
 
-    </View>
+    </ScrollView>
   );
 }
 
@@ -147,15 +155,18 @@ const styles = StyleSheet.create({
     page: {
       fontWeight: "700",
       fontSize: 24,
+      alignSelf:"center"
     },
     userContainer: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: "#c0c0c0",
+      backgroundColor: colors.backgroundColorLight,
       borderRadius: 15,
       padding: 10,
-      width: "100%",
+      width: sizes.width*0.9,
       marginBottom: 20,
+      marginHorizontal:20,
+      alignSelf:"center"
     },
     avatar: {
       width: 60,
@@ -208,4 +219,22 @@ const styles = StyleSheet.create({
       fontWeight: "bold",
       fontSize: 16,
     },
+    receta:{
+      marginVertical:10,
+    },
+    innerShadow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
+    backgroundColor: "transparent",
+    zIndex: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+
+  },
 });

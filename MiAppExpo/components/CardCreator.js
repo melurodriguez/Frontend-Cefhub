@@ -1,4 +1,5 @@
 import { StyleSheet, View, Text, Image } from "react-native";
+import { sizes } from "../utils/themes";
 
 const user = require("../assets/user.png");
 
@@ -24,6 +25,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 20,
     padding: 20,
+    width:sizes.width*0.9,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   creador: {
     fontWeight: "700",

@@ -6,6 +6,7 @@ import {
   Dimensions,
   Pressable,
   Image,
+  ScrollView,
 } from "react-native";
 import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
 import { Alert } from "react-native"; // agregalo arriba con los imports
+import { colors, fonts, sizes } from "../utils/themes";
 const { height } = Dimensions.get("window"); //CAMBIAR
 
 const cancel = require("../assets/cancel.png");
@@ -24,6 +26,7 @@ export default function InfoCurso({ navigation }) {
   console.log(id);
   const [curso, setCurso] = useState(null);
   const [error, setError] = useState(null);
+  const [sedes, setSedes]=useState([])
 
   useEffect(() => {
     api
@@ -42,6 +45,16 @@ export default function InfoCurso({ navigation }) {
         }
       });
   }, []);
+
+  useEffect(()=>{
+    api
+      .get(`/curso/${id}/sedes`)
+      .then((res)=>setSedes(res.data))
+      .catch((err)=> {
+        console.error("Error al obtener la sede: ", err.message)
+        console.error(err.config?.url);
+      })
+  },[])
 
   useEffect(() => {
     if (error) {
@@ -90,7 +103,7 @@ export default function InfoCurso({ navigation }) {
 
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <ImageBackground
         source={{ uri: `${API_BASE_URL}/static/${curso.imagen_curso_url}` }}
         resizeMode="cover"
@@ -111,22 +124,62 @@ export default function InfoCurso({ navigation }) {
         <Text style={styles.desc}>{curso.descripcion_breve}</Text>
         <Text style={styles.objetivo}>Objetivo</Text>
         <Text style={styles.objDesc}>{curso.descripcion_completa}</Text>
-        <Text style={styles.objetivo}>Temas</Text>
-        {curso.temas?.map((tema, index) => (
-          <Text key={index}>{tema}</Text>
-        ))}
-        <Text style={styles.objetivo}>Prácticas</Text>
-        {curso.practicas?.map((practica, index) => (
-          <Text key={index}>{practica}</Text>
-        ))}
-        <Text style={styles.objetivo}>Insumos</Text>
-        {curso.insumos?.map((insumo, index) => (
-          <Text key={index}>{insumo}</Text>
-        ))}
+        <View style={styles.card}>
+          <View style={styles.innerShadow}></View>
+          <Text style={styles.objetivo}>Temario</Text>
+          <View>
+            {curso.temas?.map((tema, index) => (
+              <Text key={index} style={{margin:5, paddingHorizontal:10}} >{tema}</Text>
+            ))}
+          </View>
+          
+          
+        </View>
+        
+        <View style={styles.card}>
+          <View style={styles.innerShadow}></View>
+          <Text style={styles.objetivo}>Prácticas</Text>
+          <View >
+            {curso.practicas?.map((practica, index) => (
+              <Text key={index} style={{margin:5, paddingHorizontal:10}}>{practica}</Text>
+            ))}
+
+          </View>
+        </View>
+        
+        <View style={styles.card}>
+          <View style={styles.innerShadow}></View>
+          <Text style={styles.objetivo}>Insumos</Text>
+
+          <View>
+            {curso.insumos?.map((insumo, index) => (
+              <Text key={index} style={{margin:5, paddingHorizontal:10}}>{insumo}</Text>
+            ))}
+          </View>
+          
+
+        </View>
+
+        <View style={{flexDirection:"row", alignItems:"center", marginVertical:20, justifyContent:"space-between", marginRight:20}}>
+          <Text style={styles.objetivo}>Valor del curso:</Text>
+          <View style={{alignItems:"flex-end"}}>
+            <Text style={styles.objetivo}>${curso.precio}ARS</Text>
+          </View>
+        </View>
 
 
+        {sedes.map((sede, index)=>{
+          <CardSedes key={index} sede={sede}/>
+        })}
+        
+
+        <View style={{alignItems:"flex-end"}}>
+          <Pressable style={styles.btn}><Text style={styles.btnText}>Inscribirme</Text></Pressable>
+        </View>
+
+        
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -163,5 +216,46 @@ const styles = StyleSheet.create({
   },
   objDesc: {
     padding: 10,
+  },
+  btn:{
+    backgroundColor:colors.primary,
+    paddingHorizontal:20,
+    paddingVertical:15,
+    borderRadius:sizes.radius,
+    justifyContent:"center",
+    alignItems:"center",
+    marginRight:20
+  },
+  btnText:{
+    color:colors.white,
+    fontWeight:fonts.bold,
+    fontSize:fonts.medium
+  },
+  card:{
+    flexDirection:"row", 
+    alignItems:"center", 
+    marginVertical:10 , 
+    marginRight:20, 
+    backgroundColor:colors.secondary, 
+    borderRadius:sizes.radius, 
+    paddingVertical:10,
+
+    height:166
+  },
+  innerShadow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
+    backgroundColor: "transparent",
+    zIndex: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+
+    height: 166,
   },
 });

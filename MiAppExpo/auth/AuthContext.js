@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, rememberMe) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password }); // 👈 axios directo
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password }); 
 
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;

@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import { sizes } from "../utils/themes";
 
 export default function CardIngredient({ name, quantity }) {
   return (
@@ -21,6 +22,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    width:sizes.width*0.9
   },
 
   name: {

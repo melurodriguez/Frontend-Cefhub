@@ -14,7 +14,7 @@ export default function CodeForm({ navigation }) {
         <Image source={welcomeIcon} />
         <View style={styles.content}>
           <Text style={styles.title}>Ingresá tu código</Text>
-          <Text>Se ha enviado un código a tu correo</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>Se ha enviado un código a tu correo</Text>
 
           <View style={styles.inputContainer}>
             <TextInput style={styles.input}></TextInput>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     fontSize: 24,
     padding: 10,
   },
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
   },
 });

@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import api from "../api/axiosInstance";
+import { colors } from "../utils/themes";
 
 export default function LoadForm() {
   const [camposHabilitados, setCamposHabilitados] = useState(false);
@@ -331,7 +332,7 @@ export default function LoadForm() {
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  sectionTitle: { fontSize: 16, fontFamily:'Sora_700Bold', marginBottom: 10 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 6,
   },
-  addButtonText: { fontWeight: "bold" },
+  addButtonText: { fontFamily:'Sora_700Bold', },
   stepContainer: { marginBottom: 20 },
   mediaButton: {
     backgroundColor: "#edd",
@@ -362,13 +363,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: colors.primary,
     padding: 15,
-    borderRadius: 6,
+    borderRadius: 15,
     alignItems: "center",
     marginTop: 30,
   },
-  saveButtonText: { color: "white", fontWeight: "bold" },
+  saveButtonText: { color: "white", fontFamily:'Sora_700Bold', },
   inputDisabled: {
       backgroundColor: '#ddd',
     },

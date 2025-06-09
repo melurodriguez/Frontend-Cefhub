@@ -69,6 +69,8 @@ export default function Profile({navigation}) {
 
   useEffect(() => {
     favorite_recipes();
+    console.log(user)
+
   }, []);
 
   return (
@@ -84,8 +86,8 @@ export default function Profile({navigation}) {
         <View style={styles.innerShadow}></View>
         <Image source={userAvatar}/>
         <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
-          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small }}>{user?.alias ?? "Mi Usuario"}</Text>
-          <Text style={{ color: "#c0c0c0" }}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
+          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small, fontFamily:'Sora_700Bold' }}>{user?.alias ?? "Mi Usuario"}</Text>
+          <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
 
         <View style={{ marginTop: 10, marginRight:10, alignItems: "flex-end" }}>
@@ -106,7 +108,7 @@ export default function Profile({navigation}) {
           </Pressable>
         ))}
       </View>
-      <Text style={{ fontWeight: "700", fontSize: 20, margin:20}}>
+      <Text style={{ fontFamily:'Sora_700Bold', fontSize: 20, margin:20}}>
         {buttons[pressed]}
       </Text>
       <View style={{marginHorizontal:10, alignItems:"center"}}>
@@ -115,7 +117,7 @@ export default function Profile({navigation}) {
             <View key={index} style={styles.receta}>
               <RecipeCard
                 data={receta}
-                onPress={() => navigation.navigate("InfoReceta", { id: receta.id })}
+                onPress={() => navigation.navigate("InfoReceta", { id:receta.id })}
               />
             </View>
           ))
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
       marginHorizontal:20
     },
     page: {
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
       fontSize: 24,
       alignSelf:"center"
     },
@@ -179,11 +181,12 @@ const styles = StyleSheet.create({
       flexShrink: 1,
     },
     alias: {
-      fontWeight: "bold",
+      fontFamily:'Sora_700Bold',
       fontSize: 18,
     },
     tipo: {
       color: "#333",
+      fontFamily:'Sora_400Regular'
     },
     line: {
       backgroundColor: "#d9d9d9",
@@ -200,13 +203,14 @@ const styles = StyleSheet.create({
     btn: {
       fontSize: 16,
       color: "#333",
+      fontFamily:'Sora_400Regular',
     },
     btnPressed: {
       color: "#505c86",
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
     },
     sectionTitle: {
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
       fontSize: 20,
       marginBottom: 15,
     },
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
     },
     logout: {
       color: "#d00",
-      fontWeight: "bold",
+      fontFamily:'Sora_700Bold',
       fontSize: 16,
     },
     receta:{

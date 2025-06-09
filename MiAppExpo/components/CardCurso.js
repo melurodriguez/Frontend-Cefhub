@@ -51,14 +51,15 @@ const styles = StyleSheet.create({
     height: 85,
   },
   title: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     flex: 1,
     fontSize: 14,
   },
   desc: {
-    fontWeight: 400,
+    fontFamily:'Sora_400Regular',
     flex: 1,
     fontSize: 12,
+    
   },
 
   fila: {

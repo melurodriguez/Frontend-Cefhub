@@ -42,7 +42,7 @@ export default function HomePage({ navigation }) {
 const styles = StyleSheet.create({
   rr: {
     fontSize: 20,
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     marginBottom: 15,
   },
   line: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   p: {
     color: "#000",
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     padding: 20,
     fontSize: 24,
   },

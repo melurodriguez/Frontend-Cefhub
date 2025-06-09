@@ -52,13 +52,13 @@ const styles = StyleSheet.create({
     left: 15,
   },
   title: {
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     marginBottom: 140,
     fontSize: 24,
   },
   text: {
     color: "#fff",
-    fontWeight: 500,
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
   },
   catImage: {
@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   innerShadow: {
-    //retocar sombra
+    width: sizes.width * 0.8,
+    height: sizes.height * 0.33,
     position: "absolute",
     top: 0,
     left: 0,
@@ -84,11 +85,10 @@ const styles = StyleSheet.create({
     zIndex: 0,
     shadowColor: "#000",
     shadowOffset: {
-      width: 2,
-      height: 2,
+      width: 0,
+      height: 4,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 2, // para Android
+    shadowRadius: 10,
   },
 });

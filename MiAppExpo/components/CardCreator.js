@@ -12,7 +12,7 @@ export default function CardCreator({ alias }) {
           <Image source={user} style={styles.img} />
         </View>
         <View style={styles.datosContainer}>
-          <Text>{alias}</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>{alias}</Text>
         </View>
       </View>
     </View>
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   creador: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
   },
   img: {

@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   titulo: {
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
       fontSize: 20,
     }
 });

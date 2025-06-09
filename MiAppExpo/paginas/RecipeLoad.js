@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   title: {
-    fontWeight: fonts.bold,
+    fontFamily:'Sora_700Bold',
     fontSize: fonts.large,
   },
 });

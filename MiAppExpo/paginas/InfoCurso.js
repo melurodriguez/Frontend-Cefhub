@@ -136,7 +136,7 @@ export default function InfoCurso({ navigation }) {
           <Text style={styles.objetivo}>Temario</Text>
           <View>
             {curso.temas?.map((tema, index) => (
-              <Text key={index} style={{margin:5, paddingHorizontal:10}} >{tema}</Text>
+              <Text key={index} style={{margin:5, paddingHorizontal:10, fontFamily:'Sora_400Regular',}} >{tema}</Text>
             ))}
           </View>
         </View>
@@ -146,7 +146,7 @@ export default function InfoCurso({ navigation }) {
           <Text style={styles.objetivo}>Prácticas</Text>
           <View >
             {curso.practicas?.map((practica, index) => (
-              <Text key={index} style={{margin:5, paddingHorizontal:10}}>{practica}</Text>
+              <Text key={index} style={{margin:5, paddingHorizontal:10, fontFamily:'Sora_400Regular',}}>{practica}</Text>
             ))}
           </View>
         </View>
@@ -156,7 +156,7 @@ export default function InfoCurso({ navigation }) {
           <Text style={styles.objetivo}>Insumos</Text>
           <View>
             {curso.insumos?.map((insumo, index) => (
-              <Text key={index} style={{margin:5, paddingHorizontal:10}}>{insumo}</Text>
+              <Text key={index} style={{margin:5, paddingHorizontal:10, fontFamily:'Sora_400Regular',}}>{insumo}</Text>
             ))}
           </View>
         </View>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
       marginTop: -(height * 0.07),
     },
   titulo: {
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
       fontSize: 26,
       paddingBottom: 10,
       color: "#333",
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   objetivo: {
-      fontWeight: "700",
+      fontFamily:'Sora_700Bold',
       fontSize: 20,
       padding: 10,
   },
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
        color: "#666",
        paddingHorizontal: 5,
        marginTop: 8,
+       fontFamily:'Sora_400Regular',
      },
 
   card:{
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
     },
     btnText: {
       color: colors.white,
-      fontWeight: fonts.bold,
+      fontFamily:'Sora_700Bold',
       fontSize: fonts.medium,
       letterSpacing: 0.5,
     },

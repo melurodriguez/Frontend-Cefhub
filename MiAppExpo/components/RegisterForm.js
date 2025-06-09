@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     fontSize: 24,
     padding: 20,
   },
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
   },
 });

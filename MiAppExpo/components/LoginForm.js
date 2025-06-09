@@ -97,7 +97,7 @@ export default function LoginForm({ navigation }) {
             style= {{margin:10}}
             onValueChange={() => handleChange("rememberMe", !form.rememberMe)}
           ></Checkbox>
-          <Text>Recordarme</Text>
+          <Text style={{fontFamily:'Sora_400Regular'}}>Recordarme</Text>
         </View>
         <Pressable style={styles.button} onPress={handleLogin}>
           <Text style={styles.btnText}>Ingresar</Text>
@@ -105,10 +105,10 @@ export default function LoginForm({ navigation }) {
         <Pressable
           style={styles.btn}
           onPress={() => navigation.navigate("RegisterPage")}>
-          <Text>No tenés cuenta? Registrate</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>No tenés cuenta? Registrate</Text>
         </Pressable>
         <Pressable style={styles.btn}>
-          <Text>Olvidaste tu contraseña? Recuperala</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>Olvidaste tu contraseña? Recuperala</Text>
         </Pressable>
       </View>
     </View>
@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   innerShadow: {
+    width: 344,
+    height:480,
     position: "absolute",
     top: 0,
     left: 0,
@@ -154,12 +156,12 @@ const styles = StyleSheet.create({
     zIndex: 0,
     shadowColor: "#000",
     shadowOffset: {
-      width: -2,
-      height: -2,
+      width: 0,
+      height: 4,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 2, // para Android
+    shadowRadius: 10,
+
   },
   content: {
     justifyContent: "space-around",
@@ -169,7 +171,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 24,
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     padding: 20,
   },
   button: {
@@ -183,7 +185,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
   },
   check: {

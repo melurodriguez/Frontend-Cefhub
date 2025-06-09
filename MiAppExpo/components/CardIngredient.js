@@ -26,12 +26,13 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    fontWeight: "bold",
+    fontFamily:'Sora_700Bold',
     fontSize: 16,
     color: "#333",
     marginBottom: 10,
   },
   quantity: {
+    fontFamily:'Sora_400Regular',
     fontSize: 15,
     color: "#666",
   },

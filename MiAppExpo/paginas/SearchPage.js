@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 24,
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
   },
   card: {
     padding: 5,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   rr: {
     fontSize: 20,
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     marginBottom: 15,
   },
   resultTitle: {
@@ -173,4 +173,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+
+  verTodos:{
+    fontFamily:'Sora_400Regular',
+  }
 });

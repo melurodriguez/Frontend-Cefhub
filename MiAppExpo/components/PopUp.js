@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   action: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     fontSize: 16,
   },
 });

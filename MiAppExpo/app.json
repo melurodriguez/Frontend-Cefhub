@@ -26,6 +26,9 @@
     "web": {
       "favicon": "./assets/iconn.png"
     },
-    "plugins": ["expo-secure-store"]
+    "plugins": [
+      "expo-secure-store",
+      "expo-font"
+    ]
   }
 }

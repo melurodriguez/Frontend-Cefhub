@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   text: {
-    fontWeight: fonts.bold,
+    fontFamily:'Sora_700Bold',
     fontSize: fonts.small,
   },
   innerShadow: {

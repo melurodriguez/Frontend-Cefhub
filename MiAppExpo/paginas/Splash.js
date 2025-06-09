@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.orange,
-    fontWeight: fonts.bold,
+    fontFamily:'Sora_700Bold',
     paddingVertical: sizes.padding * 2,
   },
 });

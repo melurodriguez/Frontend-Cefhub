@@ -9,6 +9,7 @@ import {
   Dimensions,
   ScrollView,
   TextInput,
+  FlatList,
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
 import CardInstructions from "../components/CardInstructions";
@@ -20,6 +21,7 @@ import API_BASE_URL from "../utils/config";
 import { useContext } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { colors, fonts, sizes } from "../utils/themes";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -34,7 +36,7 @@ export default function InfoReceta({ navigation }) {
   const [like, setLike] = useState(false);
   const [visible, setPopUpVisible] = useState(false);
   const [receta, setReceta] = useState(null);
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [porcion, setPorcion]=useState(1)
   const [ingredientesCalc, setIngredientesCalc] = useState([]);
 
@@ -55,12 +57,18 @@ export default function InfoReceta({ navigation }) {
     }
   }, [receta]);
 
+  useEffect(() => {
+    AsyncStorage.getItem(`${id}`).then(value => {
+        if (value === 'true') setLike(true);
+      });
+  }, []);
+
   function parseCantidad(cantidadStr) {
     console.log(typeof cantidadStr)
     if (typeof cantidadStr !== 'string') {
-    console.warn('cantidadStr no es string:', typeof cantidadStr);
-    return null; // o un valor por defecto
-  }
+      console.warn('cantidadStr no es string:', typeof cantidadStr);
+      return null; // o un valor por defecto
+    }
 
     const match = cantidadStr.match(/^([\d.,]+)\s*(.*)$/);
     if (!match) return { valor: null, unidad: cantidadStr };
@@ -109,7 +117,9 @@ export default function InfoReceta({ navigation }) {
   const agregarFavorito = async () => {
     try {
       await api.post(`user/me/recetas_favoritas/${id}`);
-      setLike(true);
+      const newValue=!like
+      setLike(newValue);
+      await AsyncStorage.setItem(`${id}`, String(newValue));
       setPopUpVisible(true);
       console.log("agregada a favs", receta.ingredientes[0].cantidad)
     } catch (err) {
@@ -120,7 +130,9 @@ export default function InfoReceta({ navigation }) {
   const eliminarFavorito = async () => {
     try {
       await api.delete(`user/me/recetas_favoritas/${id}`);
-      setLike(false);
+      const newValue = !like;
+      setLike(newValue);
+      await AsyncStorage.removeItem(`${id}`, String(newValue));
       console.log("eliminada de favs")
     } catch (err) {
       console.error("Error al eliminar de favoritos: ", err);
@@ -145,6 +157,18 @@ export default function InfoReceta({ navigation }) {
 
   const restarPorcion =  ()=>{
     setPorcion(prev => (prev > 1 ? prev - 1 : 1))
+  }
+
+  const verificarLike= async()=>{
+    try{
+      const response = await api.get("user/me/recetas_favoritas");
+      const ids = response.data;
+      console.log("IDs favoritos:", ids);
+
+    }catch(err){
+
+    }
+    
   }
 
 
@@ -197,7 +221,7 @@ export default function InfoReceta({ navigation }) {
         </ImageBackground>
         <View style={styles.infoContainer}>
           <Text style={styles.titulo}>{receta.nombre}</Text>
-          <Text>{receta.descripcion}</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>{receta.descripcion}</Text>
           <View style={styles.botones}>
             {buttons.map((title, index) => (
               <Pressable
@@ -220,17 +244,17 @@ export default function InfoReceta({ navigation }) {
             <Text style={styles.seleccionado}>
             {isPressed === 1 ? instrucciones : ingredientes}
             </Text>
-            <View style={{alignItems:"center", marginHorizontal:20}}>
+            {token && <View style={{alignItems:"center", marginHorizontal:20}}>
               <Text style={styles.seleccionado}>Porciones</Text>
               <View style={{flexDirection:"row"}}> 
-                <Pressable onPress={restarPorcion}><Text style={{fontWeight:"700", fontSize:24}}>-</Text></Pressable>            
+                <Pressable onPress={restarPorcion}><Text style={{fontFamily:'Sora_700Bold', fontSize:24}}>-</Text></Pressable>            
                 
-                <Text style={{fontWeight:"700", fontSize:24, paddingRight:10, paddingLeft:10}}> {porcion}</Text>
+                <Text style={{fontFamily:'Sora_700Bold', fontSize:24, paddingRight:10, paddingLeft:10}}> {porcion}</Text>
 
-                <Pressable onPress={sumarPorcion} ><Text style={{fontWeight:"700", fontSize:24}}>+</Text></Pressable>
+                <Pressable onPress={sumarPorcion} ><Text style={{fontFamily:'Sora_700Bold', fontSize:24}}>+</Text></Pressable>
                 
               </View>
-            </View>
+            </View>}
             
             
           </View>
@@ -246,21 +270,28 @@ export default function InfoReceta({ navigation }) {
               ))}
 
             {isPressed === 1 &&
-              receta.pasos?.map((inst, index) => (
-                <CardInstructions
-                  key={index}
-                  desc={inst.descripcion}
-                  media={inst.video_url}
-                  index={index}
+
+                <FlatList
+                  data={receta.pasos}
+                  horizontal={true}
+                  keyExtractor={(item)=>item.id}
+                  renderItem={({item})=>(
+                    <View style={styles.instruccionesCard}>
+                      <Text style={styles.instruccionesText}>Paso {item.id}</Text>
+                      <Text style={{fontFamily:'Sora_400Regular',}}>{item.descripcion}</Text>
+                    </View>
+                  )}
+                  
                 />
-              ))}
+                }
           </View>
 
           <CardCreator alias={receta.usuarioCreador} />
 
+          {token ? 
           <View style={{flexDirection:"row", justifyContent:"space-between", marginVertical:30, alignItems:"center", marginHorizontal:20}}>
             <View>
-              <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginVertical:10}}>Califica la receta!</Text>
+              <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginVertical:10, fontFamily:'Sora_700Bold',}}>Califica la receta!</Text>
               <View style={{flexDirection:"row", paddingVertical:10}}>
 
                 <Pressable style={{paddingHorizontal:5}}><Image source={require('../assets/emptyStar.png')}/></Pressable>
@@ -273,16 +304,22 @@ export default function InfoReceta({ navigation }) {
               
             </View>
             <View style={{flexDirection:"row"}}>
-              <Text style={{paddingHorizontal:10}}>{receta.valoracion}</Text>
+              <Text style={{paddingHorizontal:10, fontFamily:'Sora_700Bold',}}>{receta.valoracion}</Text>
               <Image source={require('../assets/star.png')}/>
             </View>
+          </View>:
+
+          <View style={{flexDirection:"row", alignItems:"flex-end"}}>
+              <Text style={{paddingHorizontal:10}}>{receta.valoracion}</Text>
+              <Image source={require('../assets/star.png')}/>
           </View>
+          }
 
 
-          <TextInput placeholder="Dejá tu comentario..." style={styles.comentario}/>
+         {token &&   <TextInput placeholder="Dejá tu comentario..." style={styles.comentario}/> }
 
           <View>
-            <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginHorizontal:20}}>Comentarios</Text>
+            <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginHorizontal:20, fontFamily:'Sora_700Bold',}}>Comentarios</Text>
           </View>
         </View>
 
@@ -318,7 +355,7 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 24,
     paddingBottom: 15,
   },
@@ -341,7 +378,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#000",
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 16,
   },
 
@@ -351,7 +388,7 @@ const styles = StyleSheet.create({
   },
 
   seleccionado: {
-    fontWeight: 700,
+    fontFamily:'Sora_700Bold',
     fontSize: 20,
     paddingTop: 20,
     paddingBottom: 20,
@@ -363,5 +400,23 @@ const styles = StyleSheet.create({
     height:200,
     borderRadius:sizes.radius,
     marginVertical:20,
+
+  },
+
+  instruccionesCard:{
+    backgroundColor:colors.backgroundColorLight,
+    borderRadius:sizes.radius,
+    padding:sizes.padding,
+    marginRight:sizes.margin,
+    marginVertical:sizes.margin,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  instruccionesText:{
+    fontFamily:'Sora_700Bold',
+    fontSize:16,
+    paddingVertical:sizes.padding
   }
 });

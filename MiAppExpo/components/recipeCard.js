@@ -27,13 +27,13 @@ export default function RecipeCard({ data, onPress, navigation }) {
         <View style={styles.fila}>
           <View style={styles.userInfo}>
             <Image source={userIcon} style={{ width: 20, height: 20 }} />
-            <Text style={{ paddingLeft: 10, fontSize: 12 }}>
+            <Text style={{ paddingLeft: 10, fontSize: 12, fontFamily:'Sora_400Regular', }}>
               {data.usuarioCreador}
             </Text>
           </View>
 
           <View style={styles.rating}>
-            <Text style={{ paddingRight: 10 }}>
+            <Text style={{ paddingRight: 10, fontFamily:'Sora_400Regular' }}>
               {data.valoracion !== null ? data.valoracion.toFixed(1) : "—"}
             </Text>
             <Image source={star} />
@@ -65,14 +65,15 @@ const styles = StyleSheet.create({
     height: 85,
   },
   title: {
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     flex: 1,
     fontSize: 14,
   },
   desc: {
-    fontWeight: 400,
+    fontFamily:'Sora_400Regular',
     flex: 1,
     fontSize: 12,
+    paddingVertical:10
   },
 
   fila: {

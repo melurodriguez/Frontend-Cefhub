@@ -15,38 +15,36 @@ export default function CardSedes({ sede }) {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text>{sede.sede}</Text>
-        <Text>
-          Direccion: {sede.calle} {sede.altura}
-        </Text>
-        <Text>Telefono: {sede.telefono}</Text>
-        <Text>Correo: {sede.email}</Text>
-      </View>
-      <View>
-        <RadioButton
-          value={sede.id}
-          onPress={() => handlePress(sede.id)}
-          status={(selectedId === sede.id) & pressed ? "checked" : "unchecked"}
-        />
+        <Text style={styles.titulo} >{sede.nombre}</Text>
+        <Text>Dirección: {sede.direccion}</Text>
+        <Text>Teléfono: {sede.telefono}</Text>
+        <Text>Promociom: {sede.promocion}</Text>
       </View>
     </View>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFF2E5",
     borderRadius: 15,
-    padding: 20,
-    margin: 20,
+    marginTop: 15,
     flexDirection: "row",
     alignItems: "center",
+    padding: 15,
+    paddingBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   textContainer: {
-    flexShrink: 1, // permite que el texto se ajuste sin forzar tamaño
-    marginRight: 10, // separa del radio button
+    flexShrink: 1,
   },
-  btnCheck: {
-    padding: 20,
-  },
+  titulo: {
+      fontWeight: "700",
+      fontSize: 20,
+    }
 });

@@ -44,17 +44,18 @@ export default function InfoCurso({ navigation }) {
           setError("unknown");
         }
       });
+
+      api
+            .get(`/curso/${id}/sedes`)
+            .then((res)=>setSedes(res.data))
+            .catch((err)=> {
+              console.error("Error al obtener la sede: ", err.message)
+              console.error(err.config?.url);
+            })
+
   }, []);
 
-  useEffect(()=>{
-    api
-      .get(`/curso/${id}/sedes`)
-      .then((res)=>setSedes(res.data))
-      .catch((err)=> {
-        console.error("Error al obtener la sede: ", err.message)
-        console.error(err.config?.url);
-      })
-  },[])
+
 
   useEffect(() => {
     if (error) {
@@ -121,7 +122,6 @@ export default function InfoCurso({ navigation }) {
       </ImageBackground>
       <View style={styles.infoContainer}>
         <Text style={styles.titulo}>{curso.nombre}</Text>
-        <Text style={styles.desc}>{curso.descripcion_breve}</Text>
         <Text style={styles.objetivo}>Objetivo</Text>
         <Text style={styles.objDesc}>{curso.descripcion_completa}</Text>
         <View style={styles.card}>
@@ -132,8 +132,6 @@ export default function InfoCurso({ navigation }) {
               <Text key={index} style={{margin:5, paddingHorizontal:10}} >{tema}</Text>
             ))}
           </View>
-          
-          
         </View>
         
         <View style={styles.card}>
@@ -143,41 +141,39 @@ export default function InfoCurso({ navigation }) {
             {curso.practicas?.map((practica, index) => (
               <Text key={index} style={{margin:5, paddingHorizontal:10}}>{practica}</Text>
             ))}
-
           </View>
         </View>
         
         <View style={styles.card}>
           <View style={styles.innerShadow}></View>
           <Text style={styles.objetivo}>Insumos</Text>
-
           <View>
             {curso.insumos?.map((insumo, index) => (
               <Text key={index} style={{margin:5, paddingHorizontal:10}}>{insumo}</Text>
             ))}
           </View>
-          
-
         </View>
+
+        <Text style={styles.objetivo}>Sedes Disponibles: </Text>
+        {sedes.map((sede, index) => (
+          <CardSedes key={index} sede={sede} />
+        ))}
 
         <View style={{flexDirection:"row", alignItems:"center", marginVertical:20, justifyContent:"space-between", marginRight:20}}>
-          <Text style={styles.objetivo}>Valor del curso:</Text>
-          <View style={{alignItems:"flex-end"}}>
-            <Text style={styles.objetivo}>${curso.precio}ARS</Text>
-          </View>
+              <Text style={styles.objetivo}>Valor del curso:</Text>
+              <View style={{alignItems:"flex-end"}}>
+                <Text style={styles.objetivo}>${curso.precio}ARS</Text>
+              </View>
         </View>
 
-
-        {sedes.map((sede, index)=>{
-          <CardSedes key={index} sede={sede}/>
-        })}
-        
-
-        <View style={{alignItems:"flex-end"}}>
-          <Pressable style={styles.btn}><Text style={styles.btnText}>Inscribirme</Text></Pressable>
+        <View style={{ alignItems: "flex-end" }}>
+          <Pressable
+            style={styles.btn}
+            onPress={() => navigation.navigate("OfertasCursos", { id: curso.id })}
+          >
+            <Text style={styles.btnText}>Inscribirme</Text>
+          </Pressable>
         </View>
-
-        
       </View>
     </ScrollView>
   );
@@ -192,56 +188,51 @@ const styles = StyleSheet.create({
     height: height * 0.3,
   },
   infoContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderTopStartRadius: 50,
-    borderStartEndRadius: 50,
-    justifyContent: "space-around",
-    paddingLeft: 20,
-    paddingTop: 40,
-    marginTop: -(height * 0.07),
-  },
+      flex: 1,
+      backgroundColor: "#fff",
+      borderTopStartRadius: 40,
+      borderTopEndRadius: 40,
+      paddingHorizontal: 20,
+      paddingTop: 30,
+      marginTop: -(height * 0.07),
+    },
   titulo: {
-    fontWeight: "700",
-    fontSize: 24,
-    padding: 10,
-  },
+      fontWeight: "700",
+      fontSize: 26,
+      paddingBottom: 10,
+      color: "#333",
+    },
   desc: {
     padding: 10,
   },
   objetivo: {
-    fontWeight: "700",
-    fontSize: 20,
-    padding: 10,
+      fontWeight: "700",
+      fontSize: 20,
+      padding: 10,
   },
   objDesc: {
-    padding: 10,
-  },
-  btn:{
-    backgroundColor:colors.primary,
-    paddingHorizontal:20,
-    paddingVertical:15,
-    borderRadius:sizes.radius,
-    justifyContent:"center",
-    alignItems:"center",
-    marginRight:20
-  },
-  btnText:{
-    color:colors.white,
-    fontWeight:fonts.bold,
-    fontSize:fonts.medium
-  },
-  card:{
-    flexDirection:"row", 
-    alignItems:"center", 
-    marginVertical:10 , 
-    marginRight:20, 
-    backgroundColor:colors.secondary, 
-    borderRadius:sizes.radius, 
-    paddingVertical:10,
+       fontSize: 16,
+       lineHeight: 22,
+       color: "#666",
+       paddingHorizontal: 5,
+       marginTop: 8,
+     },
 
-    height:166
-  },
+  card:{
+      flexDirection:"row",
+      alignItems:"center",
+      marginVertical:10 ,
+      marginRight:20,
+      backgroundColor:colors.secondary,
+      borderRadius:sizes.radius,
+      paddingVertical:10,
+      marginTop: 15,
+      height:166,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 6,
+      elevation: 3,
+    },
   innerShadow: {
     position: "absolute",
     top: 0,
@@ -258,4 +249,25 @@ const styles = StyleSheet.create({
 
     height: 166,
   },
+  btn: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
+      borderRadius: sizes.radius,
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 25,
+      marginBottom: 40,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    btnText: {
+      color: colors.white,
+      fontWeight: fonts.bold,
+      fontSize: fonts.medium,
+      letterSpacing: 0.5,
+    },
 });

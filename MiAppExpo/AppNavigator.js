@@ -12,6 +12,7 @@ import TodosCursos from "./paginas/TodosCursos";
 import InfoCurso from "./paginas/InfoCurso";
 import Profile from "./paginas/Profile";
 import Notificaciones from "./paginas/Notificaciones";
+import OfertasCursos from "./paginas/OfertasCursos";
 import RecipeLoad from "./paginas/RecipeLoad";
 import ProfileNotLogged from "./paginas/ProfileNotLogged";
 import RegisterPage from "./paginas/RegisterPage";
@@ -144,7 +145,8 @@ function AppNavigator() {
               {/* Si NO está logueado */}
               {!token ? (
                 <>
-                  <Stack.Screen name="MainVisitor" component={TabNavigatorVisitante} options={{ headerShown: false }} />
+                  <Stack.Screen name="Menú" component={TabNavigatorVisitante} options={{ headerShown: false }} />
+                  <Stack.Screen name="Main" component={TabNavigatorVisitante} options={{ headerShown: false }} />
                   <Stack.Screen name="LoginPage" component={LoginPage} />
                   <Stack.Screen name="RegisterPage" component={RegisterPage} />
                   <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />
@@ -158,6 +160,8 @@ function AppNavigator() {
               ) : (
                 <>
                   {/* Si está logueado */}
+                  <Stack.Screen name="OfertasCursos" component={OfertasCursos} />
+                  <Stack.Screen name="Menú" component={TabNavigator} />
                   <Stack.Screen name="Main" component={TabNavigator} />
                   <Stack.Screen name="LoginPage" component={LoginPage} />
                   <Stack.Screen name="RegisterPage" component={RegisterPage} />

@@ -45,8 +45,14 @@ export default function SearchPage({ navigation }) {
   }, []);
 
   const porNombre = () => {
-          api.get(`/recetas?nombre=${search}`).then((res) => setRecetas(res.data))
+          api.get(`/recetas?nombre=${search}`)
+          .then((res) => setRecetas(res.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
+
+          api.get(`/curso/nombre/${search}`)
+          .then((res2) => setCursos(res2.data))
+          .catch((err) => console.error("Error al aplicar filtros:", err));
+
 
   };
 
@@ -112,7 +118,7 @@ export default function SearchPage({ navigation }) {
           </Pressable>
         </View>
 
-        {cursos.map((curso, index) => (
+        {cursos.slice(0,3).map((curso, index) => (
           <View style={styles.card} key={index}>
             <CardCurso
               data={curso}

@@ -147,6 +147,7 @@ function AppNavigator() {
                 <>
                   <Stack.Screen name="Menú" component={TabNavigatorVisitante} options={{ headerShown: false }} />
                   <Stack.Screen name="Main" component={TabNavigatorVisitante} options={{ headerShown: false }} />
+                  <Stack.Screen name="MainVisitor" component={TabNavigatorVisitante} options={{ headerShown: false }} />
                   <Stack.Screen name="LoginPage" component={LoginPage} />
                   <Stack.Screen name="RegisterPage" component={RegisterPage} />
                   <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />

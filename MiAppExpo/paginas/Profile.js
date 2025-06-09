@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { Pressable, View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import RecipeCard from "../components/recipeCard";
-import CardCurso from "../components/CardCurso";
+import CardCursoInscripcion from "../components/CardCursoInscripcion";
 import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
 import { colors, fonts, sizes } from "../utils/themes";
@@ -10,34 +10,28 @@ const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
 
 export default function Profile({navigation}) {
-  const { logout } = useContext(AuthContext);
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
-  const[user, setUser]=useState(null)
+  const { user, logout } = useContext(AuthContext);
 
 
-  const buttons = ["Mis Favoritos", "Mis Cursos"];
+
+
+  const buttons = user?.tipo_usuario === "Alumno"
+      ? ["Favoritos", "Mis Cursos", "Descargas"]
+      : ["Favoritos", "Descargas"];
 
   function handleClick(index) {
-    setPressed(index);
-    if (index === 0) {
-      favorite_recipes();
-    } else {
-      courses();
+      setPressed(index);
+      const selected = buttons[index];
+      if (selected === "Favoritos") {
+        favorite_recipes();
+      } else if (selected === "Mis Cursos") {
+        courses();
+      }
     }
-  }
 
-  const getUserInfo = async () => {
-    try {
-      const response = await api.get('user/me');
-      setUser(response.data)
-      return response.data;
-    } catch (error) {
-      console.error('Error al obtener la info del usuario:', error);
-      throw error;
-    }
-  };
 
   const favorite_recipes = async () => {
     try {
@@ -71,14 +65,10 @@ export default function Profile({navigation}) {
    }
   };
 
-  const avatar= async()=>{
-    const path=user.avatar.replace("img/cocinero1.jpg", "assets/user.png")
-    return path;
-  }
+
 
   useEffect(() => {
     favorite_recipes();
-    getUserInfo();
   }, []);
 
   return (
@@ -92,11 +82,19 @@ export default function Profile({navigation}) {
 
       <View style={styles.userContainer}>
         <View style={styles.innerShadow}></View>
-        <Image source={avatar}/>
-        <View>
-          <Text style={{fontWeight:fonts.bold, fontSize:fonts.small}}>{user?.alias ?? "Mi Usuario"}</Text>
-          <Text style={{color:"#c0c0c0"}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
+        <Image source={userAvatar}/>
+        <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
+          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small }}>{user?.alias ?? "Mi Usuario"}</Text>
+          <Text style={{ color: "#c0c0c0" }}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
+
+        <View style={{ marginTop: 10, marginRight:10, alignItems: "flex-end" }}>
+                <Pressable onPress={logout}>
+                  <Text style={{ color: "#d00", fontWeight: "bold", fontSize: 16 }}>
+                    Cerrar sesión
+                  </Text>
+                </Pressable>
+              </View>
       </View>
       <View style={styles.btnContainer}>
         
@@ -112,28 +110,32 @@ export default function Profile({navigation}) {
         {buttons[pressed]}
       </Text>
       <View style={{marginHorizontal:10, alignItems:"center"}}>
-        {pressed === 0 &&
+        {buttons[pressed] === "Favoritos" &&
           recetas.map((receta, index) => (
             <View key={index} style={styles.receta}>
-              <RecipeCard data={receta} onPress={() => navigation.navigate("InfoReceta", { id: receta.id }) }/>
+              <RecipeCard
+                data={receta}
+                onPress={() => navigation.navigate("InfoReceta", { id: receta.id })}
+              />
             </View>
-          ))}
+          ))
+        }
 
-        {pressed === 1 &&
+        {buttons[pressed] === "Mis Cursos" &&
           cursos.map((curso, index) => (
             <View key={index} style={styles.receta}>
-              <CardCurso data={curso} />
+              <CardCursoInscripcion data={curso} />
             </View>
-          ))}
+          ))
+        }
+
+        {buttons[pressed] === "Descargas" &&
+          <Text style={styles.page}> descargadas</Text>
+        }
+
       </View>
 
-      <View style={{ alignItems: "center", marginTop: 30 }}>
-        <Pressable onPress={logout}>
-          <Text style={{ color: "#d00", fontWeight: "bold", fontSize: 16 }}>
-            Cerrar sesión
-          </Text>
-        </Pressable>
-      </View>
+
 
     </ScrollView>
   );
@@ -148,9 +150,10 @@ const styles = StyleSheet.create({
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
-      width: "100%",
+      width: "90%",
       marginBottom: 20,
-      marginTop:60
+      marginTop:60,
+      marginHorizontal:20
     },
     page: {
       fontWeight: "700",
@@ -159,14 +162,12 @@ const styles = StyleSheet.create({
     },
     userContainer: {
       flexDirection: "row",
-      alignItems: "center",
+      justifyContent: "space-between",
       backgroundColor: colors.backgroundColorLight,
       borderRadius: 15,
       padding: 10,
-      width: sizes.width*0.9,
+      width:"100%",
       marginBottom: 20,
-      marginHorizontal:20,
-      alignSelf:"center"
     },
     avatar: {
       width: 60,

@@ -94,6 +94,7 @@ export default function LoginForm({ navigation }) {
         <View style={styles.check}>
           <Checkbox
             value={form.rememberMe}
+            style= {{margin:10}}
             onValueChange={() => handleChange("rememberMe", !form.rememberMe)}
           ></Checkbox>
           <Text>Recordarme</Text>
@@ -103,11 +104,10 @@ export default function LoginForm({ navigation }) {
         </Pressable>
         <Pressable
           style={styles.btn}
-          onPress={() => navigation.navigate("RegisterPage")}
-        >
+          onPress={() => navigation.navigate("RegisterPage")}>
           <Text>No tenés cuenta? Registrate</Text>
         </Pressable>
-        <Pressable>
+        <Pressable style={styles.btn}>
           <Text>Olvidaste tu contraseña? Recuperala</Text>
         </Pressable>
       </View>
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   view: {
     backgroundColor: "#fff",
     width: 344,
-    height: 442,
+    height:480,
     justifyContent: "center",
     alignItems: "center",
     borderColor: "#000",
@@ -189,8 +189,11 @@ const styles = StyleSheet.create({
   check: {
     flexDirection: "row",
     justifyContent: "flex-start",
+    width:"100%",
+    alignItems:"center"
   },
   btn: {
     paddingBottom: 10,
+    marginBottom:5
   },
 });

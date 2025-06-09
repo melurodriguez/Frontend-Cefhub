@@ -39,7 +39,10 @@ export default function InfoCurso({ navigation }) {
         } else if (err.response?.status === 404) {
           //console.log("Error", "Curso no encontrado");
           setError("404");
-        } else {
+        }else if (err.response?.status === 401) {
+           setError("401");
+         }
+        else {
           //console.error(err);
           setError("unknown");
         }
@@ -68,7 +71,11 @@ export default function InfoCurso({ navigation }) {
       } else if (error === "404") {
         title = "Error";
         message = "Curso no encontrado";
-      } else {
+      }
+       else if (error === "401") {
+               title = "Acceso restringido";
+               message = "Debe estar autenticado para ver esta información";
+       }else {
         title = "Error";
         message = "Ocurrió un error inesperado";
       }

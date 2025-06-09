@@ -95,8 +95,8 @@ export default function TodosCursos({ navigation }) {
             <Image source={filter} style={styles.filterIcon} />
           </Pressable>
         </View>
-        {cursos.map((curso, index) => (
-          <View style={styles.card} key={index}>
+        {cursos.map((curso) => (
+          <View style={styles.card} key={curso.id }>
             <CardCurso
               data={curso}
               onPress={() => {
@@ -105,6 +105,7 @@ export default function TodosCursos({ navigation }) {
             />
           </View>
         ))}
+
       </View>
       <Modal
               animationType="slide"
@@ -117,7 +118,7 @@ export default function TodosCursos({ navigation }) {
           <Text style={styles.filterTitle}>Filtrar por sede</Text>
           {sedes.map((sede) => (
             <Pressable
-              key={sede._id}
+              key={sede.id}
               onPress={() => setSedeSeleccionada(sede.id)}
             >
               <Text style={styles.filterItem}>

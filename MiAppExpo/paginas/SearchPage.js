@@ -49,7 +49,7 @@ export default function SearchPage({ navigation }) {
           .then((res) => setRecetas(res.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
 
-          api.get(`/curso/nombre/${search}`)
+          api.get(`/curso/search/${search}`)
           .then((res2) => setCursos(res2.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
 

@@ -46,7 +46,7 @@ export default function TodosCursos({ navigation }) {
   }, []);
 
   const porNombre = () => {
-          api.get(`/curso/nombre/${search}`)
+          api.get(`/curso/search/${search}`)
           .then((res2) => setCursos(res2.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
 

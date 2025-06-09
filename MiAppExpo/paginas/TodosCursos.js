@@ -129,6 +129,19 @@ export default function TodosCursos({ navigation }) {
           <Pressable style={styles.applyButton} onPress={filtrarPorSede}>
             <Text style={styles.applyButtonText}>Aplicar filtros</Text>
           </Pressable>
+          <Pressable
+              style={styles.applyButton}
+              onPress={() => {
+                setSedeSeleccionada("");
+                api
+                  .get("/curso")
+                  .then((res) => setCursos(res.data))
+                  .catch((err) => console.error("Error al limpiar filtros:", err));
+                setShowFilters(false);
+              }}
+            >
+              <Text style={styles.applyButtonText}>Limpiar filtros</Text>
+            </Pressable>
         </View>
       </View>
       </Modal>

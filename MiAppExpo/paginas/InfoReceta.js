@@ -58,9 +58,7 @@ export default function InfoReceta({ navigation }) {
   }, [receta]);
 
   useEffect(() => {
-    AsyncStorage.getItem(`${id}`).then(value => {
-        if (value === 'true') setLike(true);
-      });
+    verificarLike()
   }, []);
 
   function parseCantidad(cantidadStr) {
@@ -119,7 +117,6 @@ export default function InfoReceta({ navigation }) {
       await api.post(`user/me/recetas_favoritas/${id}`);
       const newValue=!like
       setLike(newValue);
-      await AsyncStorage.setItem(`${id}`, String(newValue));
       setPopUpVisible(true);
       console.log("agregada a favs", receta.ingredientes[0].cantidad)
     } catch (err) {
@@ -132,7 +129,7 @@ export default function InfoReceta({ navigation }) {
       await api.delete(`user/me/recetas_favoritas/${id}`);
       const newValue = !like;
       setLike(newValue);
-      await AsyncStorage.removeItem(`${id}`, String(newValue));
+
       console.log("eliminada de favs")
     } catch (err) {
       console.error("Error al eliminar de favoritos: ", err);
@@ -159,17 +156,24 @@ export default function InfoReceta({ navigation }) {
     setPorcion(prev => (prev > 1 ? prev - 1 : 1))
   }
 
-  const verificarLike= async()=>{
-    try{
-      const response = await api.get("user/me/recetas_favoritas");
-      const ids = response.data;
-      console.log("IDs favoritos:", ids);
-
-    }catch(err){
-
+  const verificarLike = async () => {
+  try {
+    console.log("Verificando favoritos...");
+    const response = await api.get("user/me/recetas_favoritas");
+    const ids = response.data.map(r => r.id);
+    console.log("Favoritos obtenidos:", ids);
+    if (favoritos.includes(String(id))) {
+      setLike(true);
     }
-    
+    else {
+      console.log("Receta NO está en favoritos");
+      setLike(false);
+    }
+  } catch (err) {
+    console.error("Error al verificar favoritos", err);
   }
+};
+
 
 
   const ingredientes = "Ingredientes";

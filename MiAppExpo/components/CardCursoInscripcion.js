@@ -3,8 +3,10 @@ import API_BASE_URL from "../utils/config";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import api from "../api/axiosInstance";
+import { colors } from "../utils/themes";
 
-export default function CardCursoInscripcion({ data, onPress }) {
+
+export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
   const asistenciaPorc = Math.round((data.asistencia.length / 10) * 100); //editar
   const diasTextoACodigo = {
     lunes: "LU",
@@ -18,6 +20,7 @@ export default function CardCursoInscripcion({ data, onPress }) {
     domingo: "DO"
   };
   const dias = ["LU", "MA", "MI", "JU", "VI", "SA", "DO"];
+  
 
 
   function obtenerDiasActivos(horario) {
@@ -32,7 +35,9 @@ export default function CardCursoInscripcion({ data, onPress }) {
   async function handleDarseDeBaja() {
     try {
       const response = await api.post(`curso/${data.inscripcion_id}/baja`);
-      alert("Te diste de baja exitosamente.");
+      onPopUp("Has sido dado/a de baja del curso");
+      //console.log("pop up")
+      await onPress()
     } catch (error) {
       if (error.response) {
         alert(`Error: ${error.response.data.detail}`);
@@ -46,6 +51,8 @@ export default function CardCursoInscripcion({ data, onPress }) {
 
 
   return (
+    <>
+
       <Pressable style={styles.card} onPress={onPress}>
         <Text style={[styles.nombre, { textTransform: 'uppercase' }]}>
           {data.nombre_curso}
@@ -91,7 +98,12 @@ export default function CardCursoInscripcion({ data, onPress }) {
           <Text style={styles.bajaTexto}>Darse de baja</Text>
         </Pressable>
 
+
       </Pressable>
+      
+      
+    </>
+      
     );
 
 }
@@ -180,7 +192,7 @@ const styles = StyleSheet.create({
     height: 10,
   },
   bajaBtn: {
-    backgroundColor: "#F44336",
+    backgroundColor: colors.primary,
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 12,

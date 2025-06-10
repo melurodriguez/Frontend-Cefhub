@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, Button, TouchableOpacity , Pressable, Image} from "react-native";
 import { useRoute } from "@react-navigation/native";
 import api from "../api/axiosInstance";
+import { colors } from "../utils/themes";
+
+import PopUp from "../components/PopUp";
 const cancel = require("../assets/cancel.png");
 
 export default function OfertasCursos({ navigation }) {
@@ -11,6 +14,8 @@ export default function OfertasCursos({ navigation }) {
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [popUpVisible, setPopUpVisible] = useState(false);
+
 
   useEffect(() => {
     console.log("curso id", id);
@@ -33,7 +38,7 @@ export default function OfertasCursos({ navigation }) {
   const onInscribirse = async (oferta) => {
     try {
       const res = await api.post(`/curso/${oferta}/alta`);
-      Alert.alert("Éxito", "Te inscribiste correctamente al curso 🎉");
+      setPopUpVisible(true)
     } catch (error) {
       if (error.response?.status === 403) {
         Alert.alert("Error", "Solo los alumnos pueden inscribirse a cursos");
@@ -104,6 +109,13 @@ export default function OfertasCursos({ navigation }) {
               <Text style={styles.botonTexto}>Inscribirse</Text>
             </TouchableOpacity>
 
+            <PopUp
+              action={ "Te inscribiste correctamente al curso 🎉"}
+              visible={popUpVisible}
+              onClose={() => setPopUpVisible(false)}
+              duration={2000}
+            />
+
           </View>
         ))}
       </ScrollView>
@@ -120,7 +132,7 @@ const styles = StyleSheet.create({
   },
   titulo: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily:'Sora_700Bold',
     color: "#333",
     marginBottom: 20,
     marginTop:30,
@@ -139,7 +151,7 @@ const styles = StyleSheet.create({
   },
   sedeNombre: {
     fontSize: 20,
-    fontWeight: "700",
+    fontFamily:'Sora_700Bold',
     color: "#2c3e50",
     marginBottom: 8,
   },
@@ -147,11 +159,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#555",
     marginBottom: 4,
+    fontFamily:'Sora_400Regular',
   },
   promocion: {
     fontSize: 16,
     color: "#d32f2f",
-    fontWeight: "600",
+    fontFamily:'Sora_600SemiBold',
     marginTop: 10,
     marginBottom: 6,
   },
@@ -166,11 +179,11 @@ const styles = StyleSheet.create({
   precioFinal: {
     fontSize: 18,
     color: "#388e3c",
-    fontWeight: "bold",
+    fontFamily:'Sora_700Bold',
     marginTop: 4,
   },
   boton: {
-      backgroundColor: "#1976d2",
+      backgroundColor: colors.primary,
       paddingVertical: 10,
       borderRadius: 8,
       marginTop: 12,
@@ -178,8 +191,12 @@ const styles = StyleSheet.create({
     },
     botonTexto: {
       color: "#fff",
-      fontWeight: "bold",
+      fontFamily:'Sora_700Bold',
       fontSize: 16,
     },
+  popUp:{
+    backgroundColor:"#f4f6f8"
+  },
+  popUpText:{ fontFamily:'Sora_700Bold',}
 });
 

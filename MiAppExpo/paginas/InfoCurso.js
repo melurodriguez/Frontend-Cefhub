@@ -10,11 +10,13 @@ import {
 } from "react-native";
 import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
 import { Alert } from "react-native"; // agregalo arriba con los imports
 import { colors, fonts, sizes } from "../utils/themes";
+import { AuthContext } from "../auth/AuthContext";
+import PopUp from "../components/PopUp";
 const { height } = Dimensions.get("window"); //CAMBIAR
 
 const cancel = require("../assets/cancel.png");
@@ -26,7 +28,10 @@ export default function InfoCurso({ navigation }) {
   console.log(id);
   const [curso, setCurso] = useState(null);
   const [error, setError] = useState(null);
-  const [sedes, setSedes]=useState([])
+  const [sedes, setSedes]=useState([]);
+  const {token}=useContext(AuthContext)
+  const [isIncripto, setIsInscripto]=useState(false)
+  const [visible, setPopUpVisible] = useState(false);
 
   useEffect(() => {
     api
@@ -58,6 +63,9 @@ export default function InfoCurso({ navigation }) {
 
   }, []);
 
+  useEffect(() => {
+    //manejar para q salte el pop up si el usuario ya esta inscripto
+  }, []);
 
 
   useEffect(() => {
@@ -172,15 +180,31 @@ export default function InfoCurso({ navigation }) {
                 <Text style={styles.objetivo}>${curso.precio}ARS</Text>
               </View>
         </View>
-
-        <View style={{ alignItems: "flex-end" }}>
-          <Pressable
-            style={styles.btn}
-            onPress={() => navigation.navigate("OfertasCursos", { id: curso.id })}
-          >
-            <Text style={styles.btnText}>Inscribirme</Text>
-          </Pressable>
-        </View>
+        { isIncripto ? 
+          <View style={{ alignItems: "flex-end" }}>
+            <Pressable
+              style={styles.btn}
+              onPress={() => navigation.navigate("OfertasCursos", { id: curso.id })}
+            >
+              <Text style={styles.btnText}>Inscribirme</Text>
+            </Pressable>
+          </View>
+          :
+          <View style={{ alignItems: "flex-end" }}>
+            <Pressable
+              style={styles.btn}
+              onPress={setPopUpVisible(true)}
+            >
+              <Text style={styles.btnText}>Inscribirme</Text>
+            </Pressable>
+          </View>
+        }
+        <PopUp
+         action={`Ya estás inscripto en el curso ${curso.nombre}` }
+         visible={visible}
+         onClose={() => setPopUpVisible(false)}
+         duration={2000}
+        />
       </View>
     </ScrollView>
   );

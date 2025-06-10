@@ -4,6 +4,7 @@ import RecipeCard from "../components/recipeCard";
 import CardCursoInscripcion from "../components/CardCursoInscripcion";
 import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
+import PopUp from '../components/PopUp'
 import { colors, fonts, sizes } from "../utils/themes";
 
 const menu = require("../assets/menu.png");
@@ -14,6 +15,8 @@ export default function Profile({navigation}) {
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
   const { user, logout } = useContext(AuthContext);
+  const [visible, setPopUpVisible] = useState(false);
+  const [popUpMessage, setPopUpMessage] = useState("");
 
 
 
@@ -66,11 +69,15 @@ export default function Profile({navigation}) {
   };
 
 
+  useEffect(()=>{
+    if (user?.tipo_usuario === "Alumno") {
+    courses();
+  }
+  }, [[user?.tipo_usuario]])
+
 
   useEffect(() => {
     favorite_recipes();
-    console.log(user)
-
   }, []);
 
   return (
@@ -126,7 +133,11 @@ export default function Profile({navigation}) {
         {buttons[pressed] === "Mis Cursos" &&
           cursos.map((curso, index) => (
             <View key={index} style={styles.receta}>
-              <CardCursoInscripcion data={curso} />
+              <CardCursoInscripcion data={curso} onPress={courses} onPopUp={(mensaje) => {
+                setPopUpMessage(mensaje);
+                setPopUpVisible(true);
+                }} 
+              />
             </View>
           ))
         }
@@ -136,6 +147,12 @@ export default function Profile({navigation}) {
         }
 
       </View>
+      <PopUp
+        action={popUpMessage}
+        visible={visible}
+        onClose={() =>setPopUpVisible(false)}
+        duration={2000}
+      />
 
 
 

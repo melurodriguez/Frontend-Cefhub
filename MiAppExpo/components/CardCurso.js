@@ -11,17 +11,11 @@ export default function CardCurso({ data, onPress }) {
       <View style={styles.innerShadow}></View>
       <View style={styles.container}>
         <View style={styles.fila}>
-          <View style={styles.imgContainer}>
-            <Image
-              source={{
-                uri: `${API_BASE_URL}/static/${data.imagen_curso_url}`,
-              }}
-              style={styles.img}
-            />
-          </View>
           <View style={styles.cursoContainer}>
-            <Text style={styles.title}>{data.nombre}</Text>
-            <Text style={styles.desc}>{data.descripcion_breve}</Text>
+            <Text style={styles.title}>{data.descripcion}</Text>
+            <Text style={styles.title}>{data.duracion}</Text>
+            <Text style={styles.title}>{data.modalidad}</Text>
+            <Text style={styles.title}>{data.precio}</Text>
           </View>
         </View>
         <View></View>

@@ -8,12 +8,10 @@ import {
   Pressable,
   Modal
 } from "react-native";
-
 import { colors } from "../utils/themes.js";
-
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
-
+import { Picker } from '@react-native-picker/picker';
 const menu = require("../assets/menu.png");
 const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
@@ -36,6 +34,8 @@ export default function TodasRecetas({ navigation }) {
     conIngrediente: false,
     sinIngrediente: false
   });
+  const [tipos, setTipos] = useState([]);
+    const [ingredientes, setIngredientes] = useState([]);
 
   const limpiarFiltros = () => {
         setOrden("alfabetico");
@@ -62,7 +62,9 @@ export default function TodasRecetas({ navigation }) {
     const queryParams = [];
 
     if (orden === "recientes") {
-      queryParams.push("sort=fecha_publicacion", "order=desc");
+      queryParams.push("sort=fecha", "order=DESC");
+    } else if (orden === "alfabetico") {
+      queryParams.push("sort=nombre", "order=ASC");
     }
 
     if (filtros.tipo) queryParams.push(`tipo=${filtros.tipo}`);
@@ -79,6 +81,7 @@ export default function TodasRecetas({ navigation }) {
     setShowFilters(false);
   };
 
+
   const porNombre = () => {
         api.get(`/recetas?nombre=${search}`).then((res) => setRecetas(res.data))
         .catch((err) => console.error("Error al aplicar filtros:", err));
@@ -86,8 +89,19 @@ export default function TodasRecetas({ navigation }) {
   };
 
   useEffect(() => {
+    // Cargar tipos de receta
+    api.get("/recetas/tipos")
+      .then(res => setTipos(res.data))
+      .catch(err => console.error("Error al cargar tipos:", err));
+
+    // Cargar ingredientes
+    api.get("/recetas/ingredientes")
+      .then(res => setIngredientes(res.data))
+      .catch(err => console.error("Error al cargar ingredientes:", err));
+
     aplicarFiltros();
   }, []);
+
 
 
   return (
@@ -128,7 +142,7 @@ export default function TodasRecetas({ navigation }) {
               <RecipeCard
                 data={receta}
                 onPress={() =>
-                  navigation.navigate("InfoReceta", { id: receta.id })
+                  navigation.navigate("InfoReceta", { id: receta.idReceta })
                 }
               />
             </View>
@@ -172,12 +186,16 @@ export default function TodasRecetas({ navigation }) {
               </Text>
             </Pressable>
             {mostrarCampos.tipo && (
-              <TextInput
-                placeholder="Ej: Postre, Entrada..."
-                value={filtros.tipo}
-                onChangeText={(text) => setFiltros({ ...filtros, tipo: text })}
+              <Picker
+                selectedValue={filtros.tipo}
+                onValueChange={(itemValue) => setFiltros({ ...filtros, tipo: itemValue })}
                 style={styles.input}
-              />
+              >
+                <Picker.Item label="Seleccione un tipo" value="" />
+                {tipos.map((tipo) => (
+                  <Picker.Item key={tipo.idTipo} label={tipo.descripcion} value={tipo.idTipo} />
+                ))}
+              </Picker>
             )}
 
             <Pressable onPress={() =>
@@ -191,14 +209,18 @@ export default function TodasRecetas({ navigation }) {
               </Text>
             </Pressable>
             {mostrarCampos.conIngrediente && (
-              <TextInput
-                placeholder="Ej: Chocolate, Zanahoria..."
-                value={filtros.conIngrediente}
-                onChangeText={(text) =>
-                  setFiltros({ ...filtros, conIngrediente: text })
+              <Picker
+                selectedValue={filtros.conIngrediente}
+                onValueChange={(itemValue) =>
+                  setFiltros({ ...filtros, conIngrediente: itemValue })
                 }
                 style={styles.input}
-              />
+              >
+                <Picker.Item label="Seleccione un ingrediente" value="" />
+                {ingredientes.map((ingrediente) => (
+                  <Picker.Item key={ingrediente.idIngrediente} label={ingrediente.nombre} value={ingrediente.idIngrediente} />
+                ))}
+              </Picker>
             )}
 
             <Pressable onPress={() =>
@@ -212,15 +234,20 @@ export default function TodasRecetas({ navigation }) {
               </Text>
             </Pressable>
             {mostrarCampos.sinIngrediente && (
-              <TextInput
-                placeholder="Ej: Gluten, Azúcar..."
-                value={filtros.sinIngrediente}
-                onChangeText={(text) =>
-                  setFiltros({ ...filtros, sinIngrediente: text })
+              <Picker
+                selectedValue={filtros.sinIngrediente}
+                onValueChange={(itemValue) =>
+                  setFiltros({ ...filtros, sinIngrediente: itemValue })
                 }
                 style={styles.input}
-              />
+              >
+                <Picker.Item label="Seleccione un ingrediente" value="" />
+                {ingredientes.map((ingrediente) => (
+                  <Picker.Item key={ingrediente.idIngrediente} label={ingrediente.nombre} value={ingrediente.idIngrediente} />
+                ))}
+              </Picker>
             )}
+
 
             <Pressable style={styles.applyButton} onPress={aplicarFiltros}>
               <Text style={styles.applyButtonText}>Aplicar filtros</Text>

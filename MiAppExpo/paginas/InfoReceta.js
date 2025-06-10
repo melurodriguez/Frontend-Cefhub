@@ -37,7 +37,7 @@ export default function InfoReceta({ navigation }) {
   const [visible, setPopUpVisible] = useState(false);
   const [receta, setReceta] = useState(null);
   const { token, user } = useContext(AuthContext);
-  const [porcion, setPorcion]=useState(1)
+  const [porcion, setPorcion] = useState(1);
   const [ingredientesCalc, setIngredientesCalc] = useState([]);
 
 
@@ -49,7 +49,7 @@ export default function InfoReceta({ navigation }) {
       .catch((err) => console.error(err));
   }, []);
 
-  //carga valores iniciales receta
+  /*
   useEffect(() => {
     if (receta?.porciones && receta?.ingredientes) {
       setPorcion(receta.porciones); 
@@ -61,56 +61,8 @@ export default function InfoReceta({ navigation }) {
     verificarLike()
   }, []);
 
-  function parseCantidad(cantidadStr) {
-    console.log(typeof cantidadStr)
-    if (typeof cantidadStr !== 'string') {
-      console.warn('cantidadStr no es string:', typeof cantidadStr);
-      return null; // o un valor por defecto
-    }
-
-    const match = cantidadStr.match(/^([\d.,]+)\s*(.*)$/);
-    if (!match) return { valor: null, unidad: cantidadStr };
-
-    return {
-      valor: parseFloat(match[1]),
-      unidad: match[2] ?? "",
-    };
-  }
-
-  function ajustarCantidad(cantidadStr, factor) {
-    if (typeof cantidadStr !== 'string'){
-      return (cantidadStr * factor).toFixed(2)
-    }
-    const { valor, unidad } = parseCantidad(cantidadStr);
-
-    if (valor === null) return cantidadStr; // No se puede parsear
-    const nuevoValor = (valor * factor).toFixed(2);
-    return `${nuevoValor} ${unidad}`.trim();//elimina espacios en blanco al principio y al final
-    
-  }
 
 
- 
-  //ajuste de ingredientes segun porciones modificadas
-  useEffect(() => {
-    if (!receta) return;
-
-    const factor = porcion / receta.porciones;
-
-    const ingredientesAjustados = receta.ingredientes.map(i => ({
-      ...i,
-      cantidad: ajustarCantidad(i.cantidad, factor),
-    }));
-
-    setIngredientesCalc(ingredientesAjustados);
-  }, [porcion]);
-
-
-
-
-  function handleClick(index) {
-    setPressed(index);
-  }
 
   const agregarFavorito = async () => {
     try {
@@ -148,13 +100,8 @@ export default function InfoReceta({ navigation }) {
       
   };
   
-  const sumarPorcion= () =>{
-    setPorcion(prev => prev + 1)
-  }
-
-  const restarPorcion =  ()=>{
-    setPorcion(prev => (prev > 1 ? prev - 1 : 1))
-  }
+  const sumarPorcion = () => setPorcion(prev => prev + 1);
+  const restarPorcion = () => setPorcion(prev => (prev > 1 ? prev - 1 : 1));
 
   const verificarLike = async () => {
   try {
@@ -173,11 +120,13 @@ export default function InfoReceta({ navigation }) {
     console.error("Error al verificar favoritos", err);
   }
 };
+*/
 
-
-
-  const ingredientes = "Ingredientes";
-  const instrucciones = "Instrucciones";
+  function handleClick(index) {
+      setPressed(index);
+    }
+  const ingredientes="Ingredientes"
+  const instrucciones = "Instrucciones"
   const buttons = [ingredientes, instrucciones];
 
   if (!receta) {
@@ -198,7 +147,7 @@ export default function InfoReceta({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <ImageBackground
-          source={{ uri: `${API_BASE_URL}/static/${receta.imagen_receta_url}` }}
+          source={{ uri: `${API_BASE_URL}/static/${receta.fotoPrincipal}` }}
           style={styles.img}
           resizeMode="cover"
         >
@@ -206,9 +155,7 @@ export default function InfoReceta({ navigation }) {
             <Pressable onPress={() => navigation.goBack()}>
               <Image source={cancel} />
             </Pressable>
-            {token && <Pressable onPress={handleLike}>
-              <Image source={like ? favClicked : fav} />
-            </Pressable>}
+
             
           </View>
 
@@ -224,8 +171,8 @@ export default function InfoReceta({ navigation }) {
           />
         </ImageBackground>
         <View style={styles.infoContainer}>
-          <Text style={styles.titulo}>{receta.nombre}</Text>
-          <Text style={{fontFamily:'Sora_400Regular',}}>{receta.descripcion}</Text>
+          <Text style={styles.titulo}>{receta.nombreReceta}</Text>
+          <Text style={{fontFamily:'Sora_400Regular',}}>{receta.descripcionReceta}</Text>
           <View style={styles.botones}>
             {buttons.map((title, index) => (
               <Pressable
@@ -244,51 +191,50 @@ export default function InfoReceta({ navigation }) {
               </Pressable>
             ))}
           </View>
-          <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-            <Text style={styles.seleccionado}>
-            {isPressed === 1 ? instrucciones : ingredientes}
-            </Text>
-            {token && <View style={{alignItems:"center", marginHorizontal:20}}>
-              <Text style={styles.seleccionado}>Porciones</Text>
-              <View style={{flexDirection:"row"}}> 
-                <Pressable onPress={restarPorcion}><Text style={{fontFamily:'Sora_700Bold', fontSize:24}}>-</Text></Pressable>            
-                
-                <Text style={{fontFamily:'Sora_700Bold', fontSize:24, paddingRight:10, paddingLeft:10}}> {porcion}</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.seleccionado}>
+                {isPressed === 1 ? instrucciones : ingredientes}
+              </Text>
+            </View>
 
-                <Pressable onPress={sumarPorcion} ><Text style={{fontFamily:'Sora_700Bold', fontSize:24}}>+</Text></Pressable>
-                
-              </View>
-            </View>}
-            
-            
           </View>
+
           
           <View>
             {isPressed === 0 &&
-              ingredientesCalc?.map((i, index) => (
+              receta.ingredientes?.map((i, index) => (
                 <CardIngredient
                   key={index}
-                  name={i.nombre}
-                  quantity={i.cantidad}
+                  name={i.nombre_ingrediente}
+                  quantity={`${i.cantidad} ${i.descripcion}`}
+                  observations={i.observaciones}
                 />
               ))}
 
-            {isPressed === 1 &&
+            {isPressed === 1 && (
+              <FlatList
+                data={receta.pasos}
+                horizontal
+                keyExtractor={(item) => item.idPaso?.toString() ?? item.nroPaso?.toString()}
+                renderItem={({ item }) => (
+                  <View style={styles.instruccionesCard}>
+                    <Text style={styles.instruccionesText}>Paso {item.nroPaso}</Text>
+                    <Text style={{ fontFamily: 'Sora_400Regular' }}>{item.texto}</Text>
 
-                <FlatList
-                  data={receta.pasos}
-                  horizontal={true}
-                  keyExtractor={(item)=>item.id}
-                  renderItem={({item})=>(
-                    <View style={styles.instruccionesCard}>
-                      <Text style={styles.instruccionesText}>Paso {item.id}</Text>
-                      <Text style={{fontFamily:'Sora_400Regular',}}>{item.descripcion}</Text>
-                    </View>
-                  )}
-                  
-                />
-                }
+                    {item.multimedia?.length > 0 && (
+                      <Image
+                        source={{ uri: `${API_BASE_URL}/${item.multimedia[0].urlContenido}` }}
+                        style={styles.pasoImage}
+                        resizeMode="cover"
+                      />
+                    )}
+                  </View>
+                )}
+              />
+            )}
           </View>
+
 
           <CardCreator alias={receta.usuarioCreador} />
 

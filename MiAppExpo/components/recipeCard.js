@@ -13,14 +13,14 @@ export default function RecipeCard({ data, onPress, navigation }) {
           <View style={styles.imgContainer}>
             <Image
               source={{
-                uri: `${API_BASE_URL}/static/${data.imagen_receta_url}`,
+                uri: `${API_BASE_URL}/static/${data.fotoPrincipal}`,
               }}
               style={styles.img}
             />
           </View>
           <View style={styles.recipeContainer}>
-            <Text style={styles.title}>{data.nombre}</Text>
-            <Text style={styles.desc}>{data.descripcion}</Text>
+            <Text style={styles.title}>{data.nombreReceta}</Text>
+            <Text style={styles.desc}>{data.descripcionReceta}</Text>
           </View>
         </View>
 
@@ -28,17 +28,10 @@ export default function RecipeCard({ data, onPress, navigation }) {
           <View style={styles.userInfo}>
             <Image source={userIcon} style={{ width: 20, height: 20 }} />
             <Text style={{ paddingLeft: 10, fontSize: 12, fontFamily:'Sora_400Regular', }}>
-              {data.usuarioCreador}
+              {data.idUsuario}
             </Text>
           </View>
-
-          <View style={styles.rating}>
-            <Text style={{ paddingRight: 10, fontFamily:'Sora_400Regular' }}>
-              {data.valoracion !== null ? data.valoracion.toFixed(1) : "—"}
-            </Text>
-            <Image source={star} />
-          </View>
-        </View>
+      </View>
       </View>
     </Pressable>
   );

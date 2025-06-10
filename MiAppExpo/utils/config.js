@@ -1,3 +1,4 @@
-const API_BASE_URL = "http://10.2.0.0:8000";;
+const API_BASE_URL = "http://10.0.2.2:8000"; //MARTU
+// SI QUIERE AGREGAR SU URL --> COMENTEN EL DE ARRIBA Y PONGAN EL SUYO
 
 export default API_BASE_URL;

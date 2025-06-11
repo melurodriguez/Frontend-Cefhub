@@ -7,18 +7,17 @@ import {
   Pressable,
   Image,
   ScrollView,
-  Alert,
 } from "react-native";
 import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
-import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
+import { Alert } from "react-native";
 import { colors, fonts, sizes } from "../utils/themes";
 import { AuthContext } from "../auth/AuthContext";
 import PopUp from "../components/PopUp";
 
-const { height } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
 const cancel = require("../assets/cancel.png");
 
@@ -29,7 +28,7 @@ export default function InfoCurso({ navigation }) {
   const [error, setError] = useState(null);
   const [sedes, setSedes] = useState([]);
   const { token } = useContext(AuthContext);
-  const [isInscripto, setIsInscripto] = useState(false);
+  const [isIncripto, setIsInscripto] = useState(false);
   const [visible, setPopUpVisible] = useState(false);
 
   useEffect(() => {
@@ -37,15 +36,10 @@ export default function InfoCurso({ navigation }) {
       .get(`/curso/${id}`)
       .then((res) => setCurso(res.data))
       .catch((err) => {
-        if (err.response?.status === 403) {
-          setError("403");
-        } else if (err.response?.status === 404) {
-          setError("404");
-        } else if (err.response?.status === 401) {
-          setError("401");
-        } else {
-          setError("unknown");
-        }
+        if (err.response?.status === 403) setError("403");
+        else if (err.response?.status === 404) setError("404");
+        else if (err.response?.status === 401) setError("401");
+        else setError("unknown");
       });
 
     api
@@ -55,7 +49,25 @@ export default function InfoCurso({ navigation }) {
         console.error("Error al obtener la sede: ", err.message);
         console.error(err.config?.url);
       });
-  }, [id]);
+
+    api
+      .get(`/curso/${id}/inscripcion`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setIsInscripto(res.data.inscripto);
+      })
+      .catch((err) => {
+        if (err.response?.status === 403) {
+          setIsInscripto(false);
+        } else if (err.response?.status === 404) {
+          setError("404");
+        } else {
+          console.error("Error al verificar inscripción:", err.message);
+        }
+      });
+  }, [id, token]);
+
 
   useEffect(() => {
     if (error) {
@@ -76,157 +88,202 @@ export default function InfoCurso({ navigation }) {
         message = "Ocurrió un error inesperado";
       }
 
-      Alert.alert(
-        title,
-        message,
-        [
-          {
-            text: "Aceptar",
-            onPress: () => {
-              navigation.goBack();
-            },
+      Alert.alert(title, message, [
+        {
+          text: "Aceptar",
+          onPress: () => {
+            navigation.goBack();
           },
-        ],
-        { cancelable: false }
-      );
+        },
+      ]);
     }
   }, [error]);
 
   if (!curso || error) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando curso...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Cargando curso...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.infoContainer}>
-        <Pressable onPress={() => navigation.goBack()} style={{ marginBottom: 10 }}>
-          <Image source={cancel} />
+    <View style={styles.container}>
+
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && { opacity: 0.6 },
+          ]}
+          android_ripple={{ color: "#fff" }}
+        >
+          <Image source={cancel} style={styles.backIcon} />
         </Pressable>
+        <View style={styles.titleWrapper}>
+          <Text style={styles.title}>{curso.descripcion}</Text>
+        </View>
 
-        <Text style={styles.titulo}>Curso ID: {curso.idCurso}</Text>
 
-        <Text style={styles.objetivo}>Descripción</Text>
-        <Text style={styles.objDesc}>{curso.descripcion}</Text>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Temario</Text>
+          <Text style={styles.cardText}>{curso.contenidos}</Text>
+        </View>
 
-        <Text style={styles.objetivo}>Contenidos</Text>
-        <Text style={styles.objDesc}>{curso.contenidos}</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Insumos y Requerimientos</Text>
+          <Text style={styles.cardText}>{curso.requerimientos}</Text>
+        </View>
 
-        <Text style={styles.objetivo}>Requerimientos</Text>
-        <Text style={styles.objDesc}>{curso.requerimientos}</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Duración </Text>
+          <Text style={styles.cardText}>
+            {curso.duracion} semanas
+          </Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Modalidad</Text>
+          <Text style={styles.cardText}>
+            {curso.modalidad}
+          </Text>
+        </View>
 
-        <Text style={styles.objetivo}>Duración</Text>
-        <Text style={styles.objDesc}>{curso.duracion} horas</Text>
-
-        <Text style={styles.objetivo}>Modalidad</Text>
-        <Text style={styles.objDesc}>{curso.modalidad}</Text>
-
-        <Text style={[styles.objetivo, { marginTop: 20 }]}>Sedes Disponibles:</Text>
+        <Text style={styles.sectionTitle}>Sedes Disponibles</Text>
         {sedes.map((sede, index) => (
           <CardSedes key={index} sede={sede} />
         ))}
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginVertical: 20,
-            justifyContent: "space-between",
-            marginRight: 20,
-          }}
-        >
-          <Text style={styles.objetivo}>Valor del curso:</Text>
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.objetivo}>${curso.precio} ARS</Text>
-          </View>
+        <View style={styles.priceRow}>
+          <Text style={styles.priceLabel}>Valor del curso:</Text>
+          <Text style={styles.priceValue}>${curso.precio} ARS</Text>
         </View>
 
-        {isInscripto ? (
-          <View style={{ alignItems: "flex-end" }}>
-            <Pressable
-              style={styles.btn}
-              onPress={() => navigation.navigate("OfertasCursos", { id: curso.idCurso })}
-            >
-              <Text style={styles.btnText}>Inscribirme</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <View style={{ alignItems: "flex-end" }}>
-            <Pressable style={styles.btn} onPress={() => setPopUpVisible(true)}>
-              <Text style={styles.btnText}>Inscribirme</Text>
-            </Pressable>
-          </View>
-        )}
+        <View style={styles.buttonWrapper}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.btn,
+              pressed && { opacity: 0.8 },
+            ]}
+            onPress={() => {
+              if (isIncripto) {
+                setPopUpVisible(true);
+              } else {
+                navigation.navigate("OfertasCursos", { id: curso.idCurso });
+              }
+            }}
+          >
+            <Text style={styles.btnText}>
+              {isIncripto ? "Ir a Ofertas" : "Inscribirme"}
+            </Text>
+          </Pressable>
+
+
+        </View>
 
         <PopUp
-          action={`Ya estás inscripto en el curso ${curso.descripcion}`}
+          action={`Ya estás inscripto en el curso `}
           visible={visible}
           onClose={() => setPopUpVisible(false)}
           duration={2000}
         />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  imgBg: {
-    width: "100%",
-    height: height * 0.3,
-  },
-  infoContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderTopStartRadius: 40,
-    borderTopEndRadius: 40,
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    marginTop: -(height * 0.07),
-  },
-  titulo: {
+  container: { flex: 1, backgroundColor: colors.background || "#f5f5f5" },
+
+
+  title: {
     fontFamily: "Sora_700Bold",
-    fontSize: 26,
-    paddingBottom: 10,
-    color: "#333",
+    fontSize: 28,
+    color: colors.primaryDark || "#4A148C",
+    textShadowColor: "rgba(0,0,0,0.15)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
   },
-  objetivo: {
+  contentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: sizes.radius || 15,
+    padding: 20,
+    marginVertical: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  cardTitle: {
     fontFamily: "Sora_700Bold",
     fontSize: 20,
-    padding: 10,
+    marginBottom: 10,
+    color: colors.primary || "#6A1B9A",
   },
-  objDesc: {
-    fontSize: 16,
-    lineHeight: 22,
-    color: "#666",
-    paddingHorizontal: 5,
-    marginTop: 8,
+  cardText: {
     fontFamily: "Sora_400Regular",
+    fontSize: 16,
+    color: "#444",
+    lineHeight: 22,
+  },
+  sectionTitle: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 22,
+    color: colors.primary || "#6A1B9A",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  priceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 25,
+    paddingHorizontal: 10,
+  },
+  priceLabel: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 18,
+    color: "#222",
+  },
+  priceValue: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 18,
+    color: colors.primary || "#6A1B9A",
+  },
+  buttonWrapper: {
+    alignItems: "flex-end",
+    marginBottom: 40,
   },
   btn: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: sizes.radius,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 25,
-    marginBottom: 40,
+    backgroundColor: colors.primary || "#6A1B9A",
+    paddingHorizontal: 28,
+    paddingVertical: 16,
+    borderRadius: sizes.radius || 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
     shadowRadius: 6,
-    elevation: 3,
+    elevation: 4,
   },
   btnText: {
-    color: colors.white,
+    color: colors.white || "#fff",
     fontFamily: "Sora_700Bold",
-    fontSize: fonts.medium,
+    fontSize: fonts.medium || 18,
     letterSpacing: 0.5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background || "#f5f5f5",
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: "Sora_600SemiBold",
+    color: "#666",
   },
 });

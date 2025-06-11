@@ -16,9 +16,7 @@ export default function CardSedes({ sede }) {
     <View style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.titulo} >{sede.nombre}</Text>
-        <Text>Dirección: {sede.direccion}</Text>
-        <Text>Teléfono: {sede.telefono}</Text>
-        <Text>Promociom: {sede.promocion}</Text>
+        <Text style={styles.titulo} >{sede.direccion}</Text>
       </View>
     </View>
   );

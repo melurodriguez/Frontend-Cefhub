@@ -28,7 +28,7 @@ export default function SearchPage({ navigation }) {
 
   useEffect(() => {
     api
-      .get("/recetas?limit=3")
+      .get("recetas/?sort=nombre&order=ASC&limit=3")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);
@@ -42,6 +42,7 @@ export default function SearchPage({ navigation }) {
       .catch((err) => {
         console.error("Error al obtener cursos:", err);
       });
+    console.log("Obteniendo cursos...", cursos);
   }, []);
 
   const porNombre = () => {
@@ -104,7 +105,7 @@ export default function SearchPage({ navigation }) {
             <RecipeCard
               data={receta}
               onPress={() =>
-                navigation.navigate("InfoReceta", { id: receta.id })
+                navigation.navigate("InfoReceta", { id: receta.idReceta })
               }
             />
           </View>
@@ -123,7 +124,7 @@ export default function SearchPage({ navigation }) {
             <CardCurso
               data={curso}
               onPress={() => {
-                navigation.navigate("InfoCurso", { id: curso.id });
+                navigation.navigate("InfoCurso", { id: curso.idCurso });
               }}
             />
           </View>

@@ -81,24 +81,22 @@ export default function OfertasCursos({ navigation }) {
         <Text style={styles.titulo}>Ofertas disponibles para este curso</Text>
         {ofertas.map((oferta, index) => (
           <View key={index} style={styles.card}>
-            <Text style={styles.sedeNombre}>{oferta.sede_info?.nombre}</Text>
-            <Text style={styles.detalle}>Dirección: {oferta.sede_info?.direccion}</Text>
-            <Text style={styles.detalle}>Teléfono: {oferta.sede_info?.telefono}</Text>
-            <Text style={styles.detalle}>Fechas: {oferta.fecha_inicio} → {oferta.fecha_fin}</Text>
-            <Text style={styles.detalle}>Modalidad: {oferta.modalidad}</Text>
-            <Text style={styles.detalle}>Horario: {oferta.horario}</Text>
-            <Text style={styles.detalle}>Vacantes disponibles: {oferta.vacantes}</Text>
+            <Text style={styles.sedeNombre}>{oferta.nombreSede}</Text>
+            <Text style={styles.detalle}>Dirección: {oferta.direccionSede}</Text>
+            <Text style={styles.detalle}>Fechas: {oferta.fechaInicio} → {oferta.fechaFin}</Text>
+            <Text style={styles.detalle}>Vacantes disponibles: {oferta.vacantesDisponibles}</Text>
 
-            {oferta.sede_info?.promocion > 0 && (
-              <Text style={styles.promocion}>🔥 ¡{oferta.sede_info.promocion * 100}% de descuento disponible!</Text>
+            {oferta.bonificacionCursos > 0 && (
+              <Text style={styles.promocion}>🔥{oferta.tipoPromocion}  ¡{oferta.bonificacionCursos }% de descuento disponible !</Text>
             )}
 
             <View style={styles.precios}>
-              <Text style={styles.precioOriginal}>Precio original: ${oferta.precio_final} ARS</Text>
-              {oferta.sede_info?.promocion > 0 && (
+              <Text style={styles.precioOriginal}>Precio original: ${oferta.precio} ARS</Text>
+              {oferta.bonificacionCursos > 0 && (
                 <Text style={styles.precioFinal}>
-                  Precio final: ${oferta.precio_final - oferta.precio_final * oferta.sede_info.promocion} ARS
+                  Precio final: ${oferta.precio - oferta.precio * (oferta.bonificacionCursos / 100)} ARS
                 </Text>
+
               )}
             </View>
 

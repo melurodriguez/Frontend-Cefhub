@@ -11,7 +11,7 @@ export default function HomePage({ navigation }) {
 
   useEffect(() => {
     api
-      .get("/recetas?sort=fecha_publicacion&order=desc&limit=3")
+      .get("/recetas?sort=fecha&order=DESC&limit=3")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);
@@ -31,7 +31,7 @@ export default function HomePage({ navigation }) {
         <Pressable style={styles.card} key={index}>
           <RecipeCard
             data={receta}
-            onPress={() => navigation.navigate("InfoReceta", { id: receta.id })}
+            onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta })}
           />
         </Pressable>
       ))}

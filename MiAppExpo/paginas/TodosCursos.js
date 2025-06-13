@@ -100,7 +100,7 @@ export default function TodosCursos({ navigation }) {
             <CardCurso
               data={curso}
               onPress={() => {
-                navigation.navigate("InfoCurso", { id: curso.id });
+                navigation.navigate("InfoCurso", { id: curso.idCurso });
               }}
             />
           </View>
@@ -118,11 +118,11 @@ export default function TodosCursos({ navigation }) {
           <Text style={styles.filterTitle}>Filtrar por sede</Text>
           {sedes.map((sede) => (
             <Pressable
-              key={sede.id}
-              onPress={() => setSedeSeleccionada(sede.id)}
+              key={sede.idSede}
+              onPress={() => setSedeSeleccionada(sede.idSede)}
             >
               <Text style={styles.filterItem}>
-                {sedeSeleccionada === sede.id ? "✅" : "▫️"} {sede.nombre}
+                {sedeSeleccionada === sede.idSede ? "✅" : "▫️"} {sede.nombreSede}
               </Text>
             </Pressable>
           ))}

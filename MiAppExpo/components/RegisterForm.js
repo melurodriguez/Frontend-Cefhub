@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
+import api from "../api/axiosInstance";
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
@@ -18,13 +19,20 @@ export default function RegisterForm({ navigation }) {
     email: "",
   });
 
+  const [invalidUsernames, setInvalidUsernames]=useState([])
+
+  useEffect(()=>{
+    api
+      .get('')
+  })
+
   const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFirstStep = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/register`, {
+      const res = await fetch(`${API_BASE_URL}/register`, {//cambiar de acuerodo al endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",

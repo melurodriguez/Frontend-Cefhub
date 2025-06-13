@@ -1,6 +1,7 @@
 import { AuthProvider } from "./auth/AuthContext";
 import AppNavigator from "./AppNavigator";
 import { useFonts, Sora_400Regular, Sora_700Bold } from '@expo-google-fonts/sora';
+
 //Stack.Navigator no deja espacio para elementos externos.
 //Bottom Tabs Navigation es lo adecuado para barras inferiores:
 

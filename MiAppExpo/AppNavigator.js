@@ -20,7 +20,6 @@ import LoadedRecipe from "./paginas/LoadedRecipe";
 import Splash from "./paginas/Splash";
 import { useContext } from "react";
 import { AuthContext } from "./auth/AuthContext";
-import FormNotLogged from "./components/FormNotLogged";
 import SecondStepRegister from "./paginas/SecondStepRegister";
 import ThirdStepRegister from "./paginas/ThirdStepRegister";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -34,44 +33,56 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
+
 function DrawerNavigator() {
+  return(
   <Drawer.Navigator
     drawerContent={(props) => <CustomDrawer {...props} />}
     screenOptions={{
-      headerShown: false,
+      headerShown: true,
       drawerActiveBackgroundColor: colors.primary,
       drawerActiveTintColor: "#fff",
       drawerInactiveTintColor: "#000",
+      headerTitle:""
     }}
   >
+    <Drawer.Screen
+        name="Inicio"
+        component={TabNavigator}
+        options={{
+          drawerIcon: ({ color }) => (
+            <Ionicons name="home-outline" size={22}  color={color} />
+          ),
+        }}
+      />
     <Drawer.Screen
       name="Mis Datos"
       component={UserData}
       options={{
-        drawerIcon: () => {
-          <Ionicons name="server-outline" size={22} color={"#000"} />;
-        },
+        drawerIcon: ({ color }) => (
+          <Ionicons name="server-outline" size={22} color={color} />
+        ),
       }}
     />
     <Drawer.Screen
       name="Asistencia"
-      component={""}
+      component={HomePage}
       options={{
-        drawerIcon: () => {
-          <Ionicons name="checkmark-circle-outline" size={22} color={"#000"} />;
-        },
+        drawerIcon: ({ color }) => (
+          <Ionicons name="checkmark-circle-outline" size={22} color={color}/>
+        ),
       }}
     />
     <Drawer.Screen
       name="Cerrar Sesion"
       component={PopUpLogOut}
       options={{
-        drawerIcon: () => {
-          <Ionicons name="log-out-outline" size={22} color={"#000"} />;
-        },
+        drawerIcon: ({ color }) => (
+          <Ionicons name="log-out-outline" size={22}color={color} />
+        ),
       }}
     />
-  </Drawer.Navigator>;
+  </Drawer.Navigator>)
 }
 
 function TabNavigator() {
@@ -162,8 +173,8 @@ function AppNavigator() {
                 <>
                   {/* Si está logueado */}
                   <Stack.Screen name="OfertasCursos" component={OfertasCursos} />
-                  <Stack.Screen name="Menú" component={TabNavigator} />
-                  <Stack.Screen name="Main" component={TabNavigator} />
+                  <Stack.Screen name="Menú" component={DrawerNavigator} />
+                  <Stack.Screen name="Main" component={DrawerNavigator} />
                   <Stack.Screen name="LoginPage" component={LoginPage} />
                   <Stack.Screen name="RegisterPage" component={RegisterPage} />
                   <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />

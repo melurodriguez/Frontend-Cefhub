@@ -39,6 +39,8 @@ export default function InfoReceta({ navigation }) {
   const { token, user } = useContext(AuthContext);
   const [porcion, setPorcion] = useState(1);
   const [ingredientesCalc, setIngredientesCalc] = useState([]);
+  const [comentario, setComentario] = useState("");
+  const [comentarios, setComentarios] = useState([]);
 
 
   //obtiene receta
@@ -47,6 +49,10 @@ export default function InfoReceta({ navigation }) {
       .get(`/recetas/${id}`)
       .then((res) => setReceta(res.data))
       .catch((err) => console.error(err));
+    api
+       .get(`/recetas/${id}/comentarios`)
+       .then((res) => setComentarios(res.data))
+       .catch((err) => console.error("Error al obtener comentarios:", err));
   }, []);
 
   /*
@@ -128,6 +134,28 @@ export default function InfoReceta({ navigation }) {
   const ingredientes="Ingredientes"
   const instrucciones = "Instrucciones"
   const buttons = [ingredientes, instrucciones];
+
+  //Parte comentaios funcion
+
+  const enviarComentario = async () => {
+      if (!comentario.trim()) return;
+
+      try {
+        const response = await api.post(
+          `/recetas/${id}/comentarios`,
+          { texto: comentario },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setComentarios((prev) => [...prev, response.data]);
+        setComentario("");
+      } catch (error) {
+        console.error("Error al enviar comentario:", error);
+      }
+    };
+
 
   if (!receta) {
     return (
@@ -266,10 +294,38 @@ export default function InfoReceta({ navigation }) {
           }
 
 
-         {token &&   <TextInput placeholder="Dejá tu comentario..." style={styles.comentario}/> }
+         {token && (
+           <View style={{flexDirection:"row", paddingVertical:10}}>
+             <TextInput
+               placeholder="Dejá tu comentario..."
+               value={comentario}
+               onChangeText={setComentario}
+               multiline
+               style={styles.comentario}
+             />
+             <Pressable
+               onPress={enviarComentario}
+               style={{ backgroundColor: colors.primary, padding: 10, borderRadius: 10, alignItems: "center", marginTop: 10 }}
+             >
+               <Text style={{ color: "white", fontFamily: 'Sora_700Bold' }}>Enviar</Text>
+             </Pressable>
+           </View>
+         )}
 
           <View>
             <Text style={{fontWeight:fonts.bold, fontSize:fonts.medium, marginHorizontal:20, fontFamily:'Sora_700Bold',}}>Comentarios</Text>
+            <View style={{ marginHorizontal: 20 }}>
+              {comentarios.length === 0 ? (
+                <Text style={{ fontFamily: 'Sora_400Regular' }}>Aún no hay comentarios.</Text>
+              ) : (
+                comentarios.map((c, index) => (
+                  <View key={index} style={{ marginVertical: 10, backgroundColor: "#f2f2f2", padding: 10, borderRadius: 10 }}>
+                    <Text style={{ fontFamily: 'Sora_700Bold' }}>{c.usuario?.alias || "Anónimo"}</Text>
+                    <Text style={{ fontFamily: 'Sora_400Regular' }}>{c.texto}</Text>
+                  </View>
+                ))
+              )}
+            </View>
           </View>
         </View>
 

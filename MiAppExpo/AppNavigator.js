@@ -56,15 +56,6 @@ function DrawerNavigator() {
         }}
       />
     <Drawer.Screen
-      name="Mis Datos"
-      component={UserData}
-      options={{
-        drawerIcon: ({ color }) => (
-          <Ionicons name="server-outline" size={22} color={color} />
-        ),
-      }}
-    />
-    <Drawer.Screen
       name="Asistencia"
       component={HomePage}
       options={{
@@ -85,6 +76,55 @@ function DrawerNavigator() {
   </Drawer.Navigator>)
 }
 
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="HomePage" component={HomePage}/>
+      <Stack.Screen name="InfoReceta" component={InfoReceta}/>
+      <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
+      <Stack.Screen name="UserData" component={UserData}/>
+    </Stack.Navigator>
+  );
+}
+
+function SearchStack() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="SearchPage" component={SearchPage} />
+      <Stack.Screen name="InfoReceta" component={InfoReceta}/>
+      <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
+      <Stack.Screen name="TodosCursos" component={TodosCursos} />
+      <Stack.Screen name="InfoCurso" component={InfoCurso} />
+    </Stack.Navigator>
+  );
+}
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="UserData" component={UserData}/>
+    </Stack.Navigator>
+  );
+}
+function LoadStack(){
+  return(
+     <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="Cargar" component={RecipeLoad}/>
+      <Stack.Screen name="Receta Cargada" component={LoadedRecipe}/>
+     </Stack.Navigator>
+  )
+ 
+}
+
+function NotifStack(){
+  return(
+    <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="Notificaciones" component={Notificaciones}/>
+
+    </Stack.Navigator>
+  )
+}
+
 function TabNavigator() {
   return (
     <Tab.Navigator
@@ -103,11 +143,11 @@ function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Menú" component={HomePage} />
-      <Tab.Screen name="Búsqueda" component={SearchPage} />
-      <Tab.Screen name="Cargar" component={RecipeLoad} />
-      <Tab.Screen name="Notificaciones" component={Notificaciones} />
-      <Tab.Screen name="Perfil" component={Profile} />
+      <Tab.Screen name="Menú" component={HomeStack} />
+      <Tab.Screen name="Búsqueda" component={SearchStack} />
+      <Tab.Screen name="Cargar" component={LoadStack} />
+      <Tab.Screen name="Notificaciones" component={NotifStack} />
+      <Tab.Screen name="Perfil" component={ProfileStack} />
     </Tab.Navigator>
   );
 }
@@ -154,7 +194,7 @@ function AppNavigator() {
               <Stack.Screen name="Splash" component={Splash} />
 
               {/* Si NO está logueado */}
-              {!token ? (
+              {token ? (
                 <>
                   <Stack.Screen name="Menú" component={TabNavigatorVisitante} options={{ headerShown: false }} />
                   <Stack.Screen name="Main" component={TabNavigatorVisitante} options={{ headerShown: false }} />

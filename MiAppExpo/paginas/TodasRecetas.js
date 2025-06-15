@@ -62,14 +62,14 @@ export default function TodasRecetas({ navigation }) {
     const queryParams = [];
 
     if (orden === "recientes") {
-      queryParams.push("sort=fecha", "order=DESC");
+      queryParams.push("ordenar_por=reciente");
     } else if (orden === "alfabetico") {
-      queryParams.push("sort=nombre", "order=ASC");
+      queryParams.push("ordenar_por=nombre");
     }
 
-    if (filtros.tipo) queryParams.push(`tipo=${filtros.tipo}`);
-    if (filtros.conIngrediente) queryParams.push(`contiene_ingrediente=${filtros.conIngrediente}`);
-    if (filtros.sinIngrediente) queryParams.push(`excluye_ingrediente=${filtros.sinIngrediente}`);
+    if (filtros.tipo) queryParams.push(`id_tipo=${filtros.tipo}`);
+    if (filtros.conIngrediente) queryParams.push(`id_ingrediente_incluye=${filtros.conIngrediente}`);
+    if (filtros.sinIngrediente) queryParams.push(`id_ingrediente_excluye=${filtros.sinIngrediente}`);
 
     const queryString = queryParams.join("&");
 
@@ -81,12 +81,15 @@ export default function TodasRecetas({ navigation }) {
     setShowFilters(false);
   };
 
-
   const porNombre = () => {
-        api.get(`/recetas?nombre=${search}`).then((res) => setRecetas(res.data))
-        .catch((err) => console.error("Error al aplicar filtros:", err));
+    const query = `nombre_receta=${search}`;
 
+    api.get(`/recetas?${query}`)
+      .then((res) => setRecetas(res.data))
+      .catch((err) => console.error("Error al buscar por nombre:", err));
   };
+
+
 
   useEffect(() => {
     // Cargar tipos de receta

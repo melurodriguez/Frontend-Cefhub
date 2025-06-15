@@ -194,7 +194,7 @@ function AppNavigator() {
               <Stack.Screen name="Splash" component={Splash} />
 
               {/* Si NO está logueado */}
-              {token ? (
+              {!token ? (
                 <>
                   <Stack.Screen name="Menú" component={TabNavigatorVisitante} options={{ headerShown: false }} />
                   <Stack.Screen name="Main" component={TabNavigatorVisitante} options={{ headerShown: false }} />

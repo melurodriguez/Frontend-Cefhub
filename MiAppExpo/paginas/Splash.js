@@ -11,7 +11,7 @@ export default function Splash({ navigation }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!token) {
+      if (token) {
         navigation.replace("Main");
       } else {
         navigation.replace("MainVisitor");

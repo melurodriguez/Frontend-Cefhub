@@ -7,31 +7,6 @@ import { colors } from "../utils/themes";
 
 
 export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
-  const asistenciaPorc = Math.round((data.asistencia.length / 10) * 100); //editar
-  const diasTextoACodigo = {
-    lunes: "LU",
-    martes: "MA",
-    miércoles: "MI",
-    miercoles: "MI",
-    jueves: "JU",
-    viernes: "VI",
-    sábado: "SA",
-    sabado: "SA",
-    domingo: "DO"
-  };
-  const dias = ["LU", "MA", "MI", "JU", "VI", "SA", "DO"];
-  
-
-
-  function obtenerDiasActivos(horario) {
-    const diasEnTexto = Object.keys(diasTextoACodigo);
-    return diasEnTexto
-      .filter(dia => horario.toLowerCase().includes(dia))
-      .map(dia => diasTextoACodigo[dia]);
-  }
-
-  const diasActivos = obtenerDiasActivos(data.horario);
-  const soloHora = data.horario.replace(/^.*?(\d{1,2}:\d{2}.*)$/, '$1');
   async function handleDarseDeBaja() {
     try {
       const response = await api.post(`curso/${data.inscripcion_id}/baja`);
@@ -48,49 +23,34 @@ export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
     }
   }
 
-
-
   return (
     <>
 
       <Pressable style={styles.card} onPress={onPress}>
         <Text style={[styles.nombre, { textTransform: 'uppercase' }]}>
-          {data.nombre_curso}
+          {data.nombreCurso}
         </Text>
-        <View style={styles.diasContainer}>
-          {dias.map((dia, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dia,
-                diasActivos.includes(dia) && styles.diaActivo,
-              ]}
-            >
-              <Text style={styles.diaTexto}>{dia}</Text>
-            </View>
-          ))}
-          <Text style={styles.horario}>
-            {soloHora}
-          </Text>
+        <View style={styles.infoRow}>
+                  <Text style={styles.etiqueta}>Duracion : </Text>
+                  <Text style={styles.horario}>{data.duracion} semanas</Text>
         </View>
         <View style={styles.infoRow}>
                   <Text style={styles.etiqueta}>Fecha inicio: </Text>
-                  <Text style={styles.horario}>{data.fecha_inicio} </Text>
+                  <Text style={styles.horario}>{data.fechaInicio} </Text>
         </View>
         <View style={styles.infoRow}>
               <Text style={styles.etiqueta}>Fecha fin: </Text>
-              <Text style={styles.horario}>{data.fecha_fin}</Text>
+              <Text style={styles.horario}>{data.fechaFin}</Text>
         </View>
         <View style={[styles.infoRow, { marginTop: 10 }]}>
           <Text style={styles.etiqueta}>Asistencia: </Text>
-          <Text style={styles.asistenciaTexto}>{asistenciaPorc}%</Text>
+          <Text style={styles.asistenciaTexto}>%</Text>
         </View>
 
         <View style={styles.barraAsistencia}>
           <View
             style={[
               styles.barraProgreso,
-              { width: `${asistenciaPorc}%` }
             ]}
           />
         </View>

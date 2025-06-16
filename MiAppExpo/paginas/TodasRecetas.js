@@ -27,15 +27,19 @@ export default function TodasRecetas({ navigation }) {
   const [filtros, setFiltros] = useState({
     tipo: "",
     conIngrediente: "",
-    sinIngrediente: ""
+    sinIngrediente: "",
+    nickname: "" // 👈 nuevo
   });
   const [mostrarCampos, setMostrarCampos] = useState({
     tipo: false,
     conIngrediente: false,
-    sinIngrediente: false
+    sinIngrediente: false,
+    nickname: false // 👈 nuevo
   });
+
+  // drop downs
   const [tipos, setTipos] = useState([]);
-    const [ingredientes, setIngredientes] = useState([]);
+  const [ingredientes, setIngredientes] = useState([]);
 
   const limpiarFiltros = () => {
         setOrden("alfabetico");
@@ -70,6 +74,7 @@ export default function TodasRecetas({ navigation }) {
     if (filtros.tipo) queryParams.push(`id_tipo=${filtros.tipo}`);
     if (filtros.conIngrediente) queryParams.push(`id_ingrediente_incluye=${filtros.conIngrediente}`);
     if (filtros.sinIngrediente) queryParams.push(`id_ingrediente_excluye=${filtros.sinIngrediente}`);
+    if (filtros.nickname) queryParams.push(`nickname=${filtros.nickname}`);
 
     const queryString = queryParams.join("&");
 
@@ -250,6 +255,28 @@ export default function TodasRecetas({ navigation }) {
                 ))}
               </Picker>
             )}
+            <Pressable onPress={() =>
+              setMostrarCampos({
+                ...mostrarCampos,
+                nickname: !mostrarCampos.nickname
+              })
+            }>
+              <Text style={styles.filterItem}>
+                {mostrarCampos.nickname ? "✅" : "▫️"} Creador
+              </Text>
+            </Pressable>
+
+            {mostrarCampos.nickname && (
+              <TextInput
+                placeholder="Ingrese nickname"
+                value={filtros.nickname}
+                onChangeText={(text) =>
+                  setFiltros({ ...filtros, nickname: text })
+                }
+                style={styles.input}
+              />
+            )}
+
 
 
             <Pressable style={styles.applyButton} onPress={aplicarFiltros}>

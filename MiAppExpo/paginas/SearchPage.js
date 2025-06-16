@@ -28,7 +28,7 @@ export default function SearchPage({ navigation }) {
 
   useEffect(() => {
     api
-      .get("recetas?limite=3")
+      .get("/recetas?ordenar_por=reciente&limite=3")
       .then((res) => setRecetas(res.data))
       .catch((err) => {
         console.error("Error al obtener recetas:", err);

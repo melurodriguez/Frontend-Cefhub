@@ -19,8 +19,6 @@ export default function Profile({navigation}) {
   const [popUpMessage, setPopUpMessage] = useState("");
 
 
-
-
   const buttons = user?.tipo_usuario === "Alumno"
       ? ["Favoritos", "Mis Cursos", "Descargas"]
       : ["Favoritos", "Descargas"];
@@ -42,19 +40,26 @@ export default function Profile({navigation}) {
       const ids = response.data;
       console.log("IDs favoritos:", ids);
 
-      const recetasCompletas = await Promise.all(
-        ids.map(async (id) => {
-          console.log("Consultando receta con ID:", id);
-          const res = await api.get(`recetas/${id}`);
-          return res.data;
-        })
-      );
-
-      setRecetas(recetasCompletas);
+      if (Array.isArray(ids) && ids.length > 0) {
+        const recetasCompletas = await Promise.all(
+          ids
+            .filter(id => id != null) // descarta null/undefined
+            .map(async (id) => {
+              console.log("Consultando receta con ID:", id);
+              const res = await api.get(`recetas/${id}`);
+              return res.data;
+            })
+        );
+        setRecetas(recetasCompletas);
+      } else {
+        setRecetas([]); // si no hay favoritos, deja el array vacío
+      }
     } catch (error) {
       console.error("Error al obtener recetas favoritas:", error);
+      setRecetas([]); // opcional: resetear si falla la request
     }
   };
+
 
 
   const courses =async () => {
@@ -93,7 +98,7 @@ export default function Profile({navigation}) {
         <View style={styles.innerShadow}></View>
         <Image source={userAvatar}/>
         <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
-          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small, fontFamily:'Sora_700Bold' }}>{user?.alias ?? "Mi Usuario"}</Text>
+          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small, fontFamily:'Sora_700Bold' }}>{user?.nickname ?? "Mi Usuario"}</Text>
           <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
 
@@ -118,35 +123,46 @@ export default function Profile({navigation}) {
       <Text style={{ fontFamily:'Sora_700Bold', fontSize: 20, margin:20}}>
         {buttons[pressed]}
       </Text>
-      <View style={{marginHorizontal:10, alignItems:"center"}}>
-        {buttons[pressed] === "Favoritos" &&
-          recetas.map((receta, index) => (
-            <View key={index} style={styles.receta}>
-              <RecipeCard
-                data={receta}
-                onPress={() => navigation.navigate("InfoReceta", { id:receta.id })}
-              />
-            </View>
-          ))
-        }
+      <View style={{ marginHorizontal: 10, alignItems: "center" }}>
+        {buttons[pressed] === "Favoritos" && (
+          (recetas?.length > 0) ? (
+            recetas.map((receta, index) => (
+              <View key={index} style={styles.receta}>
+                <RecipeCard
+                  data={receta}
+                  onPress={() => navigation.navigate("InfoReceta", { id: receta.id })}
+                />
+              </View>
+            ))
+          ) : (
+            <Text style={styles.page}>No tenés recetas favoritas</Text>
+          )
+        )}
 
-        {buttons[pressed] === "Mis Cursos" &&
-          cursos.map((curso, index) => (
-            <View key={index} style={styles.receta}>
-              <CardCursoInscripcion data={curso} onPress={courses} onPopUp={(mensaje) => {
-                setPopUpMessage(mensaje);
-                setPopUpVisible(true);
-                }} 
-              />
-            </View>
-          ))
-        }
+        {buttons[pressed] === "Mis Cursos" && (
+          (cursos?.length > 0) ? (
+            cursos.map((curso, index) => (
+              <View key={index} style={styles.receta}>
+                <CardCursoInscripcion
+                  data={curso}
+                  onPress={courses}
+                  onPopUp={(mensaje) => {
+                    setPopUpMessage(mensaje);
+                    setPopUpVisible(true);
+                  }}
+                />
+              </View>
+            ))
+          ) : (
+            <Text style={styles.page}>No estás inscripta a ningún curso</Text>
+          )
+        )}
 
-        {buttons[pressed] === "Descargas" &&
-          <Text style={styles.page}> descargadas</Text>
-        }
-
+        {buttons[pressed] === "Descargas" && (
+          <Text style={styles.page}>Aún no descargaste recetas</Text>
+        )}
       </View>
+
       <PopUp
         action={popUpMessage}
         visible={visible}

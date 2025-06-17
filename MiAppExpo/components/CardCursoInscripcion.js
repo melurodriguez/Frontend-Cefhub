@@ -7,6 +7,7 @@ import { colors } from "../utils/themes";
 
 
 export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
+  const asistenciaPorc = Math.round((data.totalAsistencias / data.duracion )* 100);
   async function handleDarseDeBaja() {
     try {
       const response = await api.post(`curso/${data.inscripcion_id}/baja`);
@@ -31,8 +32,12 @@ export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
           {data.nombreCurso}
         </Text>
         <View style={styles.infoRow}>
+                  <Text style={styles.etiqueta}>Sede: </Text>
+                  <Text style={styles.horario}>{data.nombreSede} </Text>
+        </View>
+        <View style={styles.infoRow}>
                   <Text style={styles.etiqueta}>Duracion : </Text>
-                  <Text style={styles.horario}>{data.duracion} semanas</Text>
+                  <Text style={styles.horario}>{data.duracion} clases</Text>
         </View>
         <View style={styles.infoRow}>
                   <Text style={styles.etiqueta}>Fecha inicio: </Text>
@@ -44,13 +49,14 @@ export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
         </View>
         <View style={[styles.infoRow, { marginTop: 10 }]}>
           <Text style={styles.etiqueta}>Asistencia: </Text>
-          <Text style={styles.asistenciaTexto}>%</Text>
+          <Text style={styles.asistenciaTexto}> {asistenciaPorc} %</Text>
         </View>
 
         <View style={styles.barraAsistencia}>
           <View
             style={[
               styles.barraProgreso,
+              { width: `${asistenciaPorc}%` }
             ]}
           />
         </View>

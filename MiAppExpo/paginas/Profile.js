@@ -24,14 +24,16 @@ export default function Profile({navigation}) {
       : ["Favoritos", "Descargas"];
 
   function handleClick(index) {
-      setPressed(index);
-      const selected = buttons[index];
-      if (selected === "Favoritos") {
-        favorite_recipes();
-      } else if (selected === "Mis Cursos") {
-        courses();
-      }
-    }
+     setPressed(index);
+     const selected = buttons[index];
+     if (selected === "Favoritos") {
+       favorite_recipes();
+     } else if (selected === "Mis Cursos") {
+       courses();
+     }
+     // Descargas no necesita cargar datos
+   }
+
 
 
   const favorite_recipes = async () => {
@@ -43,7 +45,7 @@ export default function Profile({navigation}) {
       if (Array.isArray(ids) && ids.length > 0) {
         const recetasCompletas = await Promise.all(
           ids
-            .filter(id => id != null) // descarta null/undefined
+            .filter(id => id != null)
             .map(async (id) => {
               console.log("Consultando receta con ID:", id);
               const res = await api.get(`recetas/${id}`);
@@ -52,11 +54,11 @@ export default function Profile({navigation}) {
         );
         setRecetas(recetasCompletas);
       } else {
-        setRecetas([]); // si no hay favoritos, deja el array vacío
+        setRecetas([]);
       }
     } catch (error) {
       console.error("Error al obtener recetas favoritas:", error);
-      setRecetas([]); // opcional: resetear si falla la request
+      setRecetas([]);
     }
   };
 
@@ -74,16 +76,10 @@ export default function Profile({navigation}) {
   };
 
 
-  useEffect(()=>{
-    if (user?.tipo_usuario === "Alumno") {
-    courses();
-  }
-  }, [[user?.tipo_usuario]])
-
-
   useEffect(() => {
     favorite_recipes();
   }, []);
+
 
   return (
     <ScrollView>

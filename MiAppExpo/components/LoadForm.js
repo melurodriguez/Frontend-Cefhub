@@ -17,6 +17,7 @@ export default function LoadForm() {
   const [tipos, setTipos] = useState([]);
   const [ingredientesDisponibles, setIngredientesDisponibles] = useState([]);
   const [unidades, setUnidades] = useState([]);
+  const [hasPermission, setHasPermission] = useState(null);
   const [recipe, setRecipe] = useState({
     nombreReceta: "",
     descripcionReceta: "",
@@ -33,6 +34,12 @@ export default function LoadForm() {
     api.get("/recetas/tipos").then(res => setTipos(res.data));
     api.get("/recetas/ingredientes").then(res => setIngredientesDisponibles(res.data));
     api.get("/recetas/unidades").then(res => setUnidades(res.data));
+    const requestPermission = async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          setHasPermission(status === 'granted');
+        };
+
+        requestPermission();
   }, []);
 
 
@@ -86,46 +93,54 @@ export default function LoadForm() {
     setRecipe({ ...recipe, pasos: ps });
   }
 
-  async function pickMedia(i) {
+  async function uploadFile(uri) {
+    const formData = new FormData();
+    const filename = uri.split('/').pop();
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
+
+    formData.append("file", {
+      uri,
+      name: filename,
+      type,
+    });
+
+    try {
+      const response = await api.post("recetas/upload/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data.url; // ruta relativa en backend
+    } catch (error) {
+      Alert.alert("Error", "No se pudo subir el archivo");
+      return null;
+    }
+  }
+
+
+  const pickMedia = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: [ImagePicker.MediaType.IMAGE], // O [ImagePicker.MediaType.VIDEO] o ambos
       allowsMultipleSelection: true,
       quality: 1,
     });
+
     if (!result.canceled) {
-      const ps = [...recipe.pasos];
-      result.assets.forEach(a => {
-        const ext = a.uri.split(".").pop();
-        ps[i].multimedia.push({
-          tipo_contenido: a.type,
-          extension: ext,
-          urlContenido: a.uri
-        });
+      // Procesa los archivos seleccionados
+      result.assets.forEach((asset) => {
+        if (asset.type === 'image') {
+          console.log('Imagen seleccionada:', asset.uri);
+        } else if (asset.type === 'video') {
+          console.log('Video seleccionado:', asset.uri);
+        }
       });
-      setRecipe({ ...recipe, pasos: ps });
+    } else {
+      console.log('Selección de medios cancelada');
     }
-  }
+  };
 
-  async function pickMainPhoto() {
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images });
-    if (!res.canceled) {
-      setRecipe({ ...recipe, fotoPrincipal: res.assets[0].uri });
-    }
-  }
 
-  async function pickExtraPhotos() {
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true
-    });
-    if (!res.canceled) {
-      const extras = res.assets.map(a => ({
-        urlFoto: a.uri,
-        extension: a.uri.split(".").pop()
-      }));
-      setRecipe({ ...recipe, fotosAdicionales: [...recipe.fotosAdicionales, ...extras] });
-    }
-  }
+
+
 
   function getIdIngredienteByNombre(nombre) {
     const ing = ingredientesDisponibles.find(i => i.nombre === nombre);
@@ -333,7 +348,7 @@ return (
       onChangeText={t => handleChange("porciones", t)}
     />
 
-    <Text style={styles.sectionTitle}>Cant. Personas</Text>
+    <Text style={styles.sectionTitle}>Cantidad de Personas</Text>
     <TextInput
       editable={camposHabilitados }
       style={[styles.input, !camposHabilitados && styles.inputDisabled,]}
@@ -343,7 +358,7 @@ return (
     />
 
     <Text style={styles.sectionTitle}>Foto principal</Text>
-    <Pressable disabled={!camposHabilitados } style={styles.mediaButton} onPress={pickMainPhoto}><Text>Seleccionar imagen</Text></Pressable>
+    <Pressable disabled={!camposHabilitados } style={styles.mediaButton} onPress={pickMedia}><Text>Seleccionar imagen</Text></Pressable>
     {recipe.fotoPrincipal && <Image source={{ uri: recipe.fotoPrincipal }} style={styles.imagePreview} />}
 
     <Text style={styles.sectionTitle}>Ingredientes</Text>
@@ -410,7 +425,7 @@ return (
     <Pressable style={styles.addButton} onPress={addStep}><Text style={styles.addButtonText}>+ Agregar paso</Text></Pressable>
 
     <Text style={styles.sectionTitle}>Fotos adicionales</Text>
-    <Pressable style={styles.mediaButton} onPress={pickExtraPhotos}><Text>+ Agregar fotos</Text></Pressable>
+    <Pressable style={styles.mediaButton} onPress={pickMedia}><Text>+ Agregar fotos</Text></Pressable>
     <ScrollView horizontal>
       {recipe.fotosAdicionales.map((f, i) => (
         <Image key={i} source={{ uri: f.urlFoto }} style={styles.imagePreview} />

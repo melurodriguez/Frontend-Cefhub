@@ -1,6 +1,7 @@
 import { ScrollView } from "react-native";
 import RecipeCard from "../components/recipeCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, View, Text, Image, Pressable } from "react-native";
 const welcomeIcon = require("../assets/welcomeIcon.png");
 import api from "../api/axiosInstance";
@@ -9,14 +10,20 @@ import api from "../api/axiosInstance";
 export default function HomePage({ navigation }) {
   const [recetas, setRecetas] = useState([]);
 
-  useEffect(() => {
-    api
-      .get("/recetas?sort=fecha&order=DESC&limit=3")
-      .then((res) => setRecetas(res.data))
-      .catch((err) => {
-        console.error("Error al obtener recetas:", err);
-      });
-  }, []);
+  useFocusEffect(
+      useCallback(() => {
+        console.log("HomePage en foco, cargando recetas...");
+
+        api
+          .get("/recetas?ordenar_por=reciente&limite=3")
+          .then((res) => setRecetas(res.data))
+          .catch((err) => {
+            console.error("Error al obtener recetas:", err);
+          });
+
+        // No necesita cleanup
+      }, [])
+    );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

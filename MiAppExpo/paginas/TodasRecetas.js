@@ -6,12 +6,12 @@ import {
   StyleSheet,
   Image,
   Pressable,
-  Modal
+  Modal,
 } from "react-native";
 import { colors } from "../utils/themes.js";
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 const menu = require("../assets/menu.png");
 const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
@@ -27,49 +27,56 @@ export default function TodasRecetas({ navigation }) {
   const [filtros, setFiltros] = useState({
     tipo: "",
     conIngrediente: "",
-    sinIngrediente: ""
+    sinIngrediente: "",
+    nickname: "", // 👈 nuevo
   });
   const [mostrarCampos, setMostrarCampos] = useState({
     tipo: false,
     conIngrediente: false,
-    sinIngrediente: false
+    sinIngrediente: false,
+    nickname: false, // 👈 nuevo
   });
+
+  // drop downs
   const [tipos, setTipos] = useState([]);
-    const [ingredientes, setIngredientes] = useState([]);
+  const [ingredientes, setIngredientes] = useState([]);
 
   const limpiarFiltros = () => {
-        setOrden("alfabetico");
-          setFiltros({
-            tipo: "",
-            conIngrediente: "",
-            sinIngrediente: ""
-          });
-          setMostrarCampos({
-            tipo: false,
-            conIngrediente: false,
-            sinIngrediente: false
-          });
+    setOrden("alfabetico");
+    setFiltros({
+      tipo: "",
+      conIngrediente: "",
+      sinIngrediente: "",
+    });
+    setMostrarCampos({
+      tipo: false,
+      conIngrediente: false,
+      sinIngrediente: false,
+    });
 
-          api.get("/recetas")
-            .then((res) => setRecetas(res.data))
-            .catch((err) => console.error("Error al limpiar filtros:", err));
+    api
+      .get("/recetas")
+      .then((res) => setRecetas(res.data))
+      .catch((err) => console.error("Error al limpiar filtros:", err));
 
-          setShowFilters(false);
-
+    setShowFilters(false);
   };
 
   const aplicarFiltros = () => {
     const queryParams = [];
 
     if (orden === "recientes") {
-      queryParams.push("sort=fecha", "order=DESC");
+      queryParams.push("ordenar_por=reciente");
     } else if (orden === "alfabetico") {
-      queryParams.push("sort=nombre", "order=ASC");
+      queryParams.push("ordenar_por=nombre");
     }
 
-    if (filtros.tipo) queryParams.push(`tipo=${filtros.tipo}`);
-    if (filtros.conIngrediente) queryParams.push(`contiene_ingrediente=${filtros.conIngrediente}`);
-    if (filtros.sinIngrediente) queryParams.push(`excluye_ingrediente=${filtros.sinIngrediente}`);
+    if (filtros.tipo) queryParams.push(`id_tipo=${filtros.tipo}`);
+    if (filtros.conIngrediente)
+      queryParams.push(`id_ingrediente_incluye=${filtros.conIngrediente}`);
+    if (filtros.sinIngrediente)
+      queryParams.push(`id_ingrediente_excluye=${filtros.sinIngrediente}`);
+    if (filtros.nickname) queryParams.push(`nickname=${filtros.nickname}`);
 
     const queryString = queryParams.join("&");
 
@@ -81,28 +88,30 @@ export default function TodasRecetas({ navigation }) {
     setShowFilters(false);
   };
 
-
   const porNombre = () => {
-        api.get(`/recetas?nombre=${search}`).then((res) => setRecetas(res.data))
-        .catch((err) => console.error("Error al aplicar filtros:", err));
+    const query = `nombre_receta=${search}`;
 
+    api
+      .get(`/recetas?${query}`)
+      .then((res) => setRecetas(res.data))
+      .catch((err) => console.error("Error al buscar por nombre:", err));
   };
 
   useEffect(() => {
     // Cargar tipos de receta
-    api.get("/recetas/tipos")
-      .then(res => setTipos(res.data))
-      .catch(err => console.error("Error al cargar tipos:", err));
+    api
+      .get("/recetas/tipos")
+      .then((res) => setTipos(res.data))
+      .catch((err) => console.error("Error al cargar tipos:", err));
 
     // Cargar ingredientes
-    api.get("/recetas/ingredientes")
-      .then(res => setIngredientes(res.data))
-      .catch(err => console.error("Error al cargar ingredientes:", err));
+    api
+      .get("/recetas/ingredientes")
+      .then((res) => setIngredientes(res.data))
+      .catch((err) => console.error("Error al cargar ingredientes:", err));
 
     aplicarFiltros();
   }, []);
-
-
 
   return (
     <>
@@ -163,9 +172,9 @@ export default function TodasRecetas({ navigation }) {
             <Text style={styles.filterTitle}>Ordenar por</Text>
 
             <Pressable onPress={() => setOrden("alfabetico")}>
-                          <Text style={styles.filterItem}>
-                            {orden === "alfabetico" ? "✅" : "▫️"} Orden alfabético (A-Z)
-                          </Text>
+              <Text style={styles.filterItem}>
+                {orden === "alfabetico" ? "✅" : "▫️"} Orden alfabético (A-Z)
+              </Text>
             </Pressable>
 
             <Pressable onPress={() => setOrden("recientes")}>
@@ -174,13 +183,16 @@ export default function TodasRecetas({ navigation }) {
               </Text>
             </Pressable>
 
-
-
             <Text style={styles.filterTitle}>Filtrar por</Text>
 
-            <Pressable onPress={() =>
-              setMostrarCampos({ ...mostrarCampos, tipo: !mostrarCampos.tipo })
-            }>
+            <Pressable
+              onPress={() =>
+                setMostrarCampos({
+                  ...mostrarCampos,
+                  tipo: !mostrarCampos.tipo,
+                })
+              }
+            >
               <Text style={styles.filterItem}>
                 {mostrarCampos.tipo ? "✅" : "▫️"} Tipo de receta
               </Text>
@@ -188,24 +200,33 @@ export default function TodasRecetas({ navigation }) {
             {mostrarCampos.tipo && (
               <Picker
                 selectedValue={filtros.tipo}
-                onValueChange={(itemValue) => setFiltros({ ...filtros, tipo: itemValue })}
+                onValueChange={(itemValue) =>
+                  setFiltros({ ...filtros, tipo: itemValue })
+                }
                 style={styles.input}
               >
                 <Picker.Item label="Seleccione un tipo" value="" />
                 {tipos.map((tipo) => (
-                  <Picker.Item key={tipo.idTipo} label={tipo.descripcion} value={tipo.idTipo} />
+                  <Picker.Item
+                    key={tipo.idTipo}
+                    label={tipo.descripcion}
+                    value={tipo.idTipo}
+                  />
                 ))}
               </Picker>
             )}
 
-            <Pressable onPress={() =>
-              setMostrarCampos({
-                ...mostrarCampos,
-                conIngrediente: !mostrarCampos.conIngrediente
-              })
-            }>
+            <Pressable
+              onPress={() =>
+                setMostrarCampos({
+                  ...mostrarCampos,
+                  conIngrediente: !mostrarCampos.conIngrediente,
+                })
+              }
+            >
               <Text style={styles.filterItem}>
-                {mostrarCampos.conIngrediente ? "✅" : "▫️"} Contiene ingrediente
+                {mostrarCampos.conIngrediente ? "✅" : "▫️"} Contiene
+                ingrediente
               </Text>
             </Pressable>
             {mostrarCampos.conIngrediente && (
@@ -218,19 +239,26 @@ export default function TodasRecetas({ navigation }) {
               >
                 <Picker.Item label="Seleccione un ingrediente" value="" />
                 {ingredientes.map((ingrediente) => (
-                  <Picker.Item key={ingrediente.idIngrediente} label={ingrediente.nombre} value={ingrediente.idIngrediente} />
+                  <Picker.Item
+                    key={ingrediente.idIngrediente}
+                    label={ingrediente.nombre}
+                    value={ingrediente.idIngrediente}
+                  />
                 ))}
               </Picker>
             )}
 
-            <Pressable onPress={() =>
-              setMostrarCampos({
-                ...mostrarCampos,
-                sinIngrediente: !mostrarCampos.sinIngrediente
-              })
-            }>
+            <Pressable
+              onPress={() =>
+                setMostrarCampos({
+                  ...mostrarCampos,
+                  sinIngrediente: !mostrarCampos.sinIngrediente,
+                })
+              }
+            >
               <Text style={styles.filterItem}>
-                {mostrarCampos.sinIngrediente ? "✅" : "▫️"} No contiene ingrediente
+                {mostrarCampos.sinIngrediente ? "✅" : "▫️"} No contiene
+                ingrediente
               </Text>
             </Pressable>
             {mostrarCampos.sinIngrediente && (
@@ -243,11 +271,37 @@ export default function TodasRecetas({ navigation }) {
               >
                 <Picker.Item label="Seleccione un ingrediente" value="" />
                 {ingredientes.map((ingrediente) => (
-                  <Picker.Item key={ingrediente.idIngrediente} label={ingrediente.nombre} value={ingrediente.idIngrediente} />
+                  <Picker.Item
+                    key={ingrediente.idIngrediente}
+                    label={ingrediente.nombre}
+                    value={ingrediente.idIngrediente}
+                  />
                 ))}
               </Picker>
             )}
+            <Pressable
+              onPress={() =>
+                setMostrarCampos({
+                  ...mostrarCampos,
+                  nickname: !mostrarCampos.nickname,
+                })
+              }
+            >
+              <Text style={styles.filterItem}>
+                {mostrarCampos.nickname ? "✅" : "▫️"} Creador
+              </Text>
+            </Pressable>
 
+            {mostrarCampos.nickname && (
+              <TextInput
+                placeholder="Ingrese nickname"
+                value={filtros.nickname}
+                onChangeText={(text) =>
+                  setFiltros({ ...filtros, nickname: text })
+                }
+                style={styles.input}
+              />
+            )}
 
             <Pressable style={styles.applyButton} onPress={aplicarFiltros}>
               <Text style={styles.applyButtonText}>Aplicar filtros</Text>
@@ -256,14 +310,11 @@ export default function TodasRecetas({ navigation }) {
             <Pressable style={styles.applyButton} onPress={limpiarFiltros}>
               <Text style={styles.applyButtonText}>Limpiar filtros</Text>
             </Pressable>
-
-
           </View>
         </View>
       </Modal>
     </>
   );
-
 }
 
 const styles = StyleSheet.create({
@@ -280,7 +331,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: "#f1f5f5",
   },
-  searchInput:{
+  searchInput: {
     width: 330,
     borderColor: "#d9d9d9",
     borderWidth: 1,
@@ -316,78 +367,76 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
     paddingTop: 15,
     paddingBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.25,
     shadowRadius: 5,
     elevation: 10,
-    maxHeight: '70%',
+    maxHeight: "70%",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
 
+  closeButton: {
+    alignSelf: "flex-end",
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+    marginBottom: 10,
+  },
 
-    closeButton: {
-      alignSelf: 'flex-end',
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#007AFF',
-      marginBottom: 10,
-    },
+  filterTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginTop: 15,
+    marginBottom: 10,
+    color: "#333",
+  },
 
-    filterTitle: {
-      fontWeight: 'bold',
-      fontSize: 18,
-      marginTop: 15,
-      marginBottom: 10,
-      color: '#333',
-    },
+  filterItem: {
+    fontSize: 16,
+    marginLeft: 10,
+    marginVertical: 6,
+    color: "#555",
+  },
 
-    filterItem: {
-      fontSize: 16,
-      marginLeft: 10,
-      marginVertical: 6,
-      color: '#555',
-    },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginHorizontal: 10,
+    marginBottom: 12,
+    fontSize: 16,
+    backgroundColor: "#fafafa",
+  },
 
-    input: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      marginHorizontal: 10,
-      marginBottom: 12,
-      fontSize: 16,
-      backgroundColor: '#fafafa',
-    },
+  applyButton: {
+    backgroundColor: "#007AFF",
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    marginTop: 15,
+    alignSelf: "center",
+  },
 
-    applyButton: {
-      backgroundColor: '#007AFF',
-      borderRadius: 10,
-      paddingVertical: 12,
-      paddingHorizontal: 25,
-      marginTop: 15,
-      alignSelf: 'center',
-    },
-
-    applyButtonText: {
-      color: '#fff',
-      fontSize: 17,
-      fontWeight: '600',
-      textAlign: 'center',
-    },
-
+  applyButtonText: {
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: "center",
+  },
 });

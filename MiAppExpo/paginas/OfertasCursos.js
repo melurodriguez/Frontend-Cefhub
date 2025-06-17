@@ -102,7 +102,7 @@ export default function OfertasCursos({ navigation }) {
 
             <TouchableOpacity
               style={styles.boton}
-              onPress={() => onInscribirse(oferta.id)}
+              onPress={() => onInscribirse(oferta.idCronograma)}
             >
               <Text style={styles.botonTexto}>Inscribirse</Text>
             </TouchableOpacity>

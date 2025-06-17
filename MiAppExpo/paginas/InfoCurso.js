@@ -15,6 +15,7 @@ import api from "../api/axiosInstance";
 import { Alert } from "react-native";
 import { colors, fonts, sizes } from "../utils/themes";
 import { AuthContext } from "../auth/AuthContext";
+const flyingCat = require("../assets/readingCat.png");
 import PopUp from "../components/PopUp";
 
 const { height, width } = Dimensions.get("window");
@@ -109,181 +110,237 @@ export default function InfoCurso({ navigation }) {
 
   return (
     <View style={styles.container}>
-
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && { opacity: 0.6 },
-          ]}
-          android_ripple={{ color: "#fff" }}
-        >
-          <Image source={cancel} style={styles.backIcon} />
-        </Pressable>
-        <View style={styles.titleWrapper}>
-          <Text style={styles.title}>{curso.descripcion}</Text>
-        </View>
-
-
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Temario</Text>
-          <Text style={styles.cardText}>{curso.contenidos}</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Insumos y Requerimientos</Text>
-          <Text style={styles.cardText}>{curso.requerimientos}</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Duración </Text>
-          <Text style={styles.cardText}>
-            {curso.duracion} semanas
-          </Text>
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Modalidad</Text>
-          <Text style={styles.cardText}>
-            {curso.modalidad}
-          </Text>
-        </View>
-
-        <Text style={styles.sectionTitle}>Sedes Disponibles</Text>
-        {sedes.map((sede, index) => (
-          <CardSedes key={index} sede={sede} />
-        ))}
-
-        <View style={styles.priceRow}>
-          <Text style={styles.priceLabel}>Valor del curso:</Text>
-          <Text style={styles.priceValue}>${curso.precio} ARS</Text>
-        </View>
-
-        <View style={styles.buttonWrapper}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.btn,
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={() => {
-              if (isIncripto) {
-                setPopUpVisible(true);
-              } else {
-                navigation.navigate("OfertasCursos", { id: curso.idCurso });
-              }
-            }}
-          >
-            <Text style={styles.btnText}>
-              {isIncripto ? "Ir a Ofertas" : "Inscribirme"}
-            </Text>
+        <View style={styles.headerWrapper}>
+          <Pressable onPress={() => navigation.goBack()}>
+            <Image source={cancel} />
           </Pressable>
 
-
+          <View style={styles.headerContent}>
+            <View style={styles.textPriceContainer}>
+              <Text style={styles.titulo}>{curso.descripcion}</Text>
+              <View style={styles.priceRowTop}>
+                {curso.precioOriginal && curso.precioOriginal > curso.precio && (
+                  <Text style={styles.priceOriginal}>${curso.precioOriginal} ARS</Text>
+                )}
+                <Text style={styles.priceOferta}>${curso.precio} ARS</Text>
+                <Text style={styles.priceLabelOferta}>OFERTA</Text>
+              </View>
+            </View>
+            <Image
+              source={flyingCat}
+              style={styles.flyingCatImage}
+              resizeMode="contain"
+            />
+          </View>
         </View>
 
-        <PopUp
-          action={`Ya estás inscripto en el curso `}
-          visible={visible}
-          onClose={() => setPopUpVisible(false)}
-          duration={2000}
-        />
+        {/* Parte inferior: contenido, sedes, botón */}
+        <View style={styles.infoContainer}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Temario</Text>
+            <Text style={styles.cardText}>{curso.contenidos}</Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Insumos y Requerimientos</Text>
+            <Text style={styles.cardText}>{curso.requerimientos}</Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Duración</Text>
+            <Text style={styles.cardText}>{curso.duracion} semanas</Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Modalidad</Text>
+            <Text style={styles.cardText}>{curso.modalidad}</Text>
+          </View>
+
+          <Text style={styles.sectionTitle}>Sedes Disponibles</Text>
+          {sedes.map((sede, index) => (
+            <CardSedes key={index} sede={sede} />
+          ))}
+
+          <View style={styles.buttonWrapper}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.btn,
+                pressed && { opacity: 0.7 },
+              ]}
+              onPress={() => {
+                if (isIncripto) {
+                  setPopUpVisible(true);
+                } else {
+                  navigation.navigate("OfertasCursos", { id: curso.idCurso });
+                }
+              }}
+            >
+              <Text style={styles.btnText}>
+                {isIncripto ? "Ir a Ofertas" : "Inscribirme"}
+              </Text>
+            </Pressable>
+          </View>
+
+          <PopUp
+            action={`Ya estás inscripto en el curso `}
+            visible={visible}
+            onClose={() => setPopUpVisible(false)}
+            duration={2000}
+          />
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background || "#f5f5f5" },
 
-
-  title: {
-    fontFamily: "Sora_700Bold",
-    fontSize: 28,
-    color: colors.primaryDark || "#4A148C",
-    textShadowColor: "rgba(0,0,0,0.15)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
   },
   contentContainer: {
-    paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  card: {
+
+  headerWrapper: {
+    backgroundColor: "#505c86",
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 30,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    shadowColor: "#2a3b8f",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  backButton: {
+    position: "absolute",
+    top: 45,
+    left: 20,
     backgroundColor: "#fff",
-    borderRadius: sizes.radius || 15,
-    padding: 20,
-    marginVertical: 10,
+    padding: 10,
+    borderRadius: 30,
     elevation: 5,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    zIndex: 10,
+  },
+  backIcon: {
+    width: 24,
+    height: 24,
+    tintColor: "#4a5cbf",
+  },
+  headerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  textPriceContainer: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  titulo: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 26,
+    color: "#fff",
+    marginBottom: 10,
+  },
+  priceRowTop: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  priceOriginal: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 16,
+    color: "#E65100",
+    textDecorationLine: "line-through",
+    marginRight: 10,
+  },
+  priceOferta: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 28,
+    color: "#1E1E1E",
+    marginRight: 10,
+  },
+  priceLabelOferta: {
+    fontFamily: "Sora_700Bold",
+    fontSize: 14,
+    color: "#F9E8DC",
+    backgroundColor: "#3f4ca7",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  flyingCatImage: {
+    width: 110,
+    height: 110,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 7,
+  },
+
+  /* ----- PARTE INFERIOR ----- */
+  infoContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 30,
+  },
+  card: {
+    backgroundColor: "#f6f8ff",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#4a5cbf",
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+    elevation: 3,
   },
   cardTitle: {
     fontFamily: "Sora_700Bold",
-    fontSize: 20,
-    marginBottom: 10,
-    color: colors.primary || "#6A1B9A",
+    fontSize: 18,
+    marginBottom: 8,
+    color: "#505c86",
   },
   cardText: {
     fontFamily: "Sora_400Regular",
-    fontSize: 16,
-    color: "#444",
-    lineHeight: 22,
+    fontSize: 15,
+    color: "#333",
   },
   sectionTitle: {
     fontFamily: "Sora_700Bold",
     fontSize: 22,
-    color: colors.primary || "#6A1B9A",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  priceRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 25,
-    paddingHorizontal: 10,
-  },
-  priceLabel: {
-    fontFamily: "Sora_700Bold",
-    fontSize: 18,
-    color: "#222",
-  },
-  priceValue: {
-    fontFamily: "Sora_700Bold",
-    fontSize: 18,
-    color: colors.primary || "#6A1B9A",
+    marginVertical: 20,
+    color: "#505c86",
   },
   buttonWrapper: {
-    alignItems: "flex-end",
-    marginBottom: 40,
+    marginTop: 20,
+    alignItems: "center",
   },
   btn: {
-    backgroundColor: colors.primary || "#6A1B9A",
-    paddingHorizontal: 28,
-    paddingVertical: 16,
-    borderRadius: sizes.radius || 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    backgroundColor: "#505c86",
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 7,
   },
   btnText: {
-    color: colors.white || "#fff",
     fontFamily: "Sora_700Bold",
-    fontSize: fonts.medium || 18,
-    letterSpacing: 0.5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background || "#f5f5f5",
-  },
-  loadingText: {
     fontSize: 18,
-    fontFamily: "Sora_600SemiBold",
-    color: "#666",
+    color: "#fff",
   },
 });
+

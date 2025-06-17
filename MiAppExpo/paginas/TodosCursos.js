@@ -96,7 +96,7 @@ export default function TodosCursos({ navigation }) {
           </Pressable>
         </View>
         {cursos.map((curso) => (
-          <View style={styles.card} key={curso.id }>
+          <View style={styles.card} key={curso.idCurso}>
             <CardCurso
               data={curso}
               onPress={() => {

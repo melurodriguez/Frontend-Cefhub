@@ -9,8 +9,8 @@ export default function CardCurso({ data, onPress }) {
         </View>
 
         <View style={styles.details}>
-          <Text style={styles.detailText}>📅 Duración: {data.duracion} días</Text>
-          <Text style={styles.detailText}>💻 Modalidad: {data.modalidad}</Text>
+          <Text style={styles.detailText}>Duración: {data.duracion} clases</Text>
+          <Text style={styles.detailText}>Modalidad: {data.modalidad}</Text>
         </View>
 
         <View style={styles.pricing}>

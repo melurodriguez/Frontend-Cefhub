@@ -45,7 +45,7 @@ export default function LoadForm() {
     api.get("/recetas/unidades").then((res) => setUnidades(res.data));
   }, []);
 
-  //HACER EN BACK
+  //HACER EN BACK --> para agregar un tipo o ingrediente nuevo
   const handleNewTipo = async (descripcion) => {
     try {
       const res = await api.post("/recetas/tipos", { descripcion });
@@ -66,10 +66,12 @@ export default function LoadForm() {
     }
   };
 
+  // Manejo de cambios en los campos del formulario
   function handleChange(field, value) {
     setRecipe({ ...recipe, [field]: value });
   }
 
+  // Manejo de cambios en los ingredientes
   function handleIngredientChange(i, field, value) {
     const ing = [...recipe.ingredientes];
     ing[i][field] = value;
@@ -91,6 +93,7 @@ export default function LoadForm() {
     });
   }
 
+  // Manejo de cambios en los pasos
   function handleStepChange(i, field, value) {
     const ps = [...recipe.pasos];
     ps[i][field] = value;
@@ -103,6 +106,7 @@ export default function LoadForm() {
     setRecipe({ ...recipe, pasos: ps });
   }
 
+  // Funciones para subir archivos y seleccionar imágenes
   async function uploadFile(uri) {
     console.log("Subiendo archivo:", uri);
     try {
@@ -138,7 +142,7 @@ export default function LoadForm() {
   async function pickMainPhoto() {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.3,
+      quality: 0.1,
     });
 
     if (!res.canceled) {
@@ -158,7 +162,7 @@ export default function LoadForm() {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
-      quality: 0.3,
+      quality: 0.1,
     });
 
     if (!res.canceled) {
@@ -183,7 +187,7 @@ export default function LoadForm() {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
-      quality: 0.3,
+      quality: 0.1,
     });
 
     if (!res.canceled) {
@@ -203,6 +207,7 @@ export default function LoadForm() {
     }
   }
 
+  // Funciones para obtener IDs por nombre o descripción
   function getIdIngredienteByNombre(nombre) {
     const ing = ingredientesDisponibles.find((i) => i.nombre === nombre);
     return ing?.idIngrediente ?? null;
@@ -218,6 +223,7 @@ export default function LoadForm() {
     return tipo?.idTipo ?? null;
   }
 
+  // Cargar receta por ID cuando se modifica
   async function cargarReceta(id) {
     try {
       const response = await api.get(`/recetas/${id}`);
@@ -258,6 +264,7 @@ export default function LoadForm() {
     }
   }
 
+  // Verificar si la receta ya existe por nombre y fue creada por el usuario
   async function verificarReceta(nombre) {
     try {
       const response = await api.post(`/recetas/verificar/${nombre}`);
@@ -300,6 +307,7 @@ export default function LoadForm() {
     }
   }
 
+  // crear la receta
   async function submitRecipe() {
     try {
       let tipoId = recipe.idTipo;

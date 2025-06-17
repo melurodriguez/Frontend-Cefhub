@@ -215,9 +215,7 @@ export default function InfoReceta({ navigation }) {
                comentarios.map((c, index) => (
                  <CardCalificacion
                    key={index}
-                   nickname={c.nickname}
-                   calificacion={c.calificacion}
-                   comentario={c.comentarios || c.texto}
+                   data={c}
                  />
                ))
              )}

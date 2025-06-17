@@ -21,7 +21,7 @@ export default function CardCreator({ alias }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f1f5f5",
+    backgroundColor: "#FFF2E5",
     borderRadius: 15,
     marginTop: 20,
     padding: 20,

@@ -56,13 +56,23 @@ export const AuthProvider = ({ children }) => {
 
       if (storedAccessToken) {
         setToken(storedAccessToken);
+
+        // Hacer fetch para obtener info del usuario
+        const response = await api.get('/user/me');  // o la ruta correcta para info usuario
+        setUser(response.data);
       }
     } catch (err) {
-      console.error("Error cargando los tokens:", err);
+      console.log("Error cargando los tokens o usuario:", err);
+      setUser(null);
+      setToken(null);
+      // Opcional: limpiar tokens si están corruptos
+      await AsyncStorage.removeItem("access_token");
+      await AsyncStorage.removeItem("refresh_token");
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     loadToken();

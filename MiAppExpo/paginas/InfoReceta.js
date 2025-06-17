@@ -12,16 +12,19 @@ import {
   FlatList,
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
-import CardInstructions from "../components/CardInstructions";
+import CardCalificacion from "../components/CardCalificacion";
+import CalificarReceta from "../components/CalificarReceta";
 import PopUp from "../components/PopUp";
 import CardCreator from "../components/CardCreator";
 import { useRoute } from "@react-navigation/native";
 import api from "../api/axiosInstance";
 import API_BASE_URL from "../utils/config";
-import { useContext } from "react";
+import { useContext, useCallback  } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { colors, fonts, sizes } from "../utils/themes";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CardInstruccion from "../components/CardInstruccion";
+import { useFocusEffect } from "@react-navigation/native";
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -44,19 +47,32 @@ export default function InfoReceta({ navigation }) {
 
 
   //obtiene receta
-  useEffect(() => {
-    api
-      .get(`/recetas/${id}`)
-      .then((res) => setReceta(res.data))
-      .catch((err) => console.error(err));
-    api
-       .get(`/recetas/${id}/comentarios`)
-       .then((res) => setComentarios(res.data))
-       .catch((err) => console.error("Error al obtener comentarios:", err));
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const recetaRes = await api.get(`/recetas/${id}`);
+          setReceta(recetaRes.data);
 
- /*
+          const comentariosRes = await api.get(`/recetas/${id}/calificaciones`);
+          setComentarios(comentariosRes.data);
 
+          if (token) {
+            await verificarLike();
+          }
+
+          console.log("Receta obtenida:\n", JSON.stringify(recetaRes.data, null, 2));
+        } catch (err) {
+          console.error("Error al obtener datos de la receta:", err);
+        }
+      };
+
+      fetchData();
+    }, [id, token])
+  );
+
+
+  //favoritos
   const agregarFavorito = async () => {
     try {
       await api.post(`user/me/recetas_favoritas/${id}`);
@@ -94,258 +110,124 @@ export default function InfoReceta({ navigation }) {
   };
 
   const verificarLike = async () => {
-  try {
-    console.log("Verificando favoritos...");
-    const response = await api.get("user/me/recetas_favoritas");
-    const ids = response.data.map(r => r.id);
-    console.log("Favoritos obtenidos:", ids);
-    if (favoritos.includes(String(id))) {
-      setLike(true);
+    try {
+      const response = await api.get(`user/me/recetas_favoritas/${id}`);
+      setLike(response.data.is_favorite);
+    } catch (err) {
+      console.error("Error al verificar favoritos", err);
     }
-    else {
-      console.log("Receta NO está en favoritos");
-      setLike(false);
-    }
-  } catch (err) {
-    console.error("Error al verificar favoritos", err);
-  }
-};
-*/
+  };
 
+
+  //botones
   function handleClick(index) {
       setPressed(index);
     }
 
-  //Parte comentaios funcion
-
-  const enviarComentario = async () => {
-      if (!comentario.trim()) return;
-
-      try {
-        const response = await api.post(
-          `/recetas/${id}/comentarios`,
-          { texto: comentario },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        setComentarios((prev) => [...prev, response.data]);
-        setComentario("");
-      } catch (error) {
-        console.error("Error al enviar comentario:", error);
-      }
-    };
-
-
   if (!receta) {
     return (
-      <Text
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          fontWeight: "700",
-        }}
-      >
+      <Text>
         Cargando receta...
       </Text>
     );
   }
 
  return (
-    <ScrollView>
-      <View style={styles.container}>
-        <ImageBackground
-          source={{ uri: `${API_BASE_URL}/static/${receta.fotoPrincipal}` }}
-          style={styles.img}
-          resizeMode="cover"
-        >
-          <View style={styles.btnContainer}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <Image source={cancel} />
-            </Pressable>
-          </View>
-        </ImageBackground>
+   <ScrollView>
+     <View style={styles.container}>
+       <ImageBackground
+         source={{ uri: `${API_BASE_URL}/static/${receta.fotoPrincipal}` }}
+         style={styles.img}
+         resizeMode="cover"
+       >
+         <View style={styles.btnContainer}>
+           <Pressable onPress={() => navigation.goBack()}>
+             <Image source={cancel} />
+           </Pressable>
+           {token && (
+             <Pressable onPress={handleLike}>
+               <Image source={like ? favClicked : fav} />
+             </Pressable>
+           )}
+         </View>
+       </ImageBackground>
 
-        <View style={styles.infoContainer}>
-          <Text style={styles.titulo}>{receta.nombreReceta}</Text>
-          <Text style={{ fontFamily: "Sora_400Regular" }}>
-            {receta.descripcionReceta}
-          </Text>
+       <View style={styles.infoContainer}>
+         <Text style={styles.titulo}>{receta.nombreReceta}</Text>
+         <Text style={styles.descripcion}>{receta.descripcionReceta}</Text>
 
-          <View style={styles.botones}>
-            {["Ingredientes", "Instrucciones"].map((title, index) => (
-              <Pressable
-                key={index}
-                onPress={() => handleClick(index)}
-                style={[styles.btn, isPressed === index && styles.pressed]}
-              >
-                <Text
-                  style={[
-                    styles.btnText,
-                    isPressed === index && styles.pressed,
-                  ]}
-                >
-                  {title}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+         <View style={styles.botones}>
+           {["Ingredientes", "Instrucciones"].map((title, index) => (
+             <Pressable
+               key={index}
+               onPress={() => handleClick(index)}
+               style={[styles.btn, isPressed === index && styles.pressed]}
+             >
+               <Text
+                 style={[
+                   styles.btnText,
+                   isPressed === index && styles.btnTextPressed,
+                 ]}
+               >
+                 {title}
+               </Text>
+             </Pressable>
+           ))}
+         </View>
 
-          <Text style={styles.seleccionado}>
-            {isPressed === 0 ? "Ingredientes" : "Instrucciones"}
-          </Text>
+         <Text style={styles.seleccionado}>
+           {isPressed === 0 ? "Ingredientes" : "Instrucciones"}
+         </Text>
 
-          {isPressed === 0 &&
-            receta.ingredientes?.map((i, index) => (
-              <CardIngredient
-                key={index}
-                name={i.ingrediente}
-                quantity={`${i.cantidad} ${i.unidad}`}
-                observations={i.observaciones}
-              />
-            ))}
+         {isPressed === 0 &&
+           receta.ingredientes?.map((i, index) => (
+             <CardIngredient
+               key={index}
+               name={i.ingrediente}
+               quantity={`${i.cantidad} ${i.unidad}`}
+               observations={i.observaciones}
+             />
+           ))}
 
-          {isPressed === 1 && (
-            <FlatList
-              data={receta.pasos}
-              horizontal
-              keyExtractor={(item) =>
-                item.idPaso?.toString() ?? item.nroPaso?.toString()
-              }
-              renderItem={({ item }) => (
-                <View style={styles.instruccionesCard}>
-                  <Text style={styles.instruccionesText}>
-                    Paso {item.nroPaso}
-                  </Text>
-                  <Text style={{ fontFamily: "Sora_400Regular" }}>
-                    {item.descripcionPaso}
-                  </Text>
-                  {item.multimedia?.length > 0 &&
-                    item.multimedia[0].tipo === "imagen" && (
-                      <Image
-                        source={{
-                          uri: `${API_BASE_URL}${item.multimedia[0].url}`,
-                        }}
-                        style={styles.pasoImage}
-                        resizeMode="cover"
-                      />
-                    )}
-                </View>
-              )}
-            />
-          )}
+         {isPressed === 1 && (
+           <FlatList
+             data={receta.pasos}
+             keyExtractor={(item) =>
+               item.idPaso?.toString() ?? item.nroPaso?.toString()
+             }
+             renderItem={({ item }) => <CardInstruccion paso={item} />}
+             contentContainerStyle={styles.flatListPadding}
+           />
+         )}
 
-          <CardCreator alias={receta.nickname} />
+         <CardCreator alias={receta.nickname} />
 
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginVertical: 30,
-              alignItems: "center",
-              marginHorizontal: 20,
-            }}
-          >
-            <View>
-              <Text
-                style={{
-                  fontWeight: fonts.bold,
-                  fontSize: fonts.medium,
-                  marginVertical: 10,
-                  fontFamily: "Sora_700Bold",
-                }}
-              >
-                Califica la receta!
-              </Text>
-              <View style={{ flexDirection: "row", paddingVertical: 10 }}>
-                {[...Array(5)].map((_, i) => (
-                  <Pressable key={i} style={{ paddingHorizontal: 5 }}>
-                    <Image
-                      source={require("../assets/emptyStar.png")}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  </Pressable>
-                ))}
-              </View>
-            </View>
+         {token && <CalificarReceta idReceta={id} token={token} />}
 
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ paddingHorizontal: 10, fontFamily: "Sora_700Bold" }}>
-                {receta.calificaciones?.promedio || 0}
-              </Text>
-              <Image source={require("../assets/star.png")} />
-            </View>
-          </View>
+         <View style={styles.comentariosContainer}>
+           <Text style={styles.comentariosTitulo}>Comentarios</Text>
+           <View style={styles.comentariosLista}>
+             {comentarios.length === 0 ? (
+               <Text style={styles.comentariosVacio}>
+                 Aún no hay comentarios.
+               </Text>
+             ) : (
+               comentarios.map((c, index) => (
+                 <CardCalificacion
+                   key={index}
+                   nickname={c.nickname}
+                   calificacion={c.calificacion}
+                   comentario={c.comentarios || c.texto}
+                 />
+               ))
+             )}
+           </View>
+         </View>
+       </View>
+     </View>
+   </ScrollView>
+ );
 
-          {token && (
-            <View style={{ flexDirection: "row", paddingVertical: 10 }}>
-              <TextInput
-                placeholder="Dejá tu comentario..."
-                value={comentario}
-                onChangeText={setComentario}
-                multiline
-                style={styles.comentario}
-              />
-              <Pressable
-                onPress={enviarComentario}
-                style={{
-                  backgroundColor: colors.primary,
-                  padding: 10,
-                  borderRadius: 10,
-                  alignItems: "center",
-                  marginTop: 10,
-                }}
-              >
-                <Text style={{ color: "white", fontFamily: "Sora_700Bold" }}>
-                  Enviar
-                </Text>
-              </Pressable>
-            </View>
-          )}
-
-          <View>
-            <Text
-              style={{
-                fontWeight: fonts.bold,
-                fontSize: fonts.medium,
-                marginHorizontal: 20,
-                fontFamily: "Sora_700Bold",
-              }}
-            >
-              Comentarios
-            </Text>
-            <View style={{ marginHorizontal: 20 }}>
-              {comentarios.length === 0 ? (
-                <Text style={{ fontFamily: "Sora_400Regular" }}>
-                  Aún no hay comentarios.
-                </Text>
-              ) : (
-                comentarios.map((c, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      marginVertical: 10,
-                      backgroundColor: "#f2f2f2",
-                      padding: 10,
-                      borderRadius: 10,
-                    }}
-                  >
-                    <Text style={{ fontFamily: "Sora_700Bold" }}>
-                      {c.usuario?.alias || "Anónimo"}
-                    </Text>
-                    <Text style={{ fontFamily: "Sora_400Regular" }}>
-                      {c.texto}
-                    </Text>
-                  </View>
-                ))
-              )}
-            </View>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
-  );
 }
 
 const styles = StyleSheet.create({
@@ -357,28 +239,29 @@ const styles = StyleSheet.create({
     height: height * 0.3,
     justifyContent: "space-between",
   },
-
   btnContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    margin: 20,
   },
   infoContainer: {
     flex: 1,
     backgroundColor: "#ffffff",
     borderTopStartRadius: 50,
-    borderStartEndRadius: 50,
+    borderTopEndRadius: 50,
     justifyContent: "space-around",
     paddingLeft: 20,
     paddingTop: 40,
     marginTop: -(height * 0.07),
   },
-
   titulo: {
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 24,
     paddingBottom: 15,
   },
-
+  descripcion: {
+    fontFamily: "Sora_400Regular",
+  },
   botones: {
     flexDirection: "row",
     justifyContent: "center",
@@ -386,56 +269,50 @@ const styles = StyleSheet.create({
     paddingTop: height * 0.03,
     paddingBottom: height * 0.03,
   },
-
   btn: {
     backgroundColor: "#f1f5f5",
-    width: 165, //en mobile la medida puede cambiar
+    width: 165,
     height: 41,
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
+    marginHorizontal: 5,
   },
   btnText: {
-    color: "#000",
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 16,
+    color: "#000",
   },
-
+  btnTextPressed: {
+    color: "#fff",
+  },
   pressed: {
     backgroundColor: "#505c86",
-    color: "#ffffff",
   },
-
   seleccionado: {
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 20,
     paddingTop: 20,
     paddingBottom: 20,
   },
-
-  comentario:{
-    width:sizes.width*0.9,
-    backgroundColor:colors.backgroundColorLight,
-    height:200,
-    borderRadius:sizes.radius,
-    marginVertical:20,
-
+  flatListPadding: {
+    paddingBottom: 20,
   },
-
-  instruccionesCard:{
-    backgroundColor:colors.backgroundColorLight,
-    borderRadius:sizes.radius,
-    padding:sizes.padding,
-    marginRight:sizes.margin,
-    marginVertical:sizes.margin,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  comentariosContainer: {
+    marginTop: 20,
   },
-  instruccionesText:{
-    fontFamily:'Sora_700Bold',
-    fontSize:16,
-    paddingVertical:sizes.padding
-  }
+  comentariosTitulo: {
+    fontFamily: "Sora_700Bold",
+    fontSize: fonts.medium,
+    marginHorizontal: 20,
+  },
+  comentariosLista: {
+    marginHorizontal: 20,
+  },
+  comentariosVacio: {
+    fontFamily: "Sora_400Regular",
+    fontStyle: "italic",
+    color: "#666",
+  },
 });
+

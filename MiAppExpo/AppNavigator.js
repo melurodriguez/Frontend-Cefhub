@@ -173,6 +173,7 @@ function AppNavigator() {
                 <>
                   {/* Si está logueado */}
                   <Stack.Screen name="OfertasCursos" component={OfertasCursos} />
+                  <Stack.Screen name="Perfil" component={Profile} />
                   <Stack.Screen name="Menú" component={DrawerNavigator} />
                   <Stack.Screen name="Main" component={DrawerNavigator} />
                   <Stack.Screen name="LoginPage" component={LoginPage} />

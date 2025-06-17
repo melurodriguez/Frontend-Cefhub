@@ -10,7 +10,7 @@ export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
   const asistenciaPorc = Math.round((data.totalAsistencias / data.duracion )* 100);
   async function handleDarseDeBaja() {
     try {
-      const response = await api.post(`curso/${data.inscripcion_id}/baja`);
+      const response = await api.post(`curso/${data.idCronograma}/baja`);
       onPopUp("Has sido dado/a de baja del curso");
       //console.log("pop up")
       await onPress()

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -26,24 +27,27 @@ export default function SearchPage({ navigation }) {
   const [cursos, setCursos] = useState([]);
   const [visible, setVisible] = useState(false); //prueba del sidemenu
 
-  useEffect(() => {
-    api
-      .get("/recetas?ordenar_por=reciente&limite=3")
-      .then((res) => setRecetas(res.data))
-      .catch((err) => {
-        console.error("Error al obtener recetas:", err);
-      });
-  }, []);
+  useFocusEffect(
+      useCallback(() => {
+        api
+          .get("/recetas?ordenar_por=reciente&limite=3")
+          .then((res) => setRecetas(res.data))
+          .catch((err) => {
+            console.error("Error al obtener recetas:", err);
+          });
 
-  useEffect(() => {
-    api
-      .get("/curso")
-      .then((res) => setCursos(res.data))
-      .catch((err) => {
-        console.error("Error al obtener cursos:", err);
-      });
-    console.log("Obteniendo cursos...", cursos);
-  }, []);
+        api
+          .get("/curso")
+          .then((res) => setCursos(res.data))
+          .catch((err) => {
+            console.error("Error al obtener cursos:", err);
+          });
+
+        console.log("Obteniendo cursos y recetas...");
+
+        // No necesita return cleanup en este caso
+      }, [])
+    );
 
   const porNombre = () => {
           api.get(`/recetas?nombre=${search}`)

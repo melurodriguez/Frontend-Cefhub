@@ -1,4 +1,5 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { Pressable, View, Text, Image, StyleSheet, ScrollView } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCursoInscripcion from "../components/CardCursoInscripcion";
@@ -15,6 +16,7 @@ export default function Profile({navigation}) {
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
   const { user, logout } = useContext(AuthContext);
+  console.log("User en Profile:", user);
   const [visible, setPopUpVisible] = useState(false);
   const [popUpMessage, setPopUpMessage] = useState("");
 
@@ -25,60 +27,39 @@ export default function Profile({navigation}) {
 
   function handleClick(index) {
      setPressed(index);
-     const selected = buttons[index];
-     if (selected === "Favoritos") {
-       favorite_recipes();
-     } else if (selected === "Mis Cursos") {
-       courses();
-     }
-     // Descargas no necesita cargar datos
    }
 
 
 
-  const favorite_recipes = async () => {
-    try {
-      const response = await api.get("user/me/recetas_favoritas");
-      const ids = response.data;
-      console.log("IDs favoritos:", ids);
-
-      if (Array.isArray(ids) && ids.length > 0) {
-        const recetasCompletas = await Promise.all(
-          ids
-            .filter(id => id != null)
-            .map(async (id) => {
-              console.log("Consultando receta con ID:", id);
-              const res = await api.get(`recetas/${id}`);
-              return res.data;
-            })
-        );
-        setRecetas(recetasCompletas);
-      } else {
+  const favorite_recipes = useCallback(async () => {
+      try {
+        const response = await api.get("user/me/recetas_favoritas");
+        setRecetas(response.data);
+      } catch (error) {
+        console.error("Error al obtener recetas favoritas:", error);
         setRecetas([]);
       }
-    } catch (error) {
-      console.error("Error al obtener recetas favoritas:", error);
-      setRecetas([]);
-    }
-  };
+    }, []);
 
+    const courses = useCallback(async () => {
+      try {
+        const response = await api.get('user/me/cursos');
+        setCursos(response.data);
+      } catch (error) {
+        console.error('Error al obtener los cursos del usuario:', error);
+        setCursos([]);
+      }
+    }, []);
 
+    useFocusEffect(
+      useCallback(() => {
+        favorite_recipes();
+        if (user?.tipo_usuario === "Alumno") {
+          courses();
+        }
+      }, [])
+    );
 
-  const courses =async () => {
-   try {
-     const response = await api.get('user/me/cursos');
-     setCursos(response.data)
-     return response.data;
-   } catch (error) {
-     console.error('Error al obtener los cursos del usuario:', error);
-     throw error;
-   }
-  };
-
-
-  useEffect(() => {
-    favorite_recipes();
-  }, []);
 
 
   return (
@@ -126,7 +107,7 @@ export default function Profile({navigation}) {
               <View key={index} style={styles.receta}>
                 <RecipeCard
                   data={receta}
-                  onPress={() => navigation.navigate("InfoReceta", { id: receta.id })}
+                  onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta })}
                 />
               </View>
             ))

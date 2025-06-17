@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
+import * as FileSystem from "expo-file-system";
 import {
-  View, Text, TextInput, Pressable,
-  Image, ScrollView, StyleSheet, Alert
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Alert,
 } from "react-native";
 import api from "../api/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
@@ -17,7 +23,6 @@ export default function LoadForm() {
   const [tipos, setTipos] = useState([]);
   const [ingredientesDisponibles, setIngredientesDisponibles] = useState([]);
   const [unidades, setUnidades] = useState([]);
-  const [hasPermission, setHasPermission] = useState(null);
   const [recipe, setRecipe] = useState({
     nombreReceta: "",
     descripcionReceta: "",
@@ -25,23 +30,20 @@ export default function LoadForm() {
     porciones: "",
     cantidadPersonas: "",
     fotoPrincipal: null,
-    ingredientes: [{ idIngrediente: null, cantidad: "", idUnidad: null, observaciones: "" }],
+    ingredientes: [
+      { idIngrediente: null, cantidad: "", idUnidad: null, observaciones: "" },
+    ],
     pasos: [{ nroPaso: 1, texto: "", multimedia: [] }],
-    fotosAdicionales: []
+    fotosAdicionales: [],
   });
 
   useEffect(() => {
-    api.get("/recetas/tipos").then(res => setTipos(res.data));
-    api.get("/recetas/ingredientes").then(res => setIngredientesDisponibles(res.data));
-    api.get("/recetas/unidades").then(res => setUnidades(res.data));
-    const requestPermission = async () => {
-          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-          setHasPermission(status === 'granted');
-        };
-
-        requestPermission();
+    api.get("/recetas/tipos").then((res) => setTipos(res.data));
+    api
+      .get("/recetas/ingredientes")
+      .then((res) => setIngredientesDisponibles(res.data));
+    api.get("/recetas/unidades").then((res) => setUnidades(res.data));
   }, []);
-
 
   //HACER EN BACK
   const handleNewTipo = async (descripcion) => {
@@ -77,7 +79,15 @@ export default function LoadForm() {
   function addIngredient() {
     setRecipe({
       ...recipe,
-      ingredientes: [...recipe.ingredientes, { idIngrediente:null, cantidad:"", idUnidad:null, observaciones:""}]
+      ingredientes: [
+        ...recipe.ingredientes,
+        {
+          idIngrediente: null,
+          cantidad: "",
+          idUnidad: null,
+          observaciones: "",
+        },
+      ],
     });
   }
 
@@ -94,144 +104,201 @@ export default function LoadForm() {
   }
 
   async function uploadFile(uri) {
-    const formData = new FormData();
-    const filename = uri.split('/').pop();
-    const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : `image`;
-
-    formData.append("file", {
-      uri,
-      name: filename,
-      type,
-    });
-
+    console.log("Subiendo archivo:", uri);
     try {
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      if (!fileInfo.exists) {
+        Alert.alert("Error", "No se encontró el archivo");
+        return null;
+      }
+
+      const filename = uri.split("/").pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+
+      const formData = new FormData();
+      formData.append("file", {
+        uri: fileInfo.uri,
+        name: filename,
+        type,
+      });
+      console.log("llamando a la API con formData:", formData);
       const response = await api.post("recetas/upload/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return response.data.url; // ruta relativa en backend
+
+      return response.data.url;
     } catch (error) {
+      console.error(error);
       Alert.alert("Error", "No se pudo subir el archivo");
       return null;
     }
   }
 
-
-  const pickMedia = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: [ImagePicker.MediaType.IMAGE], // O [ImagePicker.MediaType.VIDEO] o ambos
-      allowsMultipleSelection: true,
-      quality: 1,
+  async function pickMainPhoto() {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.3,
     });
 
-    if (!result.canceled) {
-      // Procesa los archivos seleccionados
-      result.assets.forEach((asset) => {
-        if (asset.type === 'image') {
-          console.log('Imagen seleccionada:', asset.uri);
-        } else if (asset.type === 'video') {
-          console.log('Video seleccionado:', asset.uri);
-        }
-      });
-    } else {
-      console.log('Selección de medios cancelada');
+    if (!res.canceled) {
+      const uploaded = await uploadFile(res.assets[0].uri);
+      console.log("Foto principal subida:", uploaded);
+      if (uploaded) {
+        setRecipe((prev) => {
+          const nuevo = { ...prev, fotoPrincipal: uploaded };
+          console.log("Nuevo estado receta con fotoPrincipal:", nuevo);
+          return nuevo;
+        });
+      }
     }
-  };
+  }
 
+  async function pickExtraPhotos(recipe, setRecipe) {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.3,
+    });
 
+    if (!res.canceled) {
+      const newFotos = [];
+      for (const asset of res.assets) {
+        const uploaded = await uploadFile(asset.uri);
+        if (uploaded) {
+          newFotos.push({
+            urlFoto: uploaded,
+            extension: asset.uri.split(".").pop(),
+          });
+        }
+      }
+      setRecipe({
+        ...recipe,
+        fotosAdicionales: [...recipe.fotosAdicionales, ...newFotos],
+      });
+    }
+  }
 
+  async function pickMedia(i, recipe, setRecipe) {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsMultipleSelection: true,
+      quality: 0.3,
+    });
 
+    if (!res.canceled) {
+      const pasosActuales = [...recipe.pasos];
+      for (const asset of res.assets) {
+        const ext = asset.uri.split(".").pop();
+        const uploaded = await uploadFile(asset.uri);
+        if (uploaded) {
+          pasosActuales[i].multimedia.push({
+            tipo_contenido: asset.type,
+            extension: ext,
+            urlContenido: uploaded,
+          });
+        }
+      }
+      setRecipe({ ...recipe, pasos: pasosActuales });
+    }
+  }
 
   function getIdIngredienteByNombre(nombre) {
-    const ing = ingredientesDisponibles.find(i => i.nombre === nombre);
+    const ing = ingredientesDisponibles.find((i) => i.nombre === nombre);
     return ing?.idIngrediente ?? null;
   }
 
   function getIdUnidadByDescripcion(desc) {
-    const unidad = unidades.find(u => u.descripcion === desc);
+    const unidad = unidades.find((u) => u.descripcion === desc);
     return unidad?.idUnidad ?? null;
   }
 
+  function getIdTipoByDescripcion(desc) {
+    const tipo = tipos.find((t) => t.descripcion === desc);
+    return tipo?.idTipo ?? null;
+  }
+
   async function cargarReceta(id) {
-      try {
-        const response = await api.get(`/recetas/${id}`);
-        const data= response.data;
-        console.log(data)
-        setRecipe({
-            nombreReceta: data.nombreReceta,
-            descripcionReceta: data.descripcionReceta,
-            idTipo: data.tipoReceta, // Si usás el ID del tipo, deberías mapearlo correctamente
-            porciones: data.porciones.toString(),
-            cantidadPersonas: data.cantidadPersonas.toString(),
-            fotoPrincipal: data.fotoPrincipal,
-            ingredientes: data.ingredientes.map(ing => ({
-              idIngrediente: getIdIngredienteByNombre(ing.ingrediente), // 💡 función auxiliar para buscar el ID
-              cantidad: ing.cantidad.toString(),
-              idUnidad: getIdUnidadByDescripcion(ing.unidad),
-              observaciones: ing.observaciones || ""
-            })),
-            pasos: data.pasos.map(p => ({
-              nroPaso: p.nroPaso,
-              texto: p.descripcionPaso,
-              multimedia: p.multimedia.map(m => ({
-                tipo_contenido: m.tipo,
-                urlContenido: m.url,
-                extension: m.url.split('.').pop()
-              }))
-            })),
-            fotosAdicionales: [] // si en el futuro las separás del campo fotoPrincipal
-          });
-        setRecipeId(id);
-        console.log(id)
-        console.log(recipe)
-        setModoEdicion(true);
-        setCamposHabilitados(true);
-      } catch (error) {
-        console.error("Error al cargar receta:", error);
-        Alert.alert("Error", "No se pudo cargar la receta.");
-      }
+    try {
+      const response = await api.get(`/recetas/${id}`);
+      const data = response.data;
+      console.log(data);
+      setRecipe({
+        nombreReceta: data.nombreReceta,
+        descripcionReceta: data.descripcionReceta,
+        idTipo: getIdTipoByDescripcion(data.tipoReceta),
+        porciones: data.porciones.toString(),
+        cantidadPersonas: data.cantidadPersonas.toString(),
+        fotoPrincipal: data.fotoPrincipal,
+        ingredientes: data.ingredientes.map((ing) => ({
+          idIngrediente: getIdIngredienteByNombre(ing.ingrediente),
+          cantidad: ing.cantidad.toString(),
+          idUnidad: getIdUnidadByDescripcion(ing.unidad),
+          observaciones: ing.observaciones || "",
+        })),
+        pasos: data.pasos.map((p) => ({
+          nroPaso: p.nroPaso,
+          texto: p.descripcionPaso,
+          multimedia: p.multimedia.map((m) => ({
+            tipo_contenido: m.tipo,
+            urlContenido: m.url,
+            extension: m.url.split(".").pop(),
+          })),
+        })),
+        fotosAdicionales: [], // si en el futuro las separás del campo fotoPrincipal
+      });
+      setRecipeId(id);
+      console.log(id);
+      console.log(recipe);
+      setModoEdicion(true);
+      setCamposHabilitados(true);
+    } catch (error) {
+      console.error("Error al cargar receta:", error);
+      Alert.alert("Error", "No se pudo cargar la receta.");
     }
+  }
 
   async function verificarReceta(nombre) {
-        try {
-          const response = await api.post(`/recetas/verificar/${nombre}`);
-          Alert.alert("Nueva receta", response.data.mensaje);
-          setCamposHabilitados(true);
-        } catch (error) {
-          if (error.response && error.response.status === 409) {
-              console.log(error.response.data)
-              const data = error.response.data.detail;
-            Alert.alert(
-              "Receta existente",
-              data.mensaje,
-              [
-                {
-                  text: "Modificar",
-                  onPress: () => {
-                    console.log("Modificar receta existente:", data.receta_id);
-                    cargarReceta(data.receta_id);
-                  },
-                },
-                {
-                  text: "Reemplazar",
-                  onPress: () => {
-                    setModoReemplazo(true);
-                    setCamposHabilitados(true);
-                  },
-                },
-                {
-                  text: "Cancelar",
-                  style: "cancel",
-                },
-              ],
-              { cancelable: true }
-            );
-          } else {
-            console.error("Error inesperado:", error);
-            Alert.alert("Error", "No se pudo verificar el nombre.");
-          }
-        }
+    try {
+      const response = await api.post(`/recetas/verificar/${nombre}`);
+      Alert.alert("Nueva receta", response.data.mensaje);
+      setCamposHabilitados(true);
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        console.log(error.response.data);
+        const data = error.response.data.detail;
+        Alert.alert(
+          "Receta existente",
+          data.mensaje,
+          [
+            {
+              text: "Modificar",
+              onPress: () => {
+                console.log("Modificar receta existente:", data.receta_id);
+                cargarReceta(data.receta_id);
+              },
+            },
+            {
+              text: "Reemplazar",
+              onPress: () => {
+                setRecipeId(data.receta_id);
+                setModoReemplazo(true);
+                setCamposHabilitados(true);
+              },
+            },
+            {
+              text: "Cancelar",
+              style: "cancel",
+            },
+          ],
+          { cancelable: true }
+        );
+      } else {
+        console.error("Error inesperado:", error);
+        Alert.alert("Error", "No se pudo verificar el nombre.");
       }
+    }
+  }
 
   async function submitRecipe() {
     try {
@@ -246,7 +313,7 @@ export default function LoadForm() {
           idIngrediente: idI,
           cantidad: parseFloat(ing.cantidad),
           idUnidad: ing.idUnidad,
-          observaciones: ing.observaciones
+          observaciones: ing.observaciones,
         });
       }
 
@@ -259,19 +326,25 @@ export default function LoadForm() {
         idTipo: tipoId,
         ingredientes: ingredientesPrep,
         pasos: recipe.pasos,
-        fotosAdicionales: recipe.fotosAdicionales
+        fotosAdicionales: recipe.fotosAdicionales,
       };
+      console.log("Enviando payload:\n" + JSON.stringify(payload, null, 2));
 
       let res;
       if (modoReemplazo)
-        res = await api.post("/recetas/reemplazar", payload);
+        res = await api.put(`recetas/reemplazar/${recipeId}`, payload);
       else if (modoEdicion && recipeId)
         res = await api.put(`/recetas/${recipeId}`, payload);
-      else
-        res = await api.post("/recetas", payload);
+      else res = await api.post("/recetas", payload);
 
-      Alert.alert("Éxito", modoEdicion ? "Receta actualizada" :
-        modoReemplazo ? "Receta reemplazada" : "Receta creada");
+      Alert.alert(
+        "Éxito",
+        modoEdicion
+          ? "Receta actualizada"
+          : modoReemplazo
+            ? "Receta reemplazada"
+            : "Receta creada"
+      );
       limpiarFormulario();
     } catch (e) {
       console.error(e);
@@ -287,9 +360,16 @@ export default function LoadForm() {
       porciones: "",
       cantidadPersonas: "",
       fotoPrincipal: null,
-      ingredientes: [{ idIngrediente: null, cantidad: "", idUnidad: null, observaciones: "" }],
+      ingredientes: [
+        {
+          idIngrediente: null,
+          cantidad: "",
+          idUnidad: null,
+          observaciones: "",
+        },
+      ],
       pasos: [{ nroPaso: 1, texto: "", multimedia: [] }],
-      fotosAdicionales: []
+      fotosAdicionales: [],
     });
     setCamposHabilitados(false);
     setModoEdicion(false);
@@ -297,146 +377,201 @@ export default function LoadForm() {
     setRecipeId(null);
   }
 
-return (
-  <ScrollView style={styles.container}>
-    <Text style={styles.sectionTitle}>Nombre</Text>
-    <TextInput
-            editable={!camposHabilitados}
-            style={[
-                styles.input,
-                camposHabilitados && styles.inputDisabled,
-              ]}
-            value={recipe.nombre}
-            onChangeText={(value) => handleChange("nombre", value)}
-            onBlur={() => verificarReceta(recipe.nombre)}
-      />
-
-    <Text style={styles.sectionTitle}>Descripción del plato</Text>
-          <TextInput
-            editable={camposHabilitados }
-            style={[styles.input, !camposHabilitados && styles.inputDisabled,]}
-            value={recipe.descripcionReceta}
-            onChangeText={value => handleChange("descripcionReceta", value)}
-          />
-
-    <Text style={styles.sectionTitle}>Tipo de plato</Text>
-    <View style={styles.pickerContainer} >
-      <Picker
-        selectedValue={recipe.idTipo}
-        onValueChange={v => handleChange("idTipo", v)}
-        enabled={camposHabilitados }
-        style={[!camposHabilitados && styles.inputDisabled,]}
-      >
-        {tipos.map(t => <Picker.Item key={t.idTipo} label={t.descripcion} value={t.idTipo} />)}
-        <Picker.Item label="Otro..." value="otro" />
-      </Picker>
-    </View>
-    {recipe.idTipo === "otro" && (
+  return (
+    <ScrollView style={styles.container}>
+      {camposHabilitados && (
+        <Pressable style={styles.clear} onPress={limpiarFormulario}>
+          <Text style={styles.addButtonText}>Limpiar Receta</Text>
+        </Pressable>
+      )}
+      <Text style={styles.sectionTitle}>Nombre de la receta</Text>
       <TextInput
-        placeholder="Nuevo tipo"
-        style={styles.input}
-        onChangeText={t => handleChange("idTipo", t)}
+        editable={!camposHabilitados}
+        style={[styles.input, camposHabilitados && styles.inputDisabled]}
+        value={recipe.nombreReceta}
+        onChangeText={(value) => handleChange("nombreReceta", value)}
+        onBlur={() => verificarReceta(recipe.nombreReceta)}
       />
-    )}
 
-    <Text style={styles.sectionTitle}>Porciones</Text>
-    <TextInput
-      editable={camposHabilitados }
-      style={[styles.input, !camposHabilitados && styles.inputDisabled,]}
-      keyboardType="numeric"
-      value={recipe.porciones}
-      onChangeText={t => handleChange("porciones", t)}
-    />
-
-    <Text style={styles.sectionTitle}>Cantidad de Personas</Text>
-    <TextInput
-      editable={camposHabilitados }
-      style={[styles.input, !camposHabilitados && styles.inputDisabled,]}
-      keyboardType="numeric"
-      value={recipe.cantidadPersonas}
-      onChangeText={t => handleChange("cantidadPersonas", t)}
-    />
-
-    <Text style={styles.sectionTitle}>Foto principal</Text>
-    <Pressable disabled={!camposHabilitados } style={styles.mediaButton} onPress={pickMedia}><Text>Seleccionar imagen</Text></Pressable>
-    {recipe.fotoPrincipal && <Image source={{ uri: recipe.fotoPrincipal }} style={styles.imagePreview} />}
-
-    <Text style={styles.sectionTitle}>Ingredientes</Text>
-    {recipe.ingredientes.map((ing, i) => (
-      <View key={i} style={styles.ingredienteContainer}>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={ing.idIngrediente}
-            onValueChange={v => handleIngredientChange(i, "idIngrediente", v)}
-            style={{ color: "#222" }}
-          >
-            {ingredientesDisponibles.map(x =>
-              <Picker.Item key={x.idIngrediente} label={x.nombre} value={x.idIngrediente} />
-            )}
-            <Picker.Item label="Otro.." value="otro" />
-          </Picker>
-        </View>
-        {ing.idIngrediente === "otro" && (
+      {camposHabilitados && (
+        <>
+          <Text style={styles.sectionTitle}>Descripción del plato</Text>
           <TextInput
-            placeholder="Nuevo ingrediente"
-            style={styles.input}
-            onChangeText={t => handleIngredientChange(i, "idIngrediente", t)}
+            style={[styles.input, ,]}
+            value={recipe.descripcionReceta}
+            onChangeText={(value) => handleChange("descripcionReceta", value)}
           />
-        )}
-        <View style={styles.rowCantidadUnidad}>
-          <TextInput
-            style={styles.inputSmall}
-            keyboardType="numeric"
-            placeholder="Cantidad"
-            value={ing.cantidad}
-            onChangeText={t => handleIngredientChange(i, "cantidad", t)}
-          />
-          <View style={styles.pickerUnidad}>
+
+          <Text style={styles.sectionTitle}>Tipo de plato</Text>
+          <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={ing.idUnidad}
-              onValueChange={v => handleIngredientChange(i, "idUnidad", v)}
+              selectedValue={recipe.idTipo}
+              onValueChange={(v) => handleChange("idTipo", v)}
             >
-              {unidades.map(u => <Picker.Item key={u.idUnidad} label={u.descripcion} value={u.idUnidad} />)}
+              <Picker.Item label="Seleccione un tipo" value="" />
+              {tipos.map((t) => (
+                <Picker.Item
+                  key={t.idTipo}
+                  label={t.descripcion}
+                  value={t.idTipo}
+                />
+              ))}
+              <Picker.Item label="Otro..." value="otro" />
             </Picker>
           </View>
+          {recipe.idTipo === "otro" && (
+            <TextInput
+              placeholder="Nuevo tipo"
+              style={styles.input}
+              onChangeText={(t) => handleChange("idTipo", t)}
+            />
+          )}
 
-        </View>
-      </View>
-    ))}
-    <Pressable style={styles.addButton} onPress={addIngredient}>
-      <Text style={styles.addButtonText}>+ Ingrediente</Text>
-    </Pressable>
+          <Text style={styles.sectionTitle}>Porciones</Text>
+          <TextInput
+            style={[styles.input]}
+            keyboardType="numeric"
+            value={recipe.porciones}
+            onChangeText={(t) => handleChange("porciones", t)}
+          />
 
-    <Text style={styles.sectionTitle}>Pasos</Text>
-    {recipe.pasos.map((st, i) => (
-      <View key={i} style={styles.step}>
-        <Text>Paso {st.nroPaso}</Text>
-        <TextInput
-          style={styles.textarea}
-          value={st.texto}
-          onChangeText={t => handleStepChange(i, "texto", t)}
-        />
-        <Pressable style={styles.mediaButton} onPress={() => pickMedia(i)}><Text>+ Multimedia</Text></Pressable>
-        {st.multimedia.map((m, k) => (
-          <Text key={k}>{m.tipo_contenido}: {m.urlContenido}</Text>
-        ))}
-      </View>
-    ))}
-    <Pressable style={styles.addButton} onPress={addStep}><Text style={styles.addButtonText}>+ Agregar paso</Text></Pressable>
+          <Text style={styles.sectionTitle}>Cantidad de Personas</Text>
+          <TextInput
+            style={[styles.input]}
+            keyboardType="numeric"
+            value={recipe.cantidadPersonas}
+            onChangeText={(t) => handleChange("cantidadPersonas", t)}
+          />
 
-    <Text style={styles.sectionTitle}>Fotos adicionales</Text>
-    <Pressable style={styles.mediaButton} onPress={pickMedia}><Text>+ Agregar fotos</Text></Pressable>
-    <ScrollView horizontal>
-      {recipe.fotosAdicionales.map((f, i) => (
-        <Image key={i} source={{ uri: f.urlFoto }} style={styles.imagePreview} />
-      ))}
+          <Text style={styles.sectionTitle}>Foto principal</Text>
+          <Pressable style={styles.mediaButton} onPress={pickMainPhoto}>
+            <Text>Seleccionar imagen</Text>
+          </Pressable>
+          {recipe.fotoPrincipal && (
+            <Text
+              style={{
+                fontSize: 10,
+                color: "gray",
+                marginTop: 6,
+                maxWidth: "80%",
+                flexShrink: 1,
+              }}
+              numberOfLines={1}
+              ellipsizeMode="middle"
+            >
+              URL: {recipe.fotoPrincipal}
+            </Text>
+          )}
+
+          <Text style={styles.sectionTitle}>Ingredientes</Text>
+          {recipe.ingredientes.map((ing, i) => (
+            <View key={i} style={styles.ingredienteContainer}>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={ing.idIngrediente}
+                  onValueChange={(v) =>
+                    handleIngredientChange(i, "idIngrediente", v)
+                  }
+                  style={{ color: "#222" }}
+                >
+                  <Picker.Item label="Seleccione un ingrediente" value="" />
+                  {ingredientesDisponibles.map((x) => (
+                    <Picker.Item
+                      key={x.idIngrediente}
+                      label={x.nombre}
+                      value={x.idIngrediente}
+                    />
+                  ))}
+                  <Picker.Item label="Otro.." value="otro" />
+                </Picker>
+              </View>
+              {ing.idIngrediente === "otro" && (
+                <TextInput
+                  placeholder="Nuevo ingrediente"
+                  style={styles.input}
+                  onChangeText={(t) =>
+                    handleIngredientChange(i, "idIngrediente", t)
+                  }
+                />
+              )}
+              <View style={styles.rowCantidadUnidad}>
+                <TextInput
+                  style={styles.inputSmall}
+                  keyboardType="numeric"
+                  placeholder="Cantidad"
+                  value={ing.cantidad}
+                  onChangeText={(t) => handleIngredientChange(i, "cantidad", t)}
+                />
+                <View style={styles.pickerUnidad}>
+                  <Picker
+                    selectedValue={ing.idUnidad}
+                    onValueChange={(v) =>
+                      handleIngredientChange(i, "idUnidad", v)
+                    }
+                  >
+                    <Picker.Item label="Seleccione una unidad" value="" />
+                    {unidades.map((u) => (
+                      <Picker.Item
+                        key={u.idUnidad}
+                        label={u.descripcion}
+                        value={u.idUnidad}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+            </View>
+          ))}
+          <Pressable style={styles.addButton} onPress={addIngredient}>
+            <Text style={styles.addButtonText}>+ Ingrediente</Text>
+          </Pressable>
+
+          <Text style={styles.sectionTitle}>Pasos</Text>
+          {recipe.pasos.map((st, i) => (
+            <View key={i} style={styles.step}>
+              <Text>Paso {st.nroPaso}</Text>
+              <TextInput
+                style={styles.textarea}
+                value={st.texto}
+                onChangeText={(t) => handleStepChange(i, "texto", t)}
+              />
+              <Pressable
+                style={styles.mediaButton}
+                onPress={() => pickMedia(i)}
+              >
+                <Text>+ Multimedia</Text>
+              </Pressable>
+              {st.multimedia.map((m, k) => (
+                <Text key={k}>
+                  {m.tipo_contenido}: {m.urlContenido}
+                </Text>
+              ))}
+            </View>
+          ))}
+          <Pressable style={styles.addButton} onPress={addStep}>
+            <Text style={styles.addButtonText}>+ Agregar paso</Text>
+          </Pressable>
+
+          <Text style={styles.sectionTitle}>Fotos adicionales</Text>
+          <Pressable style={styles.mediaButton} onPress={pickExtraPhotos}>
+            <Text>+ Agregar fotos</Text>
+          </Pressable>
+          <ScrollView horizontal>
+            {recipe.fotosAdicionales.map((f, i) => (
+              <Image
+                key={i}
+                source={{ uri: f.urlFoto }}
+                style={styles.imagePreview}
+              />
+            ))}
+          </ScrollView>
+          <Pressable style={styles.save} onPress={submitRecipe}>
+            <Text style={styles.addButtonText}>Guardar Receta</Text>
+          </Pressable>
+        </>
+      )}
     </ScrollView>
-
-    <Pressable style={styles.save} onPress={submitRecipe}><Text style={styles.addButtonText}>Guardar Receta</Text></Pressable>
-    <Pressable style={styles.clear} onPress={limpiarFormulario}><Text style={styles.addButtonText}>Limpiar</Text></Pressable>
-  </ScrollView>
-);
-
+  );
 }
 
 const styles = StyleSheet.create({
@@ -453,9 +588,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#bbb",
     borderRadius: 15,
-    backgroundColor: "white",
-    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     marginBottom: 15,
+    fontSize: 16,
+    backgroundColor: "white",
+    color: "#222",
     justifyContent: "center",
   },
 
@@ -479,11 +617,14 @@ const styles = StyleSheet.create({
   inputSmall: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 12,
-    marginRight: 10,
-    fontSize: 14,
-    height:"80%",
+    borderColor: "#bbb",
+    borderRadius: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    backgroundColor: "white",
+    height: "80%",
     justifyContent: "center",
   },
   ingredienteContainer: {
@@ -571,16 +712,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   clear: {
-    backgroundColor: "#bbb",
-    paddingVertical: 14,
-    borderRadius: 20,
-    alignItems: "center",
-    marginTop: 15,
-    marginBottom: 40,
+    alignSelf: "flex-end",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 6,
+    marginTop: 8,
   },
   inputDisabled: {
     backgroundColor: "#eee",
     color: "#999",
   },
 });
-

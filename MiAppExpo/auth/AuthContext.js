@@ -73,95 +73,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
   useEffect(() => {
     loadToken();
   }, []);
 
-    /*
-  const register_first_step = async (alias, email) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/register`, {alias, email});
 
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const verification_code = async (email, user_code) => {
-
-    try {
-      const res = await axios.post(`${API_BASE_URL}/verify-code`, {email, user_code});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const setPassword = async (email, password) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/create-password`,{email, password});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const setAvatar = async (email, avatar) => {
-
-    try {
-      const res = await axios.post(`${API_BASE_URL}/choose-avatar`, {email, avatar});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const chooseRole = async (email, role) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/choose-role`, {email, role});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const studentPaymentMethod = async ({
-    email,
-    cardNumber,
-    cardName,
-    cardExpireDate,
-    cardCVV,
-  }) => {
-
-    try {
-      const res = await axios.post(`${API_BASE_URL}/payment-method`, {email, cardNumber, cardName, cardExpireDate, cardCCV});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  const studentData = async ({ frontId, backId, procedureNumber }) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}/student-data`, {frontId, backId, procedureNumber});
-
-      return res.data;
-    } catch (err) {
-      throw err.response.data;
-    }
-  };
-
-  useEffect(() => {
-    loadToken();
-  }, []);
- */
   return (
     <AuthContext.Provider value={{ token, user, login, logout, loading }}>
       {children}

@@ -1,38 +1,28 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Colors, sizes, fonts, colors } from "../utils/themes";
-import { Modal } from "react-native-paper";
+import { useEffect, useContext } from "react";
+import { Alert } from "react-native";
+import { AuthContext } from "../auth/AuthContext";
 
-export default function PopUpLogOut() {
-  return (
-    <Modal visible={visible} transparent animationType="slide" style={styles.container}>
-      <Text style={styles.title}>
-        Estas seguro de que deseas cerrar sesión?
-      </Text>
-      <Pressable style={styles.btnContinue}>
-        <Text style={{ fontSize: fonts.small, fontFamily:'Sora_400Regular', }}>No, continuar en la app</Text>
-      </Pressable>
-      <Pressable style={styles.btnLogout}>
-        <Text style={{ fontSize: fonts.small, color: colors.white, fontFamily:'Sora_400Regular', }}>
-          Cerrar sesión
-        </Text>
-      </Pressable>
-    </Modal>
-  );
+export default function PopUpLogOut({ navigation }) {
+  const { logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    Alert.alert(
+      "Cerrar sesión",
+      "¿Estás seguro de que deseas cerrar sesión?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => navigation.goBack(),
+          style: "cancel",
+        },
+        {
+          text: "Cerrar sesión",
+          onPress: logout,
+          style: "destructive",
+        },
+      ]
+    );
+  }, []);
+
+  return null;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  title: {
-    fontSize: fonts.medium,
-    fontFamily:'Sora_700Bold',
-  },
-  btnContinue: {
-    backgroundColor: colors.backgroundColorLight,
-  },
-  btnLogout: {
-    backgroundColor: colors.red,
-  },
-});

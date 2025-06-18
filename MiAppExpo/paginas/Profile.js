@@ -7,7 +7,7 @@ import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
 import PopUp from '../components/PopUp'
 import { colors, fonts, sizes } from "../utils/themes";
-
+import API_BASE_URL from "../utils/config";
 const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
 
@@ -73,7 +73,7 @@ export default function Profile({navigation}) {
 
       <View style={styles.userContainer}>
         <View style={styles.innerShadow}></View>
-        <Image source={userAvatar}/>
+        <Image  style={styles.avatar} source={{ uri: `${API_BASE_URL}/static/${user.avatar}`}}/>
         <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
           <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small, fontFamily:'Sora_700Bold' }}>{user?.nickname ?? "Mi Usuario"}</Text>
           <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
@@ -184,7 +184,6 @@ const styles = StyleSheet.create({
     avatar: {
       width: 60,
       height: 60,
-      borderRadius: 30,
       marginRight: 10,
     },
     userInfo: {

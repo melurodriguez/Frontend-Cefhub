@@ -70,7 +70,6 @@ export default function InfoReceta({ navigation }) {
             }
 
             console.log("Receta obtenida:\n", JSON.stringify(recetaData, null, 2));
-            console.log("Conversiones obtenidas:", conversionesRes.data);
           } catch (err) {
             console.error("Error al obtener datos de la receta:", err);
           }
@@ -207,7 +206,7 @@ export default function InfoReceta({ navigation }) {
 
          {isPressed === 0 && (
            <>
-             {/* PORCIONES Y PERSONAS */}
+             {token && (
              <View style={{ alignItems: 'center', marginBottom: 10 }}>
                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 ,}}>
                  <Pressable
@@ -229,10 +228,10 @@ export default function InfoReceta({ navigation }) {
                  </Pressable>
                </View>
              </View>
+             )}
              <Text style={[styles.infoExtra, { marginTop: 5 }]}>
               Personas: {cantidadPersonas}
             </Text>
-             {/* INGREDIENTES */}
              {ingredientesCalc?.map((i, index) => (
                <CardIngredient
                  key={index}

@@ -40,37 +40,64 @@ export default function InfoReceta({ navigation }) {
   const [visible, setPopUpVisible] = useState(false);
   const [receta, setReceta] = useState(null);
   const { token, user } = useContext(AuthContext);
-  const [porcion, setPorcion] = useState(1);
-  const [ingredientesCalc, setIngredientesCalc] = useState([]);
   const [comentario, setComentario] = useState("");
   const [comentarios, setComentarios] = useState([]);
 
+   const [conversiones, setConversiones] = useState([]);
+   const [porciones, setPorciones] = useState(1);
+   const [cantidadPersonas, setCantidadPersonas] = useState(1);
+   const [ingredientesCalc, setIngredientesCalc] = useState([]);
+
 
   //obtiene receta
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const recetaRes = await api.get(`/recetas/${id}`);
-          setReceta(recetaRes.data);
+   useFocusEffect(
+      useCallback(() => {
+        const fetchData = async () => {
+          try {
+            const recetaRes = await api.get(`/recetas/${id}`);
+            const recetaData = recetaRes.data;
+            setReceta(recetaData);
+            setPorciones(recetaData.porciones || 1);
+            setCantidadPersonas(recetaData.cantidadPersonas || 1);
+            setIngredientesCalc(recetaData.ingredientes || []);
+            const conversionesRes = await api.get("/recetas/conversiones");
+            setConversiones(conversionesRes.data);
+            const comentariosRes = await api.get(`/recetas/${id}/calificaciones`);
+            setComentarios(comentariosRes.data);
 
-          const comentariosRes = await api.get(`/recetas/${id}/calificaciones`);
-          setComentarios(comentariosRes.data);
+            if (token) {
+              await verificarLike();
+            }
 
-          if (token) {
-            await verificarLike();
+            console.log("Receta obtenida:\n", JSON.stringify(recetaData, null, 2));
+            console.log("Conversiones obtenidas:", conversionesRes.data);
+          } catch (err) {
+            console.error("Error al obtener datos de la receta:", err);
           }
+        };
 
-          console.log("Receta obtenida:\n", JSON.stringify(recetaRes.data, null, 2));
-        } catch (err) {
-          console.error("Error al obtener datos de la receta:", err);
-        }
-      };
+        fetchData();
+      }, [id, token])
+    );
 
-      fetchData();
-    }, [id, token])
-  );
+  // Recalcular ingredientes según cantidad de porciones
+  function recalcularIngredientes(nuevaPorcion) {
+    if (!receta || !receta.porciones || nuevaPorcion < 1) return;
 
+    const factor = nuevaPorcion / receta.porciones;
+
+    const nuevosIngredientes = receta.ingredientes.map((ing) => ({
+      ...ing,
+      cantidad: parseFloat((ing.cantidad * factor).toFixed(2)),
+    }));
+
+    const nuevaCantidadPersonas = Math.max(1, Math.round(receta.cantidadPersonas * factor));
+
+    setPorciones(nuevaPorcion);
+    setIngredientesCalc(nuevosIngredientes);
+    setCantidadPersonas(nuevaCantidadPersonas);
+  }
+  //FALTA RECALCULAR INGREDIENTES DE RECETA
 
   //favoritos
   const agregarFavorito = async () => {
@@ -155,7 +182,6 @@ export default function InfoReceta({ navigation }) {
        <View style={styles.infoContainer}>
          <Text style={styles.titulo}>{receta.nombreReceta}</Text>
          <Text style={styles.descripcion}>{receta.descripcionReceta}</Text>
-
          <View style={styles.botones}>
            {["Ingredientes", "Instrucciones"].map((title, index) => (
              <Pressable
@@ -179,15 +205,45 @@ export default function InfoReceta({ navigation }) {
            {isPressed === 0 ? "Ingredientes" : "Instrucciones"}
          </Text>
 
-         {isPressed === 0 &&
-           receta.ingredientes?.map((i, index) => (
-             <CardIngredient
-               key={index}
-               name={i.ingrediente}
-               quantity={`${i.cantidad} ${i.unidad}`}
-               observations={i.observaciones}
-             />
-           ))}
+         {isPressed === 0 && (
+           <>
+             {/* PORCIONES Y PERSONAS */}
+             <View style={{ alignItems: 'center', marginBottom: 10 }}>
+               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 ,}}>
+                 <Pressable
+                   onPress={() => recalcularIngredientes(porciones - 1)}
+                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
+                 >
+                   <Text style={styles.btnText}>-</Text>
+                 </Pressable>
+
+                 <Text style={{ marginHorizontal: 15, fontSize: 18 }}>
+                   Porciones: {porciones}
+                 </Text>
+
+                 <Pressable
+                   onPress={() => recalcularIngredientes(porciones + 1)}
+                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
+                 >
+                   <Text style={styles.btnText}>+</Text>
+                 </Pressable>
+               </View>
+             </View>
+             <Text style={[styles.infoExtra, { marginTop: 5 }]}>
+              Personas: {cantidadPersonas}
+            </Text>
+             {/* INGREDIENTES */}
+             {ingredientesCalc?.map((i, index) => (
+               <CardIngredient
+                 key={index}
+                 name={i.ingrediente}
+                 quantity={`${i.cantidad} ${i.unidad}`}
+                 observations={i.observaciones}
+               />
+             ))}
+           </>
+         )}
+
 
          {isPressed === 1 && (
            <FlatList
@@ -286,6 +342,12 @@ const styles = StyleSheet.create({
   },
   pressed: {
     backgroundColor: "#505c86",
+  },
+  infoExtra: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 10,
+    color: "#333",
   },
   seleccionado: {
     fontFamily: "Sora_700Bold",

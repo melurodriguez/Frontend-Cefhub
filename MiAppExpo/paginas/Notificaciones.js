@@ -1,36 +1,47 @@
 import { StyleSheet, View, Text, Image } from "react-native";
 import CardNotification from "../components/CardNotification";
 import { fonts } from "../utils/themes";
+import { ScrollView } from "react-native";
 import { FlatList } from "react-native";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import api from "../api/axiosInstance";
-
-
 const notifCat = require("../assets/notifCat.png");
-//const { notifications } = useContext(AuthContext);
 
 export default function Notificaciones({ navigation }) {
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
+  useFocusEffect(
+        useCallback(() => {
+          api
+            .get("/user/me/notificaciones")
+            .then((res) => setNotifications(res.data.notificaciones))
+            .catch((err) => {
+              console.error("Error al obtener recetas:", err);
+            });
 
-  }, []);
+        }, [])
+      );
   return (
-
-        <View style={styles.header}>
-          <Image source={notifCat} style={styles.catImage} />
-          <Text style={styles.title}>Notificaciones</Text>
-        </View>
-
-
-  );
+      <View style={styles.container}>
+            <View style={styles.header}>
+              <Image source={notifCat} style={styles.catImage} />
+              <Text style={styles.title}>Notificaciones</Text>
+            </View>
+        <ScrollView>
+            {notifications.map((notification, index) => (
+              <View key={index}>
+                <CardNotification data={notification} />
+              </View>
+            ))}
+        </ScrollView>
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   header: {
     flexDirection: "row",

@@ -65,6 +65,15 @@ function DrawerNavigator() {
       }}
     />
     <Drawer.Screen
+              name="Upgrade a Alumno"
+              component={PopUpLogOut}
+              options={{
+                drawerIcon: ({ color }) => (
+                  <Ionicons name="school-outline" size={22}color={color} />
+                ),
+              }}
+    />
+    <Drawer.Screen
       name="Cerrar Sesion"
       component={PopUpLogOut}
       options={{

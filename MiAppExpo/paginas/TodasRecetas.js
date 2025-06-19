@@ -8,13 +8,12 @@ import {
   Pressable,
   Modal,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../utils/themes.js";
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 const menu = require("../assets/menu.png");
-const searchIcon = require("../assets/search.png");
-const filter = require("../assets/filter.png");
 const backArrow = require("../assets/backArrow.png");
 
 import api from "../api/axiosInstance";
@@ -90,7 +89,6 @@ export default function TodasRecetas({ navigation }) {
 
   const porNombre = () => {
     const query = `nombre_receta=${search}`;
-
     api
       .get(`/recetas?${query}`)
       .then((res) => setRecetas(res.data))
@@ -117,32 +115,31 @@ export default function TodasRecetas({ navigation }) {
     <>
       <ScrollView>
         <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()}>
-            <Image source={backArrow} style={{ tintColor: colors.black }} />
-          </Pressable>
-          <Text style={styles.pageTitle}>Búsqueda</Text>
-          <Pressable>
-            <Image source={menu} />
-          </Pressable>
-        </View>
+                 <Pressable onPress={() => navigation.goBack()}>
+                   <Ionicons name="arrow-back" size={24} color={colors.black} />
+                 </Pressable>
+                 <Text style={styles.pageTitle}>Búsqueda</Text>
+                 <View style={{ width: 24 }} />
+               </View>
 
-        <View style={styles.resultTitle}>
-          <TextInput
-            value={search}
-            placeholder="Search"
-            onChangeText={setSearch}
-            style={styles.searchInput}
-          />
-          <Pressable onPress={porNombre}>
-            <Image source={searchIcon} style={{ tintColor: "#000" }} />
-          </Pressable>
-        </View>
+               <View style={styles.searchContainer}>
+                 <Ionicons name="search-outline" size={20} color="#666" style={styles.searchIcon} />
+                 <TextInput
+                   value={search}
+                   placeholder="Buscar recetas o cursos..."
+                   onChangeText={setSearch}
+                   style={styles.input}
+                 />
+                 <Pressable onPress={porNombre}>
+                   <Ionicons name="arrow-forward-circle" size={26} color={colors.primary} />
+                 </Pressable>
+               </View>
 
         <View>
           <View style={styles.resultTitle}>
             <Text style={styles.rr}>Recetas Disponibles</Text>
             <Pressable onPress={() => setShowFilters(!showFilters)}>
-              <Image source={filter} style={styles.filterIcon} />
+              <Ionicons name="filter-outline" size={24} color={colors.primary} />
             </Pressable>
           </View>
 
@@ -324,12 +321,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    width: 100,
-    borderColor: "#d9d9d9",
-    borderWidth: 1,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-    backgroundColor: "#f1f5f5",
+      flex: 1,
+      fontSize: 16,
+      fontFamily: "Sora_400Regular",
   },
   searchInput: {
     width: 330,
@@ -341,16 +335,30 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    marginBottom: 10,
-    marginTop: 40,
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: 700,
-  },
+      flexDirection: "row",
+      alignItems: "center",
+      paddingTop: 50,
+      paddingHorizontal: 20,
+      marginBottom: 20,
+      justifyContent: "space-between",
+    },
+    pageTitle: {
+      fontSize: 24,
+      fontFamily: "Sora_700Bold",
+      color: colors.black,
+    },
+    searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#f1f5f5",
+      borderColor: "#d9d9d9",
+      borderWidth: 1,
+      borderRadius: 15,
+      marginHorizontal: 20,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      marginBottom: 25,
+    },
   card: {
     padding: 5,
     alignItems: "center",
@@ -410,18 +418,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginVertical: 6,
     color: "#555",
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginHorizontal: 10,
-    marginBottom: 12,
-    fontSize: 16,
-    backgroundColor: "#fafafa",
   },
 
   applyButton: {

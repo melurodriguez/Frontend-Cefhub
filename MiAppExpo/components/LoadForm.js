@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import api from "../api/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
@@ -36,6 +37,9 @@ export default function LoadForm() {
     pasos: [{ nroPaso: 1, texto: "", multimedia: [] }],
     fotosAdicionales: [],
   });
+  const [loadingMedia, setLoadingMedia] = useState(false);
+
+
 
   useEffect(() => {
     api.get("/recetas/tipos").then((res) => setTipos(res.data));
@@ -140,72 +144,103 @@ export default function LoadForm() {
   }
 
   async function pickMainPhoto() {
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.1,
-    });
+    try {
+      setLoadingMedia(true);
 
-    if (!res.canceled) {
-      const uploaded = await uploadFile(res.assets[0].uri);
-      console.log("Foto principal subida:", uploaded);
-      if (uploaded) {
-        setRecipe((prev) => {
-          const nuevo = { ...prev, fotoPrincipal: uploaded };
-          console.log("Nuevo estado receta con fotoPrincipal:", nuevo);
-          return nuevo;
-        });
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.1,
+      });
+
+      if (!res.canceled) {
+        const uploaded = await uploadFile(res.assets[0].uri);
+        console.log("Foto principal subida:", uploaded);
+        if (uploaded) {
+          setRecipe((prev) => {
+            const nuevo = { ...prev, fotoPrincipal: uploaded };
+            console.log("Nuevo estado receta con fotoPrincipal:", nuevo);
+            return nuevo;
+          });
+        }
       }
+    } catch (err) {
+      console.error("Error en pickMainPhoto:", err);
+    } finally {
+      setLoadingMedia(false);
     }
   }
+
 
   async function pickExtraPhotos(recipe, setRecipe) {
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 0.1,
-    });
+    try {
+      setLoadingMedia(true);
 
-    if (!res.canceled) {
-      const newFotos = [];
-      for (const asset of res.assets) {
-        const uploaded = await uploadFile(asset.uri);
-        if (uploaded) {
-          newFotos.push({
-            urlFoto: uploaded,
-            extension: asset.uri.split(".").pop(),
-          });
-        }
-      }
-      setRecipe({
-        ...recipe,
-        fotosAdicionales: [...recipe.fotosAdicionales, ...newFotos],
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.1,
       });
+
+      if (!res.canceled) {
+        const newFotos = [];
+
+        for (const asset of res.assets) {
+          const uploaded = await uploadFile(asset.uri);
+          if (uploaded) {
+            newFotos.push({
+              urlFoto: uploaded,
+              extension: asset.uri.split(".").pop(),
+            });
+          }
+        }
+
+        setRecipe({
+          ...recipe,
+          fotosAdicionales: [...recipe.fotosAdicionales, ...newFotos],
+        });
+      }
+    } catch (err) {
+      console.error("Error en pickExtraPhotos:", err);
+    } finally {
+      setLoadingMedia(false);
     }
   }
+
 
   async function pickMedia(i, recipe, setRecipe) {
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsMultipleSelection: true,
-      quality: 0.1,
-    });
+    try {
+      setLoadingMedia(true);
 
-    if (!res.canceled) {
-      const pasosActuales = [...recipe.pasos];
-      for (const asset of res.assets) {
-        const ext = asset.uri.split(".").pop();
-        const uploaded = await uploadFile(asset.uri);
-        if (uploaded) {
-          pasosActuales[i].multimedia.push({
-            tipo_contenido: asset.type,
-            extension: ext,
-            urlContenido: uploaded,
-          });
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsMultipleSelection: true,
+        quality: 0.1,
+      });
+
+      if (!res.canceled) {
+        const pasosActuales = [...recipe.pasos];
+
+        for (const asset of res.assets) {
+          const ext = asset.uri.split(".").pop();
+          const uploaded = await uploadFile(asset.uri);
+          if (uploaded) {
+            pasosActuales[i].multimedia.push({
+              tipo_contenido: asset.type,
+              extension: ext,
+              urlContenido: uploaded,
+            });
+          }
         }
+
+        setRecipe({ ...recipe, pasos: pasosActuales });
       }
-      setRecipe({ ...recipe, pasos: pasosActuales });
+    } catch (err) {
+      console.error("Error en pickMedia:", err);
+    } finally {
+      setLoadingMedia(false);
     }
   }
+
 
   // Funciones para obtener IDs por nombre o descripción
   function getIdIngredienteByNombre(nombre) {
@@ -386,199 +421,206 @@ export default function LoadForm() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {camposHabilitados && (
-        <Pressable style={styles.clear} onPress={limpiarFormulario}>
-          <Text style={styles.addButtonText}>Limpiar Receta</Text>
-        </Pressable>
-      )}
-      <Text style={styles.sectionTitle}>Nombre de la receta</Text>
-      <TextInput
-        editable={!camposHabilitados}
-        style={[styles.input, camposHabilitados && styles.inputDisabled]}
-        value={recipe.nombreReceta}
-        onChangeText={(value) => handleChange("nombreReceta", value)}
-        onBlur={() => verificarReceta(recipe.nombreReceta)}
-      />
-
-      {camposHabilitados && (
-        <>
-          <Text style={styles.sectionTitle}>Descripción del plato</Text>
-          <TextInput
-            style={[styles.input, ,]}
-            value={recipe.descripcionReceta}
-            onChangeText={(value) => handleChange("descripcionReceta", value)}
-          />
-
-          <Text style={styles.sectionTitle}>Tipo de plato</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={recipe.idTipo}
-              onValueChange={(v) => handleChange("idTipo", v)}
-            >
-              <Picker.Item label="Seleccione un tipo" value="" />
-              {tipos.map((t) => (
-                <Picker.Item
-                  key={t.idTipo}
-                  label={t.descripcion}
-                  value={t.idTipo}
-                />
-              ))}
-              <Picker.Item label="Otro..." value="otro" />
-            </Picker>
-          </View>
-          {recipe.idTipo === "otro" && (
-            <TextInput
-              placeholder="Nuevo tipo"
-              style={styles.input}
-              onChangeText={(t) => handleChange("idTipo", t)}
-            />
+      <View style={{ flex: 1 }} pointerEvents={loadingMedia ? "none" : "auto"}>
+        <ScrollView style={styles.container}>
+          {loadingMedia && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#E65100" />
+            </View>
           )}
-
-          <Text style={styles.sectionTitle}>Porciones</Text>
-          <TextInput
-            style={[styles.input]}
-            keyboardType="numeric"
-            value={recipe.porciones}
-            onChangeText={(t) => handleChange("porciones", t)}
-          />
-
-          <Text style={styles.sectionTitle}>Cantidad de Personas</Text>
-          <TextInput
-            style={[styles.input]}
-            keyboardType="numeric"
-            value={recipe.cantidadPersonas}
-            onChangeText={(t) => handleChange("cantidadPersonas", t)}
-          />
-
-          <Text style={styles.sectionTitle}>Foto principal</Text>
-          <Pressable style={styles.mediaButton} onPress={pickMainPhoto}>
-            <Text>Seleccionar imagen</Text>
-          </Pressable>
-          {recipe.fotoPrincipal && (
-            <Text
-              style={{
-                fontSize: 10,
-                color: "gray",
-                marginTop: 6,
-                maxWidth: "80%",
-                flexShrink: 1,
-              }}
-              numberOfLines={1}
-              ellipsizeMode="middle"
-            >
-              URL: {recipe.fotoPrincipal}
-            </Text>
+          {camposHabilitados && (
+            <Pressable style={styles.clear} onPress={limpiarFormulario}>
+              <Text style={styles.addButtonText}>Limpiar Receta</Text>
+            </Pressable>
           )}
+          <Text style={styles.sectionTitle}>Nombre de la receta</Text>
+          <TextInput
+            editable={!camposHabilitados}
+            style={[styles.input, camposHabilitados && styles.inputDisabled]}
+            value={recipe.nombreReceta}
+            onChangeText={(value) => handleChange("nombreReceta", value)}
+            onBlur={() => verificarReceta(recipe.nombreReceta)}
+          />
 
-          <Text style={styles.sectionTitle}>Ingredientes</Text>
-          {recipe.ingredientes.map((ing, i) => (
-            <View key={i} style={styles.ingredienteContainer}>
+          {camposHabilitados && (
+            <>
+              <Text style={styles.sectionTitle}>Descripción del plato</Text>
+              <TextInput
+                style={[styles.input, ,]}
+                value={recipe.descripcionReceta}
+                onChangeText={(value) => handleChange("descripcionReceta", value)}
+              />
+
+              <Text style={styles.sectionTitle}>Tipo de plato</Text>
               <View style={styles.pickerContainer}>
                 <Picker
-                  selectedValue={ing.idIngrediente}
-                  onValueChange={(v) =>
-                    handleIngredientChange(i, "idIngrediente", v)
-                  }
-                  style={{ color: "#222" }}
+                  selectedValue={recipe.idTipo}
+                  onValueChange={(v) => handleChange("idTipo", v)}
                 >
-                  <Picker.Item label="Seleccione un ingrediente" value="" />
-                  {ingredientesDisponibles.map((x) => (
+                  <Picker.Item label="Seleccione un tipo" value="" />
+                  {tipos.map((t) => (
                     <Picker.Item
-                      key={x.idIngrediente}
-                      label={x.nombre}
-                      value={x.idIngrediente}
+                      key={t.idTipo}
+                      label={t.descripcion}
+                      value={t.idTipo}
                     />
                   ))}
-                  <Picker.Item label="Otro.." value="otro" />
+                  <Picker.Item label="Otro..." value="otro" />
                 </Picker>
               </View>
-              {ing.idIngrediente === "otro" && (
+              {recipe.idTipo === "otro" && (
                 <TextInput
-                  placeholder="Nuevo ingrediente"
+                  placeholder="Nuevo tipo"
                   style={styles.input}
-                  onChangeText={(t) =>
-                    handleIngredientChange(i, "idIngrediente", t)
-                  }
+                  onChangeText={(t) => handleChange("idTipo", t)}
                 />
               )}
-              <View style={styles.rowCantidadUnidad}>
-                <TextInput
-                  style={styles.inputSmall}
-                  keyboardType="numeric"
-                  placeholder="Cantidad"
-                  value={ing.cantidad}
-                  onChangeText={(t) => handleIngredientChange(i, "cantidad", t)}
-                />
-                <View style={styles.pickerUnidad}>
-                  <Picker
-                    selectedValue={ing.idUnidad}
-                    onValueChange={(v) =>
-                      handleIngredientChange(i, "idUnidad", v)
-                    }
-                  >
-                    <Picker.Item label="Seleccione una unidad" value="" />
-                    {unidades.map((u) => (
-                      <Picker.Item
-                        key={u.idUnidad}
-                        label={u.descripcion}
-                        value={u.idUnidad}
-                      />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-            </View>
-          ))}
-          <Pressable style={styles.addButton} onPress={addIngredient}>
-            <Text style={styles.addButtonText}>+ Ingrediente</Text>
-          </Pressable>
 
-          <Text style={styles.sectionTitle}>Pasos</Text>
-          {recipe.pasos.map((st, i) => (
-            <View key={i} style={styles.step}>
-              <Text>Paso {st.nroPaso}</Text>
+              <Text style={styles.sectionTitle}>Porciones</Text>
               <TextInput
-                style={styles.textarea}
-                value={st.texto}
-                onChangeText={(t) => handleStepChange(i, "texto", t)}
+                style={[styles.input]}
+                keyboardType="numeric"
+                value={recipe.porciones}
+                onChangeText={(t) => handleChange("porciones", t)}
               />
-              <Pressable
-                style={styles.mediaButton}
-                onPress={() => pickMedia(i)}
-              >
-                <Text>+ Multimedia</Text>
-              </Pressable>
-              {st.multimedia.map((m, k) => (
-                <Text key={k}>
-                  {m.tipo_contenido}: {m.urlContenido}
-                </Text>
-              ))}
-            </View>
-          ))}
-          <Pressable style={styles.addButton} onPress={addStep}>
-            <Text style={styles.addButtonText}>+ Agregar paso</Text>
-          </Pressable>
 
-          <Text style={styles.sectionTitle}>Fotos adicionales</Text>
-          <Pressable style={styles.mediaButton} onPress={pickExtraPhotos}>
-            <Text>+ Agregar fotos</Text>
-          </Pressable>
-          <ScrollView horizontal>
-            {recipe.fotosAdicionales.map((f, i) => (
-              <Image
-                key={i}
-                source={{ uri: f.urlFoto }}
-                style={styles.imagePreview}
+              <Text style={styles.sectionTitle}>Cantidad de Personas</Text>
+              <TextInput
+                style={[styles.input]}
+                keyboardType="numeric"
+                value={recipe.cantidadPersonas}
+                onChangeText={(t) => handleChange("cantidadPersonas", t)}
               />
-            ))}
-          </ScrollView>
-          <Pressable style={styles.save} onPress={submitRecipe}>
-            <Text style={styles.addButtonText}>Guardar Receta</Text>
-          </Pressable>
-        </>
-      )}
-    </ScrollView>
+
+              <Text style={styles.sectionTitle}>Foto principal</Text>
+              <Pressable style={styles.mediaButton} onPress={pickMainPhoto}>
+                <Text>Seleccionar imagen</Text>
+              </Pressable>
+              {recipe.fotoPrincipal && (
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: "gray",
+                    marginTop: 6,
+                    maxWidth: "80%",
+                    flexShrink: 1,
+                  }}
+                  numberOfLines={1}
+                  ellipsizeMode="middle"
+                >
+                  URL: {recipe.fotoPrincipal}
+                </Text>
+              )}
+
+              <Text style={styles.sectionTitle}>Ingredientes</Text>
+              {recipe.ingredientes.map((ing, i) => (
+                <View key={i} style={styles.ingredienteContainer}>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={ing.idIngrediente}
+                      onValueChange={(v) =>
+                        handleIngredientChange(i, "idIngrediente", v)
+                      }
+                      style={{ color: "#222" }}
+                    >
+                      <Picker.Item label="Seleccione un ingrediente" value="" />
+                      {ingredientesDisponibles.map((x) => (
+                        <Picker.Item
+                          key={x.idIngrediente}
+                          label={x.nombre}
+                          value={x.idIngrediente}
+                        />
+                      ))}
+                      <Picker.Item label="Otro.." value="otro" />
+                    </Picker>
+                  </View>
+                  {ing.idIngrediente === "otro" && (
+                    <TextInput
+                      placeholder="Nuevo ingrediente"
+                      style={styles.input}
+                      onChangeText={(t) =>
+                        handleIngredientChange(i, "idIngrediente", t)
+                      }
+                    />
+                  )}
+                  <View style={styles.rowCantidadUnidad}>
+                    <TextInput
+                      style={styles.inputSmall}
+                      keyboardType="numeric"
+                      placeholder="Cantidad"
+                      value={ing.cantidad}
+                      onChangeText={(t) => handleIngredientChange(i, "cantidad", t)}
+                    />
+                    <View style={styles.pickerUnidad}>
+                      <Picker
+                        selectedValue={ing.idUnidad}
+                        onValueChange={(v) =>
+                          handleIngredientChange(i, "idUnidad", v)
+                        }
+                      >
+                        <Picker.Item label="Seleccione una unidad" value="" />
+                        {unidades.map((u) => (
+                          <Picker.Item
+                            key={u.idUnidad}
+                            label={u.descripcion}
+                            value={u.idUnidad}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
+                </View>
+              ))}
+              <Pressable style={styles.addButton} onPress={addIngredient}>
+                <Text style={styles.addButtonText}>+ Ingrediente</Text>
+              </Pressable>
+
+              <Text style={styles.sectionTitle}>Pasos</Text>
+              {recipe.pasos.map((st, i) => (
+                <View key={i} style={styles.step}>
+                  <Text>Paso {st.nroPaso}</Text>
+                  <TextInput
+                    style={styles.textarea}
+                    value={st.texto}
+                    onChangeText={(t) => handleStepChange(i, "texto", t)}
+                  />
+                  <Pressable
+                    style={styles.mediaButton}
+                    onPress={() => pickMedia(i)}
+                  >
+                    <Text>+ Multimedia</Text>
+                  </Pressable>
+                  {st.multimedia.map((m, k) => (
+                    <Text key={k}>
+                      {m.tipo_contenido}: {m.urlContenido}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+              <Pressable style={styles.addButton} onPress={addStep}>
+                <Text style={styles.addButtonText}>+ Agregar paso</Text>
+              </Pressable>
+
+              <Text style={styles.sectionTitle}>Fotos adicionales</Text>
+              <Pressable style={styles.mediaButton} onPress={pickExtraPhotos}>
+                <Text>+ Agregar fotos</Text>
+              </Pressable>
+              <ScrollView horizontal>
+                {recipe.fotosAdicionales.map((f, i) => (
+                  <Image
+                    key={i}
+                    source={{ uri: f.urlFoto }}
+                    style={styles.imagePreview}
+                  />
+                ))}
+              </ScrollView>
+              <Pressable style={styles.save} onPress={submitRecipe}>
+                <Text style={styles.addButtonText}>Guardar Receta</Text>
+              </Pressable>
+            </>
+          )}
+        </ScrollView>
+      </View>
   );
 }
 
@@ -616,6 +658,18 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     color: "#222",
   },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+
+
   rowCantidadUnidad: {
     flexDirection: "row",
     justifyContent: "space-between",

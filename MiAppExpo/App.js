@@ -1,6 +1,6 @@
 import { AuthProvider } from "./auth/AuthContext";
 import AppNavigator from "./AppNavigator";
-import { useFonts, Sora_400Regular, Sora_700Bold } from '@expo-google-fonts/sora';
+import { useFonts, Sora_400Regular, Sora_700Bold , Sora_600SemiBold,} from '@expo-google-fonts/sora';
 
 //Stack.Navigator no deja espacio para elementos externos.
 //Bottom Tabs Navigation es lo adecuado para barras inferiores:
@@ -12,6 +12,7 @@ export default function App() {
 
   let [fontsLoaded] = useFonts({
     Sora_400Regular,
+    Sora_600SemiBold,
     Sora_700Bold,
   });
 

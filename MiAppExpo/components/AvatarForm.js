@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import api from "../api/axiosInstance";
+import { colors } from "../utils/themes";
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 const user = require("../assets/user.png");
@@ -11,41 +14,58 @@ const user6 = require("../assets/user6.png");
 const user_images_row1 = [user, user2, user3];
 const user_images_row2 = [user4, user5, user6];
 
-export default function AvatarForm() {
+
+export default function AvatarForm({navigation, email, password}) {
+
+  const [chosenAvatar, setChoseAvatar]=useState(0)
+
+  const handleFourthStep= async()=>{
+    try{
+      const res=await api.post("/register/avatar", {email:email, avatar:chosenAvatar})
+      console.log("Respuesta del backend:", res)
+      navigation.navigate("TipoUsuarioRegister", {email:email, password:password})
+    }catch(err){
+      console.log("Error al elegir el avatar: ", err)
+    }
+    
+  }
+
   return (
-    <View style={styles.container}>
       <View style={styles.form}>
-        <Image source={welcomeIcon} />
+        <Image source={welcomeIcon} style={styles.catImage} />
         <View style={styles.content}>
           <Text style={styles.title}>Elije tu avatar</Text>
           <View style={styles.row}>
             {user_images_row1.map((img, index) => (
-              <Pressable key={index} style={styles.circle}>
+              <Pressable key={index} style={styles.circle} onPress={()=>setChoseAvatar(index)}>
                 <Image source={img} style={styles.img} />
               </Pressable>
             ))}
           </View>
           <View style={styles.row}>
             {user_images_row2.map((img, index) => (
-              <Pressable key={index} style={styles.circle}>
+              <Pressable key={index} style={[styles.circle, {backgroundColor:colors.backgroundColorLight}]}>
                 <Image source={img} style={styles.img} />
               </Pressable>
             ))}
           </View>
         </View>
+        <Pressable style={styles.button} onPress={handleFourthStep}>
+          <Text style={styles.btnText}>Registarme</Text>
+        </Pressable>
       </View>
-    </View>
+
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
   form: {
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor:"#fff",
+    borderRadius:15,
+    paddingVertical:50,
+    paddingHorizontal:10,
   },
   content: {
     justifyContent: "center",
@@ -71,5 +91,27 @@ const styles = StyleSheet.create({
   img: {
     width: 60,
     height: 60,
+  },
+   catImage: {
+    width: 132,
+    height: 133,
+    position: "absolute",
+    top: -90, // la mitad de la altura para que sobresalga
+    alignSelf: "center",
+    zIndex: 1,
+  },
+    button: {
+    backgroundColor: "#505c86",
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 277,
+    height: 50,
+    margin: 20,
+  },
+  btnText: {
+    color: "#fff",
+    fontFamily:'Sora_700Bold',
+    fontSize: 20,
   },
 });

@@ -21,31 +21,28 @@ export default function RegisterForm({ navigation }) {
 
   const [invalidUsernames, setInvalidUsernames]=useState([])
 
-  useEffect(()=>{
-    api
-      .get('')
-  })
+  //para manejar los usuarios no disponibles (hay manejo en el back igual)
+  useEffect(() => {
+    api.get("/register/invalid-usernames")
+      .then((res) => setInvalidUsernames(res.data))
+      .catch((err) => console.error("Error al traer usernames inválidos:", err));
+  }, []);
+
 
   const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFirstStep = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/register`, {//cambiar de acuerodo al endpoint
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: form.email,
-          username: form.username,
-        }),
-      });
+    if (invalidUsernames.includes(form.username)) {
+      alert("Este nombre de usuario no está disponible.");
+      return;
+    }
 
-      const data = await res.json();
-      console.log("Respuesta del backend:", data);
-      navigation.navigate("SecondStepRegister");
+    try {
+      const res = await api.post("/register/first-step", {username: form.username, email:form.email});
+      console.log("Respuesta del backend:", res);
+      navigation.navigate("SecondStepRegister", {email:form.email});
     } catch (err) {
       console.error("Error al registrar:", err);
     }
@@ -98,7 +95,7 @@ const styles = StyleSheet.create({
     width: 132,
     height: 133,
     position: "absolute",
-    top: -90, // la mitad de la altura para que sobresalga
+    top: -90,
     alignSelf: "center",
     zIndex: 1,
   },

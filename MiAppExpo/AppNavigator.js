@@ -28,6 +28,8 @@ import PopUpLogOut from "./components/PopUpLogOut";
 import CustomDrawer from "./components/CustomDrawer";
 import { colors } from "./utils/themes";
 import "react-native-reanimated";
+import FourthStepRegister from "./paginas/FourthStepRegister";
+import TipoUsuarioRegister from "./paginas/TipoUsuarioRegister";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,7 +82,6 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{headerShown:false}}>
       <Stack.Screen name="HomePage" component={HomePage}/>
-      <Stack.Screen name="InfoReceta" component={InfoReceta}/>
       <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
       <Stack.Screen name="UserData" component={UserData}/>
     </Stack.Navigator>
@@ -91,10 +92,9 @@ function SearchStack() {
   return (
     <Stack.Navigator screenOptions={{headerShown:false}}>
       <Stack.Screen name="SearchPage" component={SearchPage} />
-      <Stack.Screen name="InfoReceta" component={InfoReceta}/>
       <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
       <Stack.Screen name="TodosCursos" component={TodosCursos} />
-      <Stack.Screen name="InfoCurso" component={InfoCurso} />
+      
     </Stack.Navigator>
   );
 }
@@ -203,6 +203,8 @@ function AppNavigator() {
                   <Stack.Screen name="RegisterPage" component={RegisterPage} />
                   <Stack.Screen name="SecondStepRegister" component={SecondStepRegister} />
                   <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
+                  <Stack.Screen name="FourthStepRegister" component={FourthStepRegister}/>
+                  <Stack.Screen name="TipoUsuarioRegister" component={TipoUsuarioRegister}/>
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />

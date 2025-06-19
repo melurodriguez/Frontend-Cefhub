@@ -25,7 +25,7 @@ export default function SearchPage({ navigation }) {
   const [search, setSearch] = useState("");
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
-  const [visible, setVisible] = useState(false); //prueba del sidemenu
+
 
   useFocusEffect(
       useCallback(() => {
@@ -75,14 +75,8 @@ export default function SearchPage({ navigation }) {
   return (
     <ScrollView>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <Image source={backArrow} style={{ tintColor: colors.black }} />
-        </Pressable>
+
         <Text style={styles.pageTitle}>Búsqueda</Text>
-        <Pressable onPress={handleMenu}>
-          <Image source={menu}></Image>
-        </Pressable>
-        {visible && <SideMenu />}
       </View>
 
       <View style={styles.resultTitle}>
@@ -154,7 +148,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     padding: 10,
     marginBottom: 10,
     marginTop: 40,

@@ -1,10 +1,13 @@
 import CodeForm from "../components/CodeForm";
 import { View, StyleSheet } from "react-native";
 
-export default function SecondStepRegister({ navigation }) {
+export default function SecondStepRegister({route, navigation }) {
+
+  const {email}= route.params
+
   return (
-    <View>
-      <CodeForm navigation={navigation} />
+    <View style={styles.container}>
+      <CodeForm  email={email} navigation={navigation}/>
     </View>
   );
 }

@@ -1,10 +1,13 @@
 import CardCreatePassword from "../components/CardCreatePassword";
 import { View, StyleSheet } from "react-native";
 
-export default function ThirdStepRegister({ navigation }) {
+export default function ThirdStepRegister({ route, navigation }) {
+
+  const {email}=route.params
+
   return (
     <View style={styles.container}>
-      <CardCreatePassword navigation={navigation} />
+      <CardCreatePassword email={email} navigation={navigation} />
     </View>
   );
 }

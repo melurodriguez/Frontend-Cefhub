@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     elevation: 5,
-    padding: 20,
   },
   action: {
     fontFamily:'Sora_700Bold',

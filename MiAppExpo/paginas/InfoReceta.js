@@ -42,11 +42,11 @@ export default function InfoReceta({ navigation }) {
   const { token, user } = useContext(AuthContext);
   const [comentario, setComentario] = useState("");
   const [comentarios, setComentarios] = useState([]);
-
-   const [conversiones, setConversiones] = useState([]);
-   const [porciones, setPorciones] = useState(1);
-   const [cantidadPersonas, setCantidadPersonas] = useState(1);
-   const [ingredientesCalc, setIngredientesCalc] = useState([]);
+  const [ingredientes, setIngredientes]=useState([])
+  const [conversiones, setConversiones] = useState([]);
+  const [porciones, setPorciones] = useState(1);
+  const [cantidadPersonas, setCantidadPersonas] = useState(1);
+  const [ingredientesCalc, setIngredientesCalc] = useState([]);
 
 
   //obtiene receta
@@ -117,7 +117,7 @@ export default function InfoReceta({ navigation }) {
       await api.delete(`user/me/recetas_favoritas/${id}`);
       const newValue = !like;
       setLike(newValue);
-
+      setPopUpVisible(true)
       console.log("eliminada de favs")
     } catch (err) {
       console.error("Error al eliminar de favoritos: ", err);
@@ -201,34 +201,35 @@ export default function InfoReceta({ navigation }) {
            ))}
          </View>
 
-         <Text style={styles.seleccionado}>
-           {isPressed === 0 ? "Ingredientes" : "Instrucciones"}
-         </Text>
-
          {isPressed === 0 && (
            <>
+           <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center"}}>
+            <Text style={styles.seleccionado}>Ingredientes</Text>
              {/* PORCIONES Y PERSONAS */}
              <View style={{ alignItems: 'center', marginBottom: 10 }}>
+              {token &&
                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 ,}}>
                  <Pressable
                    onPress={() => recalcularIngredientes(porciones - 1)}
-                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
+                   style={[styles.btn, { paddingHorizontal: 12 }]}
                  >
                    <Text style={styles.btnText}>-</Text>
                  </Pressable>
 
-                 <Text style={{ marginHorizontal: 15, fontSize: 18 }}>
+                 <Text style={{ marginHorizontal: 15, fontSize: 18, fontFamily:"Sora_700Bold" }}>
                    Porciones: {porciones}
                  </Text>
 
                  <Pressable
                    onPress={() => recalcularIngredientes(porciones + 1)}
-                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
+                   style={[styles.btn, { paddingHorizontal: 12}]}
                  >
                    <Text style={styles.btnText}>+</Text>
                  </Pressable>
-               </View>
+               </View>}
              </View>
+           </View>
+            
              <Text style={[styles.infoExtra, { marginTop: 5 }]}>
               Personas: {cantidadPersonas}
             </Text>
@@ -246,7 +247,9 @@ export default function InfoReceta({ navigation }) {
 
 
          {isPressed === 1 && (
-           <FlatList
+          <>
+          <Text style={styles.seleccionado}>Instrucciones</Text>
+          <FlatList
              data={receta.pasos}
              keyExtractor={(item) =>
                item.idPaso?.toString() ?? item.nroPaso?.toString()
@@ -254,6 +257,8 @@ export default function InfoReceta({ navigation }) {
              renderItem={({ item }) => <CardInstruccion paso={item} />}
              contentContainerStyle={styles.flatListPadding}
            />
+          </>
+           
          )}
 
          <CardCreator alias={receta.nickname} />
@@ -278,6 +283,8 @@ export default function InfoReceta({ navigation }) {
            </View>
          </View>
        </View>
+       { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={true} onClose={() => setPopUpVisible(false)} duration={1500}/> :
+        <PopUp action={"La receta ha sido eliminada de favoritos"} visible={false} onClose={() => setPopUpVisible(false)} duration={1500}/>}
      </View>
    </ScrollView>
  );
@@ -325,12 +332,12 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: "#f1f5f5",
-    width: 165,
-    height: 41,
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: 5,
+    paddingHorizontal:20,
+    paddingVertical:10,
   },
   btnText: {
     fontFamily: "Sora_700Bold",
@@ -357,6 +364,7 @@ const styles = StyleSheet.create({
   },
   flatListPadding: {
     paddingBottom: 20,
+
   },
   comentariosContainer: {
     marginTop: 20,

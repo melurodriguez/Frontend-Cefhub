@@ -7,6 +7,7 @@ import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
 import PopUp from '../components/PopUp'
 import { colors, fonts, sizes } from "../utils/themes";
+import PopUpLogOut from "../components/PopUpLogOut";
 
 const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
@@ -15,10 +16,11 @@ export default function Profile({navigation}) {
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   console.log("User en Profile:", user);
-  const [visible, setPopUpVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [popUpMessage, setPopUpMessage] = useState("");
+  const [popUpVisible, setPopUpVisible]=useState(false)
 
 
   const buttons = user?.tipo_usuario === "Alumno"
@@ -60,28 +62,27 @@ export default function Profile({navigation}) {
       }, [])
     );
 
-
+    function handleLogOut(){
+      setPopUpVisible(true)
+    }
 
   return (
     <ScrollView>
       <View style={styles.header}>
         <Text style={styles.page}>Mi Cuenta</Text>
-        <Pressable>
-          <Image source={menu} />
-        </Pressable>
       </View>
 
       <View style={styles.userContainer}>
         <View style={styles.innerShadow}></View>
         <Image source={userAvatar}/>
         <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
-          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.small, fontFamily:'Sora_700Bold' }}>{user?.nickname ?? "Mi Usuario"}</Text>
+          <Text style={{ fontWeight: fonts.bold, fontSize: fonts.medium, fontFamily:'Sora_700Bold' }}>{user?.nickname ?? "Mi Usuario"}</Text>
           <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
 
         <View style={{ marginTop: 10, marginRight:10, alignItems: "flex-end" }}>
-                <Pressable onPress={logout}>
-                  <Text style={{ color: "#d00", fontWeight: "bold", fontSize: 16 }}>
+                <Pressable onPress={handleLogOut} style={{backgroundColor:colors.red, borderRadius:15, paddingHorizontal:20, paddingVertical:10}}>
+                  <Text style={{ color: "#fff", fontFamily:"Sora_700Bold", fontSize: 16 }}>
                     Cerrar sesión
                   </Text>
                 </Pressable>
@@ -125,7 +126,7 @@ export default function Profile({navigation}) {
                   onPress={courses}
                   onPopUp={(mensaje) => {
                     setPopUpMessage(mensaje);
-                    setPopUpVisible(true);
+                    setVisible(true);
                   }}
                 />
               </View>
@@ -143,10 +144,10 @@ export default function Profile({navigation}) {
       <PopUp
         action={popUpMessage}
         visible={visible}
-        onClose={() =>setPopUpVisible(false)}
+        onClose={() =>setVisible(false)}
         duration={2000}
       />
-
+      { popUpVisible && <PopUpLogOut visible={popUpVisible} onClose={() => setPopUpVisible(false)}/>}
 
 
     </ScrollView>
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     },
     header: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "center",
       width: "90%",
       marginBottom: 20,
       marginTop:60,
@@ -177,9 +178,10 @@ const styles = StyleSheet.create({
       justifyContent: "space-between",
       backgroundColor: colors.backgroundColorLight,
       borderRadius: 15,
-      padding: 10,
-      width:"100%",
+      padding: 20,
+      width:"90%",
       marginBottom: 20,
+      alignSelf:"center"
     },
     avatar: {
       width: 60,

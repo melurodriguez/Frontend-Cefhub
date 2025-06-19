@@ -110,10 +110,11 @@ const styles = StyleSheet.create({
     diaTexto: {
       color: "#fff",
       fontSize: 12,
+      fontFamily:"Sora_400Regular"
     },
   nombre: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily:"Sora_700Bold",
     color: "#333333",
     marginBottom: 14,
     marginTop:10,
@@ -127,8 +128,7 @@ const styles = StyleSheet.create({
   etiqueta: {
     fontSize: 15,
     color: "#555",
-    fontWeight: "600",
-  },
+    fontFamily:"Sora_600SemiBold",},
   horarioBox: {
     backgroundColor: "#E0F7FA",
     paddingHorizontal: 12,
@@ -137,13 +137,13 @@ const styles = StyleSheet.create({
   },
   horario: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily:"Sora_600SemiBold",
     color: "#007B8A",
     marginLeft: 12,
   },
   asistenciaTexto: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily:"Sora_600SemiBold",
     color: "#4CAF50",
   },
   barraAsistencia: {
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   bajaTexto: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily:"Sora_600SemiBold",
   },
 
 });

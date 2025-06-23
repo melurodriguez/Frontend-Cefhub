@@ -1,14 +1,33 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TextInput } from "react-native";
 import { sizes } from "../utils/themes";
 
-export default function CardIngredient({ name, quantity }) {
+export default function CardIngredient({ name, quantity, unidad, onCantidadChange, editable }) {
   return (
     <View style={styles.card}>
       <Text style={styles.name}>{name}</Text>
-      <Text style={styles.quantity}> {quantity}</Text>
+      <View style={styles.inputRow}>
+        {editable ? (
+          <TextInput
+            style={styles.quantityInput}
+            value={quantity.toString()}
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              const nuevaCantidad = parseFloat(text);
+              if (!isNaN(nuevaCantidad) && nuevaCantidad > 0) {
+                onCantidadChange(nuevaCantidad);
+              }
+            }}
+          />
+        ) : (
+          <Text style={styles.quantityText}>{quantity}</Text>
+        )}
+        <Text style={styles.unidad}>{unidad}</Text>
+      </View>
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   card: {
@@ -22,18 +41,37 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-    width:sizes.width*0.9
+    width: sizes.width * 0.9,
   },
 
   name: {
-    fontFamily:'Sora_700Bold',
+    fontFamily: 'Sora_700Bold',
     fontSize: 16,
     color: "#333",
     marginBottom: 10,
   },
-  quantity: {
-    fontFamily:'Sora_400Regular',
+
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  quantityInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 6,
+    minWidth: 60,
+    fontFamily: 'Sora_400Regular',
     fontSize: 15,
+    color: "#666",
+    marginRight: 8,
+  },
+
+  unidad: {
+    fontSize: 15,
+    fontFamily: 'Sora_400Regular',
     color: "#666",
   },
 });
+

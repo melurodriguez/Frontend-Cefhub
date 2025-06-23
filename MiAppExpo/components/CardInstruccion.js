@@ -21,7 +21,7 @@ export default function CardInstruccion({ paso }) {
             item.tipo === "foto" ? (
               <Image
                 key={index}
-                source={{ uri: `${API_BASE_URL}/static/img/${item.url}` }}
+                source={{ uri: `${API_BASE_URL}/static/${item.url}` }}
                 style={styles.imagen}
                 resizeMode="cover"
               />

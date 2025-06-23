@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,29 +7,45 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
+import api from "../api/axiosInstance";
+import { sizes } from "../utils/themes";
 
-export default function ForgotPasswordForm() {
+const welcomeIcon=require('../assets/welcomeIcon.png')
+
+export default function ForgotPasswordForm({navigation}) {
+
+  const[email, setEmail]=useState("")
+
+  const sendCode= async () =>{
+
+    try{
+      const res= await api.post('/forgot_password', JSON.stringify(email), {
+      headers: { 'Content-Type': 'application/json' }
+    })
+      console.log("codigo enviado")
+      navigation.navigate('CodeForgotPassword', {email:email})
+    }catch(err){
+      console.error("error al enviar mail/codigo", err.response?.data || err.message || err)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.form}>
         <Image source={welcomeIcon} style={styles.catImage} />
         <View style={styles.content}>
-          <Text style={styles.title}>Registrarme</Text>
+          <Text style={styles.title}>Ingresa tu Correo</Text>
+          <Text style={{fontFamily:"Sora_400Regular", paddingBottom:20}}>Enviaremos un código de verificacion a tu correo.</Text>
           <TextInput
-            value={form.email}
+            value={email}
             placeholder="Correo"
-            onChangeText={(value) => handleChange("email", value)}
+            onChangeText={setEmail}
             style={styles.input}
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
-          <TextInput
-            value={form.username}
-            placeholder="Nombre de Usuario"
-            onChangeText={(value) => handleChange("username", value)}
-            style={styles.input}
-          />
-
-          <Pressable style={styles.button} onPress={handleFirstStep}>
-            <Text style={styles.btnText}>Registarme</Text>
+          <Pressable style={styles.button} onPress={sendCode}>
+            <Text style={styles.btnText}>Enviar Código</Text>
           </Pressable>
         </View>
       </View>
@@ -38,10 +55,10 @@ export default function ForgotPasswordForm() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     height: sizes.height * 0.5,
+    width:sizes.width*0.8
   },
   form: {
     justifyContent: "center",

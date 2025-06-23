@@ -107,7 +107,7 @@ export default function LoginForm({ navigation }) {
           onPress={() => navigation.navigate("RegisterPage")}>
           <Text style={{fontFamily:'Sora_400Regular',}}>No tenés cuenta? Registrate</Text>
         </Pressable>
-        <Pressable style={styles.btn}>
+        <Pressable style={styles.btn} onPress={() => navigation.navigate("ForgotPassword")}>
           <Text style={{fontFamily:'Sora_400Regular',}}>Olvidaste tu contraseña? Recuperala</Text>
         </Pressable>
       </View>

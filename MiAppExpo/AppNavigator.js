@@ -30,6 +30,9 @@ import { colors } from "./utils/themes";
 import "react-native-reanimated";
 import FourthStepRegister from "./paginas/FourthStepRegister";
 import TipoUsuarioRegister from "./paginas/TipoUsuarioRegister";
+import CodeForgotPassword from "./paginas/CodeForgotPassword";
+import ForgotPassword from "./paginas/ForgotPassword";
+import ResetPassword from "./paginas/ResetPassword";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -219,6 +222,9 @@ function AppNavigator() {
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
+                  <Stack.Screen name="ForgotPassword" component={ForgotPassword}/>
+                  <Stack.Screen name="CodeForgotPassword" component={CodeForgotPassword}/>
+                  <Stack.Screen name="ResetPassword" component={ResetPassword}/>
                 </>
               ) : (
                 <>

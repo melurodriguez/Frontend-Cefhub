@@ -54,7 +54,7 @@ export default function TodasRecetas({ navigation }) {
     });
 
     api
-      .get("/recetas")
+      .get("/recetas/")
       .then((res) => setRecetas(res.data))
       .catch((err) => console.error("Error al limpiar filtros:", err));
 
@@ -80,7 +80,7 @@ export default function TodasRecetas({ navigation }) {
     const queryString = queryParams.join("&");
 
     api
-      .get(`/recetas?${queryString}`)
+      .get(`/recetas/?${queryString}`)
       .then((res) => setRecetas(res.data))
       .catch((err) => console.error("Error al aplicar filtros:", err));
 

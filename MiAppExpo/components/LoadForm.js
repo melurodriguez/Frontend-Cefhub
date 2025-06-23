@@ -12,11 +12,16 @@ import {
   Alert,
   ActivityIndicator
 } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 import api from "../api/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
 import { colors } from "../utils/themes";
+import UploadingScreen from "../components/UploadingScreen";
+
+
 
 export default function LoadForm() {
+  const navigation = useNavigation();
   const [camposHabilitados, setCamposHabilitados] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [modoReemplazo, setModoReemplazo] = useState(false);
@@ -50,13 +55,12 @@ export default function LoadForm() {
   }, []);
 
 
+///////////// Funciones de manejo de cambios en el formulario ///////////////
 
-  // Manejo de cambios en los campos del formulario
   function handleChange(field, value) {
     setRecipe({ ...recipe, [field]: value });
   }
 
-  // Manejo de cambios en los ingredientes
   function handleIngredientChange(i, field, value) {
     const ing = [...recipe.ingredientes];
     ing[i][field] = value;
@@ -78,7 +82,6 @@ export default function LoadForm() {
     });
   }
 
-  // Manejo de cambios en los pasos
   function handleStepChange(i, field, value) {
     const ps = [...recipe.pasos];
     ps[i][field] = value;
@@ -91,7 +94,52 @@ export default function LoadForm() {
     setRecipe({ ...recipe, pasos: ps });
   }
 
-  // Funciones para subir archivos y seleccionar imágenes
+  const validarFormulario = () => {
+      if (!recipe.nombreReceta.trim()) return false;
+      if (!recipe.descripcionReceta.trim()) return false;
+      if (!recipe.tipo.trim()) return false;
+      if (!recipe.porciones || isNaN(recipe.porciones)) return false;
+      if (!recipe.cantidadPersonas || isNaN(recipe.cantidadPersonas)) return false;
+      if (!recipe.fotoPrincipal) return false;
+
+      for (let ing of recipe.ingredientes) {
+        if (!ing.nombre.trim() || !ing.cantidad || !ing.idUnidad) return false;
+      }
+
+      for (let paso of recipe.pasos) {
+        if (!paso.texto.trim()) return false;
+      }
+
+      return true;
+    };
+
+  function limpiarFormulario() {
+      setRecipe({
+        nombreReceta: "",
+        descripcionReceta: "",
+        tipo: null,
+        porciones: "",
+        cantidadPersonas: "",
+        fotoPrincipal: null,
+        ingredientes: [
+          {
+            idIngrediente: null,
+            cantidad: "",
+            idUnidad: null,
+            observaciones: "",
+          },
+        ],
+        pasos: [{ nroPaso: 1, texto: "", multimedia: [] }],
+        fotosAdicionales: [],
+      });
+      setCamposHabilitados(false);
+      setModoEdicion(false);
+      setModoReemplazo(false);
+      setRecipeId(null);
+    }
+
+
+  ////////////////// Funciones para subir archivos y seleccionar imágenes ///////////////////////
 
   // Para imagen principal:
   const pickMainPhoto = async () => {
@@ -107,8 +155,7 @@ export default function LoadForm() {
     console.log("Seleccionando foto principal...");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.canceled) {
@@ -131,7 +178,7 @@ export default function LoadForm() {
     console.log("Seleccionando imagen o video...");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.canceled) {
@@ -165,7 +212,7 @@ export default function LoadForm() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsMultipleSelection: true, // Funciona solo en web, en nativo será una sola
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.canceled) {
@@ -177,25 +224,17 @@ export default function LoadForm() {
     }
   };
 
+///////////////////////////////////////////////////////////////////////////////////////////
 
-
-  // Funciones para obtener IDs por nombre o descripción
-  function getIdIngredienteByNombre(nombre) {
-    const ing = ingredientesDisponibles.find((i) => i.nombre === nombre);
-    return ing?.idIngrediente ?? null;
-  }
+  // Funciones para obtener IDs por nombre UNIDAD
 
   function getIdUnidadByDescripcion(desc) {
     const unidad = unidades.find((u) => u.descripcion === desc);
     return unidad?.idUnidad ?? null;
   }
 
-  function getIdTipoByDescripcion(desc) {
-    const tipo = tipos.find((t) => t.descripcion === desc);
-    return tipo?.idTipo ?? null;
-  }
 
-  // Cargar receta por ID cuando se modifica
+  /////////////// Cargar receta existente  por ID para se MODIFICAR  ///////////////
   async function cargarReceta(id) {
     try {
       const response = await api.get(`/recetas/${id}`);
@@ -237,141 +276,161 @@ export default function LoadForm() {
   }
 
   // Verificar si la receta ya existe por nombre y fue creada por el usuario
-  async function verificarReceta(nombre) {
-    try {
-      const response = await api.post(`/recetas/verificar/${nombre}`);
-      Alert.alert("Nueva receta", response.data.mensaje);
-      setCamposHabilitados(true);
-    } catch (error) {
-      if (error.response && error.response.status === 409) {
-        console.log(error.response.data);
-        const data = error.response.data.detail;
-        Alert.alert(
-          "Receta existente",
-          data.mensaje,
-          [
-            {
-              text: "Modificar",
-              onPress: () => {
-                console.log("Modificar receta existente:", data.receta_id);
-                cargarReceta(data.receta_id);
+    async function verificarReceta(nombre) {
+      try {
+        const response = await api.post(`/recetas/verificar/${encodeURIComponent(nombre)}`);
+
+        // Si no hay conflicto, es receta nueva
+        Alert.alert("Nueva receta", response.data.mensaje);
+        setCamposHabilitados(true);
+
+      } catch (error) {
+        if (error.response && error.response.status === 409) {
+          const data = error.response.data?.detail || {};
+
+          Alert.alert(
+            "Receta existente",
+            data.mensaje || "Ya existe una receta con este nombre.",
+            [
+              {
+                text: "Modificar",
+                onPress: () => {
+                  console.log("Modificar receta existente:", data.receta_id);
+                  cargarReceta(data.receta_id);
+                },
               },
-            },
-            {
-              text: "Reemplazar",
-              onPress: () => {
-                setRecipeId(data.receta_id);
-                setModoReemplazo(true);
-                setCamposHabilitados(true);
+              {
+                text: "Reemplazar",
+                onPress: () => {
+                  setRecipeId(data.receta_id);
+                  setModoReemplazo(true);
+                  setCamposHabilitados(true);
+                },
               },
-            },
-            {
-              text: "Cancelar",
-              style: "cancel",
-            },
-          ],
-          { cancelable: true }
-        );
-      } else {
-        console.error("Error inesperado:", error);
-        Alert.alert("Error", "No se pudo verificar el nombre.");
+              {
+                text: "Cancelar",
+                style: "cancel",
+              },
+            ],
+            { cancelable: true }
+          );
+        } else {
+          console.console("Error inesperado:", error);
+          Alert.alert("Error", "No se pudo verificar el nombre.");
+        }
       }
     }
-  }
 
 
-  // crear la receta
-  async function submitRecipe() {
+
+  /////////////// Funciones para eliminar multimedia y fotos adicionales/////////////
+  const removeMediaFromStep = (indexPaso, indexMedia) => {
+    const nuevosPasos = [...recipe.pasos];
+    nuevosPasos[indexPaso].multimedia.splice(indexMedia, 1);
+    setRecipe({ ...recipe, pasos: nuevosPasos });
+  };
+  const removeExtraPhoto = (index) => {
+    const nuevasFotos = [...recipe.fotosAdicionales];
+    nuevasFotos.splice(index, 1);
+    setRecipe({ ...recipe, fotosAdicionales: nuevasFotos });
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+
+
+  //CREAR o actualizar receta
+  async function submitRecipe(navigation) {
+    if (!validarFormulario()) {
+        Alert.alert("Error", "Por favor, completá todos los campos obligatorios.");
+        return;
+    }
     try {
       setLoadingMedia(true);
-
-      const formData = new FormData();
-
-      const ingredientesPrep = recipe.ingredientes.map((ing) => ({
-        nombre: ing.nombre,
-        cantidad: parseFloat(ing.cantidad),
-        idUnidad: ing.idUnidad,
-        observaciones: ing.observaciones,
-      }));
-
-      const tipo = recipe.tipo;
-
-      const pasosSinMedia = recipe.pasos.map(p => ({
-        nroPaso: p.nroPaso,
-        texto: p.texto,
-        multimedia: []
-      }));
 
       const recetaObj = {
         nombreReceta: recipe.nombreReceta,
         descripcionReceta: recipe.descripcionReceta,
         porciones: parseInt(recipe.porciones),
         cantidadPersonas: parseInt(recipe.cantidadPersonas),
-        tipo: tipo,
-        ingredientes: ingredientesPrep,
-        pasos: pasosSinMedia,
-        fotosAdicionales: [],
+        tipo: recipe.tipo,
+        ingredientes: recipe.ingredientes.map((ing) => ({
+          nombre: ing.nombre,
+          cantidad: parseFloat(ing.cantidad),
+          idUnidad: ing.idUnidad,
+          observaciones: ing.observaciones,
+        })),
+        pasos: recipe.pasos.map((p) => ({
+          nroPaso: p.nroPaso,
+          texto: p.texto,
+        }))
+      };
+      let res;
+      let idReceta;
+
+      if (modoReemplazo) {
+        res = await api.put(`/recetas/reemplazar/${recipeId}`, recetaObj);
+        idReceta = res.data.idReceta;
+      } else if (modoEdicion && recipeId) {
+        res = await api.put(`/recetas/${recipeId}`, recetaObj);
+        idReceta = recipeId;
+      } else {
+        console.log("Creando nueva receta...");
+        res = await api.post("/recetas/", recetaObj);
+        idReceta = res.data.idReceta;
+        console.log("Receta creada. ID:", idReceta);
+      }
+
+      const config = {
+        headers: { "Content-Type": "multipart/form-data" },
+        transformRequest: (data) => data,
       };
 
-      formData.append("datos", JSON.stringify(recetaObj));
-
       if (recipe.fotoPrincipal?.startsWith("file://")) {
-        formData.append("fotoPrincipal", {
+        const fotoData = new FormData();
+        fotoData.append("archivo", {
           uri: recipe.fotoPrincipal,
           type: "image/jpeg",
           name: "fotoPrincipal.jpg",
         });
+        await api.post(`/recetas/${idReceta}/foto-principal`, fotoData, config);
       }
 
-      recipe.fotosAdicionales.forEach((f, i) => {
+      for (let i = 0; i < recipe.fotosAdicionales.length; i++) {
+        const f = recipe.fotosAdicionales[i];
         if (f.urlFoto?.startsWith("file://")) {
-          formData.append(`fotosAdicionales`, {
+          const fotoData = new FormData();
+          fotoData.append("archivo", {
             uri: f.urlFoto,
             type: "image/jpeg",
             name: `fotoAdicional_${i}.jpg`,
           });
+          await api.post(`/recetas/${idReceta}/foto-adicional`, fotoData, config);
         }
-      });
+      }
 
-      recipe.pasos.forEach((p, i) => {
-        p.multimedia.forEach((m, j) => {
-          if (m.urlContenido?.startsWith("file://")) {
-            formData.append("archivosPasos", {
-              uri: m.urlContenido,
-              type: m.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
-              name: `paso_${i}_media_${j}.${m.tipo_contenido === "video" ? "mp4" : "jpg"}`,
+      for (let i = 0; i < recipe.pasos.length; i++) {
+        const paso = recipe.pasos[i];
+        for (let j = 0; j < paso.multimedia.length; j++) {
+          const media = paso.multimedia[j];
+          if (media.urlContenido?.startsWith("file://")) {
+            const mediaData = new FormData();
+            mediaData.append("archivo", {
+              uri: media.urlContenido,
+              type: media.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
+              name: `paso_${i}_media_${j}.${media.tipo_contenido === "video" ? "mp4" : "jpg"}`,
             });
+            await api.post(
+              `/recetas/${idReceta}/paso/${i}/media`,
+              mediaData,
+              config
+            );
           }
-        });
-      });
-      console.log("Contenido de formData:");
-      for (const pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
+        }
       }
-
-
-      let res;
-      if (modoReemplazo) {
-        res = await api.put(`/recetas/reemplazar/${recipeId}`, formData);
-      } else if (modoEdicion && recipeId) {
-        res = await api.put(`/recetas/${recipeId}`, formData);
-      } else {
-        res = await api.post("/recetas", formData);
-        console.log("Respuesta:", res.data);
-      }
-
-
-      Alert.alert(
-        "Éxito",
-        modoEdicion
-          ? "Receta actualizada"
-          : modoReemplazo
-          ? "Receta reemplazada"
-          : "Receta creada"
-      );
+      navigation.navigate("LoadedRecipe");
       limpiarFormulario();
     } catch (e) {
-      console.error("Error en submitRecipe:", {
+      console.log("Error en submitRecipe:", {
         message: e.message,
         config: e.config,
         request: e.request,
@@ -385,40 +444,15 @@ export default function LoadForm() {
     }
   }
 
-
-  function limpiarFormulario() {
-    setRecipe({
-      nombreReceta: "",
-      descripcionReceta: "",
-      tipo: null,
-      porciones: "",
-      cantidadPersonas: "",
-      fotoPrincipal: null,
-      ingredientes: [
-        {
-          idIngrediente: null,
-          cantidad: "",
-          idUnidad: null,
-          observaciones: "",
-        },
-      ],
-      pasos: [{ nroPaso: 1, texto: "", multimedia: [] }],
-      fotosAdicionales: [],
-    });
-    setCamposHabilitados(false);
-    setModoEdicion(false);
-    setModoReemplazo(false);
-    setRecipeId(null);
+  if (loadingMedia) {
+    return <UploadingScreen />;
   }
+
 
   return (
       <View style={{ flex: 1 }} pointerEvents={loadingMedia ? "none" : "auto"}>
         <ScrollView style={styles.container}>
-          {loadingMedia && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#E65100" />
-            </View>
-          )}
+
           {camposHabilitados && (
             <Pressable style={styles.clear} onPress={limpiarFormulario}>
               <Text style={styles.addButtonText}>Limpiar Receta</Text>
@@ -493,11 +527,17 @@ export default function LoadForm() {
                 <Text>Seleccionar imagen</Text>
               </Pressable>
               {recipe.fotoPrincipal && (
-                <Image
-                  source={{ uri: recipe.fotoPrincipal }}
-                  style={styles.imagePreview}
-                />
+                <View style={styles.previewContainer}>
+                  <Image source={{ uri: recipe.fotoPrincipal }} style={styles.imagePreview} />
+                  <Pressable
+                    style={styles.deleteMediaButton}
+                    onPress={() => handleChange("fotoPrincipal", null)}
+                  >
+                    <Text style={styles.deleteText}>✕</Text>
+                  </Pressable>
+                </View>
               )}
+
 
 
               <Text style={styles.sectionTitle}>Ingredientes</Text>
@@ -584,18 +624,23 @@ export default function LoadForm() {
                     <Text>+ Multimedia</Text>
                   </Pressable>
                   {st.multimedia.map((m, k) => (
-                    m.tipo_contenido === "imagen" ? (
-                      <Image
-                        key={k}
-                        source={{ uri: m.urlContenido }}
-                        style={styles.imagePreview}
-                      />
-                    ) : (
-                      <View key={k} style={styles.videoPlaceholder}>
-                        <Text>Video: {m.urlContenido}</Text>
-                      </View>
-                    )
+                    <View key={k} style={styles.previewContainer}>
+                      {m.tipo_contenido === "imagen" ? (
+                        <Image source={{ uri: m.urlContenido }} style={styles.imagePreview} />
+                      ) : (
+                        <View style={styles.videoPlaceholder}>
+                          <Text>Video: {m.urlContenido}</Text>
+                        </View>
+                      )}
+                      <Pressable
+                        style={styles.deleteMediaButton}
+                        onPress={() => removeMediaFromStep(i, k)}
+                      >
+                        <Text style={styles.deleteText}>✕</Text>
+                      </Pressable>
+                    </View>
                   ))}
+
 
                 </View>
               ))}
@@ -609,14 +654,19 @@ export default function LoadForm() {
               </Pressable>
               <ScrollView horizontal>
                 {recipe.fotosAdicionales.map((f, i) => (
-                  <Image
-                    key={i}
-                    source={{ uri: f.urlFoto }}
-                    style={styles.imagePreview}
-                  />
+                  <View key={i} style={styles.previewContainer}>
+                    <Image source={{ uri: f.urlFoto }} style={styles.imagePreview} />
+                    <Pressable
+                      style={styles.deleteMediaButton}
+                      onPress={() => removeExtraPhoto(i)}
+                    >
+                      <Text style={styles.deleteText}>✕</Text>
+                    </Pressable>
+                  </View>
                 ))}
+
               </ScrollView>
-              <Pressable style={styles.save} onPress={submitRecipe}>
+              <Pressable style={styles.save} onPress={() => submitRecipe(navigation)}>
                 <Text style={styles.addButtonText}>Guardar Receta</Text>
               </Pressable>
             </>
@@ -660,17 +710,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     color: "#222",
   },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 10,
-  },
-
 
   rowCantidadUnidad: {
     flexDirection: "row",
@@ -732,15 +771,6 @@ const styles = StyleSheet.create({
     color: "#7a0b0b",
     fontWeight: "700",
   },
-  imagePreview: {
-    width: 70,
-    height: 70,
-    borderRadius: 12,
-    marginRight: 10,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
   videoPlaceholder: {
     width: 100,
     height: 100,
@@ -797,4 +827,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     color: "#999",
   },
+  previewContainer: {
+    position: "relative",
+    margin: 5,
+  },
+
+  deleteMediaButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    zIndex: 1,
+  },
+
+  deleteText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+
 });

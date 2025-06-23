@@ -97,6 +97,27 @@ export default function InfoReceta({ navigation }) {
     setCantidadPersonas(nuevaCantidadPersonas);
   }
   //FALTA RECALCULAR INGREDIENTES DE RECETA
+  function actualizarPorcionesPorIngrediente(nombreIngrediente, nuevaCantidad) {
+    if (!receta || !receta.ingredientes || nuevaCantidad <= 0) return;
+
+    const original = receta.ingredientes.find(i => i.ingrediente === nombreIngrediente);
+    if (!original) return;
+
+    const factor = nuevaCantidad / original.cantidad;
+
+    const nuevosIngredientes = receta.ingredientes.map((ing) => ({
+      ...ing,
+      cantidad: parseFloat((ing.cantidad * factor).toFixed(2)),
+    }));
+
+    const nuevasPorciones = Math.max(1, Math.round(receta.porciones * factor));
+    const nuevaCantidadPersonas = Math.max(1, Math.round(receta.cantidadPersonas * factor));
+
+    setIngredientesCalc(nuevosIngredientes);
+    setPorciones(nuevasPorciones);
+    setCantidadPersonas(nuevaCantidadPersonas);
+  }
+
 
   //favoritos
   const agregarFavorito = async () => {
@@ -207,39 +228,47 @@ export default function InfoReceta({ navigation }) {
          {isPressed === 0 && (
            <>
              {token && (
-             <View style={{ alignItems: 'center', marginBottom: 10 }}>
-               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 ,}}>
-                 <Pressable
-                   onPress={() => recalcularIngredientes(porciones - 1)}
-                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
-                 >
-                   <Text style={styles.btnText}>-</Text>
-                 </Pressable>
+                   <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                     <View style={styles.porcionContainer}>
+                       <Text style={styles.porcionLabel}>Porciones:</Text>
+                       <View style={styles.porcionButtons}>
+                         <Pressable onPress={() => recalcularIngredientes(porciones - 1)} style={styles.porcionBtn}>
+                           <Text style={styles.porcionBtnText}>−</Text>
+                         </Pressable>
+                         <Text style={styles.porcionNumero}>{porciones}</Text>
+                         <Pressable onPress={() => recalcularIngredientes(porciones + 1)} style={styles.porcionBtn}>
+                           <Text style={styles.porcionBtnText}>+</Text>
+                         </Pressable>
+                       </View>
+                       <Text style={styles.porcionSubText}>Personas: {cantidadPersonas}</Text>
+                     </View>
+                   </View>
+                 )}
 
-                 <Text style={{ marginHorizontal: 15, fontSize: 18 }}>
-                   Porciones: {porciones}
+             {!token && (
+               <View style={{ alignItems: 'center', marginTop: 5 }}>
+                 <Text style={styles.infoExtra}>
+                   Porciones: {porciones} - Personas: {cantidadPersonas}
                  </Text>
-
-                 <Pressable
-                   onPress={() => recalcularIngredientes(porciones + 1)}
-                   style={[styles.btn, { paddingHorizontal: 12, backgroundColor: "#505c86" }]}
-                 >
-                   <Text style={styles.btnText}>+</Text>
-                 </Pressable>
                </View>
-             </View>
              )}
-             <Text style={[styles.infoExtra, { marginTop: 5 }]}>
-              Personas: {cantidadPersonas}
-            </Text>
+
              {ingredientesCalc?.map((i, index) => (
-               <CardIngredient
-                 key={index}
-                 name={i.ingrediente}
-                 quantity={`${i.cantidad} ${i.unidad}`}
-                 observations={i.observaciones}
-               />
+                   <CardIngredient
+                     key={index}
+                     name={i.ingrediente}
+                     quantity={i.cantidad}
+                     unidad={i.unidad}
+                     onCantidadChange={
+                       token
+                         ? (nuevaCantidad) => actualizarPorcionesPorIngrediente(i.ingrediente, nuevaCantidad)
+                         : undefined
+                     }
+                     editable={!!token}
+                   />
+
              ))}
+
            </>
          )}
 
@@ -373,5 +402,45 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: "#666",
   },
+  porcionContainer: {
+    alignItems: "center",
+    marginVertical: 15,
+    backgroundColor: "#f5f5f5",
+    padding: 12,
+    borderRadius: 10,
+    width: "90%",
+    alignSelf: "center",
+  },
+  porcionLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  porcionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  porcionBtn: {
+    backgroundColor: "#505c86",
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  porcionBtnText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  porcionNumero: {
+    fontSize: 18,
+    marginHorizontal: 15,
+  },
+  porcionSubText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#666",
+  }
+
 });
 

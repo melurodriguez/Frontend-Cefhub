@@ -19,7 +19,7 @@ export default function CardInstruccion({ paso }) {
           style={{ marginTop: 10 }}
           renderItem={({ item }) => (
             <Image
-              source={{ uri: `${API_BASE_URL}/static/img/${item.url}` }}
+              source={{ uri: `${API_BASE_URL}/static/${item.url}` }}
               style={styles.imagen}
               resizeMode="cover"
             />

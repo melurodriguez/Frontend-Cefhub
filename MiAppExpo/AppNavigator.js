@@ -26,8 +26,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import UserData from "./paginas/UserData";
 import PopUpLogOut from "./components/PopUpLogOut";
 import CustomDrawer from "./components/CustomDrawer";
-import MetodoPagoScreen from "./components/MetodoPagoScreen";
-import DatosPersonalesScreen from "./components/DatosPersonalesScreen";
+import RegistroAlumnoScreen from "./components/RegistroAlumnoScreen";
 import { colors } from "./utils/themes";
 import "react-native-reanimated";
 import FourthStepRegister from "./paginas/FourthStepRegister";
@@ -73,7 +72,7 @@ function DrawerNavigator() {
     />
     <Drawer.Screen
       name="Upgrade a Alumno"
-      component={MetodoPagoScreen}
+      component={RegistroAlumnoScreen}
       options={{
         drawerIcon: ({ color }) => (
           <Ionicons name="school-outline" size={22}color={color} />
@@ -245,8 +244,7 @@ function AppNavigator() {
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
-                  <Stack.Screen name="MetodoPago" component={MetodoPagoScreen} />
-                  <Stack.Screen name="DatosPersonales" component={DatosPersonalesScreen} />
+                  <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
 
                 </>
               )}

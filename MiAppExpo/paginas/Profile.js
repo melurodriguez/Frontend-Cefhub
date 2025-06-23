@@ -6,6 +6,7 @@ import CardCursoInscripcion from "../components/CardCursoInscripcion";
 import api from "../api/axiosInstance";
 import { AuthContext } from "../auth/AuthContext";
 import PopUp from '../components/PopUp'
+import PopUpLogOut from '../components/PopUpLogOut'
 import { colors, fonts, sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
 const menu = require("../assets/menu.png");

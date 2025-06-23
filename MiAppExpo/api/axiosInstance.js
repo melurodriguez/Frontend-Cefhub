@@ -19,6 +19,8 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+
+
 // Interceptor para manejar refresh token cuando access token expira
 api.interceptors.response.use(
   (response) => response,

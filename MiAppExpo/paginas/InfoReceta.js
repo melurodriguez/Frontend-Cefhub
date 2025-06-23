@@ -70,7 +70,6 @@ export default function InfoReceta({ navigation }) {
             }
 
             console.log("Receta obtenida:\n", JSON.stringify(recetaData, null, 2));
-            console.log("Conversiones obtenidas:", conversionesRes.data);
           } catch (err) {
             console.error("Error al obtener datos de la receta:", err);
           }
@@ -98,6 +97,27 @@ export default function InfoReceta({ navigation }) {
     setCantidadPersonas(nuevaCantidadPersonas);
   }
   //FALTA RECALCULAR INGREDIENTES DE RECETA
+  function actualizarPorcionesPorIngrediente(nombreIngrediente, nuevaCantidad) {
+    if (!receta || !receta.ingredientes || nuevaCantidad <= 0) return;
+
+    const original = receta.ingredientes.find(i => i.ingrediente === nombreIngrediente);
+    if (!original) return;
+
+    const factor = nuevaCantidad / original.cantidad;
+
+    const nuevosIngredientes = receta.ingredientes.map((ing) => ({
+      ...ing,
+      cantidad: parseFloat((ing.cantidad * factor).toFixed(2)),
+    }));
+
+    const nuevasPorciones = Math.max(1, Math.round(receta.porciones * factor));
+    const nuevaCantidadPersonas = Math.max(1, Math.round(receta.cantidadPersonas * factor));
+
+    setIngredientesCalc(nuevosIngredientes);
+    setPorciones(nuevasPorciones);
+    setCantidadPersonas(nuevaCantidadPersonas);
+  }
+
 
   //favoritos
   const agregarFavorito = async () => {
@@ -235,13 +255,21 @@ export default function InfoReceta({ navigation }) {
             </Text>
              {/* INGREDIENTES */}
              {ingredientesCalc?.map((i, index) => (
-               <CardIngredient
-                 key={index}
-                 name={i.ingrediente}
-                 quantity={`${i.cantidad} ${i.unidad}`}
-                 observations={i.observaciones}
-               />
+                   <CardIngredient
+                     key={index}
+                     name={i.ingrediente}
+                     quantity={i.cantidad}
+                     unidad={i.unidad}
+                     onCantidadChange={
+                       token
+                         ? (nuevaCantidad) => actualizarPorcionesPorIngrediente(i.ingrediente, nuevaCantidad)
+                         : undefined
+                     }
+                     editable={!!token}
+                   />
+
              ))}
+
            </>
          )}
 
@@ -382,5 +410,45 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: "#666",
   },
+  porcionContainer: {
+    alignItems: "center",
+    marginVertical: 15,
+    backgroundColor: "#f5f5f5",
+    padding: 12,
+    borderRadius: 10,
+    width: "90%",
+    alignSelf: "center",
+  },
+  porcionLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  porcionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  porcionBtn: {
+    backgroundColor: "#505c86",
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  porcionBtnText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  porcionNumero: {
+    fontSize: 18,
+    marginHorizontal: 15,
+  },
+  porcionSubText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#666",
+  }
+
 });
 

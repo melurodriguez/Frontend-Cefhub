@@ -64,7 +64,7 @@ export default function InfoCurso({ navigation }) {
         } else if (err.response?.status === 404) {
           setError("404");
         } else {
-          console.error("Error al verificar inscripción:", err.message);
+          console.log("Error al verificar inscripción:", err.message);
         }
       });
   }, [id, token]);

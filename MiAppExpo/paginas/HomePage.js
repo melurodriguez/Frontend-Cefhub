@@ -12,10 +12,8 @@ export default function HomePage({ navigation }) {
 
   useFocusEffect(
       useCallback(() => {
-        console.log("HomePage en foco, cargando recetas...");
-
         api
-          .get("/recetas?ordenar_por=reciente&limite=3")
+          .get("/recetas/?ordenar_por=reciente&limite=3")
           .then((res) => setRecetas(res.data))
           .catch((err) => {
             console.error("Error al obtener recetas:", err);

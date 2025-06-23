@@ -20,7 +20,7 @@ export default function RecipeCard({ data, onPress }) {
 
         <View style={styles.footer}>
           <View style={styles.userInfo}>
-            <Image source={userIcon} style={styles.icon} />
+            <Image source={{ uri: `${API_BASE_URL}/static/${data.avatar}`}} style={styles.icon} />
             <Text style={styles.userText}>{data.nickname}</Text>
           </View>
           <View style={styles.rating}>
@@ -65,14 +65,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "Sora_700Bold",
-    fontSize: 16,
+    fontSize: 18,
     color: "#333",
     marginBottom: 4,
   },
   desc: {
     fontFamily: "Sora_400Regular",
-    fontSize: 13,
-    color: "#666",
+    fontSize: 14,
+    color: "#1E1E1E",
   },
   footer: {
     flexDirection: "row",
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   icon: {
-    width: 18,
-    height: 18,
+    width: 25,
+    height: 25,
   },
   userText: {
     fontFamily: "Sora_400Regular",
-    fontSize: 12,
+    fontSize: 14,
     color: "#555",
     marginLeft: 8,
   },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontFamily: "Sora_400Regular",
-    fontSize: 13,
+    fontSize: 15,
     marginRight: 6,
     color: "#444",
   },

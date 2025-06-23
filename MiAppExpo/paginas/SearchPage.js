@@ -8,15 +8,13 @@ import {
   Image,
   Pressable,
 } from "react-native";
-
 import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
-
+import { Ionicons } from "@expo/vector-icons";
 import SideMenu from "../components/CustomDrawer.js";
 import { colors } from "../utils/themes.js";
 import api from "../api/axiosInstance";
-const menu = require("../assets/menu.png");
 const searchIcon = require("../assets/search.png");
 const filter = require("../assets/filter.png");
 const backArrow = require("../assets/backArrow.png");
@@ -26,11 +24,10 @@ export default function SearchPage({ navigation }) {
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
 
-
   useFocusEffect(
       useCallback(() => {
         api
-          .get("/recetas?ordenar_por=reciente&limite=3")
+          .get("/recetas/?ordenar_por=reciente&limite=3")
           .then((res) => setRecetas(res.data))
           .catch((err) => {
             console.error("Error al obtener recetas:", err);
@@ -43,14 +40,11 @@ export default function SearchPage({ navigation }) {
             console.error("Error al obtener cursos:", err);
           });
 
-        console.log("Obteniendo cursos y recetas...");
-
-        // No necesita return cleanup en este caso
       }, [])
     );
 
   const porNombre = () => {
-          api.get(`/recetas?nombre=${search}`)
+          api.get(`/recetas/?nombre_receta${search}`)
           .then((res) => setRecetas(res.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
 
@@ -72,80 +66,77 @@ export default function SearchPage({ navigation }) {
     } catch (err) {}
   };
 
-  return (
-    <ScrollView>
-      <View style={styles.header}>
+   return (
+     <ScrollView>
+       <View style={styles.header}>
+         <Pressable onPress={() => navigation.goBack()}>
+           <Ionicons name="arrow-back" size={24} color={colors.black} />
+         </Pressable>
+         <Text style={styles.pageTitle}>Búsqueda</Text>
+         <View style={{ width: 24 }} />
+       </View>
 
-        <Text style={styles.pageTitle}>Búsqueda</Text>
-      </View>
+       <View style={styles.searchContainer}>
+         <Ionicons name="search-outline" size={20} color="#666" style={styles.searchIcon} />
+         <TextInput
+           value={search}
+           placeholder="Buscar recetas o cursos..."
+           onChangeText={setSearch}
+           style={styles.input}
+         />
+         <Pressable onPress={porNombre}>
+           <Ionicons name="arrow-forward-circle" size={26} color={colors.primary} />
+         </Pressable>
+       </View>
 
-      <View style={styles.resultTitle}>
-        <TextInput
-          value={search}
-          placeholder="Search"
-          onChangeText={setSearch}
-          style={styles.input}
-        />
-        <Pressable onPress={porNombre}>
-          <Image source={searchIcon} style={{ tintColor: "#000" }} />
-        </Pressable>
-      </View>
+       <View style={styles.section}>
+         <View style={styles.sectionHeader}>
+           <View style={styles.rowIconTitle}>
+             <Ionicons name="restaurant-outline" size={20} color={colors.primary} />
+             <Text style={styles.sectionTitle}>Recetas Recientes</Text>
+           </View>
+           <Pressable onPress={() => navigation.navigate("TodasRecetas")}>
+             <Text style={styles.verTodos}>Ver todos →</Text>
+           </Pressable>
+         </View>
 
-      <View>
-        <View style={styles.resultTitle}>
-          <Text style={styles.rr}>Recetas Recientes</Text>
-          <Pressable onPress={() => navigation.navigate("TodasRecetas")}>
-            <Text style={styles.verTodos}>Ver todos →</Text>
-          </Pressable>
-        </View>
-        {recetas.map((receta, index) => (
-          <View style={styles.card} key={index}>
-            <RecipeCard
-              data={receta}
-              onPress={() =>
-                navigation.navigate("InfoReceta", { id: receta.idReceta })
-              }
-            />
-          </View>
-        ))}
-      </View>
-      <View>
-        <View style={styles.resultTitle}>
-          <Text style={styles.rr}>Cursos Populares</Text>
-          <Pressable onPress={() => navigation.navigate("TodosCursos")}>
-            <Text style={styles.verTodos}>Ver todos →</Text>
-          </Pressable>
-        </View>
+         {recetas.map((receta, index) => (
+           <View style={styles.card} key={index}>
+             <RecipeCard
+               data={receta}
+               onPress={() =>
+                 navigation.navigate("InfoReceta", { id: receta.idReceta })
+               }
+             />
+           </View>
+         ))}
+       </View>
 
-        {cursos.slice(0,3).map((curso, index) => (
-          <View style={styles.card} key={index}>
-            <CardCurso
-              data={curso}
-              onPress={() => {
-                navigation.navigate("InfoCurso", { id: curso.idCurso });
-              }}
-            />
-          </View>
-        ))}
-      </View>
-    </ScrollView>
-  );
+       <View style={styles.section}>
+         <View style={styles.sectionHeader}>
+           <View style={styles.rowIconTitle}>
+             <Ionicons name="school-outline" size={20} color={colors.primary} />
+             <Text style={styles.sectionTitle}>Cursos Populares</Text>
+           </View>
+           <Pressable onPress={() => navigation.navigate("TodosCursos")}>
+             <Text style={styles.verTodos}>Ver todos →</Text>
+           </Pressable>
+         </View>
+
+         {cursos.slice(0, 3).map((curso, index) => (
+           <View style={styles.card} key={index}>
+             <CardCurso
+               data={curso}
+               onPress={() => navigation.navigate("InfoCurso", { id: curso.idCurso })}
+             />
+           </View>
+         ))}
+       </View>
+     </ScrollView>
+   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  input: {
-    width: 330,
-    borderColor: "#d9d9d9",
-    borderWidth: 1,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-    backgroundColor: "#f1f5f5",
-  },
   header: {
     flexDirection: "row",
     justifyContent: "center",
@@ -155,25 +146,57 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 24,
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
+    color: colors.black,
   },
-  card: {
-    padding: 5,
+  searchContainer: {
+    flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#f1f5f5",
+    borderColor: "#d9d9d9",
+    borderWidth: 1,
+    borderRadius: 15,
+    marginHorizontal: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 25,
   },
-  rr: {
-    fontSize: 20,
-    fontFamily:'Sora_700Bold',
-    marginBottom: 15,
+  searchIcon: {
+    marginRight: 8,
   },
-  resultTitle: {
+  input: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: "Sora_400Regular",
+  },
+  section: {
+    marginBottom: 30,
+  },
+  sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
-
-  verTodos:{
-    fontFamily:'Sora_400Regular',
-  }
+  rowIconTitle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "Sora_700Bold",
+    marginLeft: 4,
+    color: colors.black,
+  },
+  verTodos: {
+    fontFamily: "Sora_400Regular",
+    color: colors.primary,
+  },
+  card: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignItems: "center",
+  },
 });

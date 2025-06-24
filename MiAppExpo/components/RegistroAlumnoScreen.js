@@ -12,6 +12,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { sizes } from "../utils/themes";
 import api from '../api/axiosInstance';
+import { ActivityIndicator } from 'react-native';
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
@@ -19,11 +20,12 @@ export default function RegistroAlumnoScreen() {
   const [nombreTarjeta, setNombreTarjeta] = useState('');
   const [vencimiento, setVencimiento] = useState('');
   const [cvv, setCvv] = useState('');
+  const [loading, setLoading] = useState(false);
 
   //datos que se guardan
     const [numeroTarjeta, setNumeroTarjeta] = useState('');
     const [tramite, setTramite] = useState('');
-    const [cuentaCorriente, setCuentaCorriente] = useState('');
+    const [cuentaCorriente, setCuentaCorriente] = useState(0);
     const [dniFrente, setDniFrente] = useState(null);
     const [dniFondo, setDniFondo] = useState(null);
 
@@ -37,9 +39,8 @@ export default function RegistroAlumnoScreen() {
         return;
       }
     }
-
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 0.5,
     });
 
@@ -57,7 +58,7 @@ export default function RegistroAlumnoScreen() {
     });
 
     try {
-      const res = await api.post(`/dni/upload?campo=${nombreCampo}`, formData, {
+      const res = await api.post(`user/dni/upload?campo=${nombreCampo}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -71,39 +72,36 @@ export default function RegistroAlumnoScreen() {
 
 
   const handleSiguiente = async () => {
-    try {
-      const datosAlumno = {
-        numeroTarjeta: numeroTarjeta,
-        tramite: tramite ,
-        cuentaCorriente: parseFloat(cuentaCorriente) ,
-      };
+      setLoading(true); // Activar spinner
+      try {
+        const datosAlumno = {
+          numeroTarjeta: numeroTarjeta,
+          tramite: tramite,
+        };
 
-      const res = await api.post('user/me/upgrade_alumno', datosAlumno);
+        await api.post('/user/me/upgrade_alumno', datosAlumno);
 
-      if (res) {
-        // Subís imágenes una por una y capturás las URLs
-        const dniFrenteUrl = dniFrente ? await subirImagen(dniFrente, 'dniFrente') : null;
-        const dniFondoUrl = dniFondo ? await subirImagen(dniFondo, 'dniFondo') : null;
+        if (dniFrente) await subirImagen(dniFrente, 'dniFrente');
+        if (dniFondo) await subirImagen(dniFondo, 'dniFondo');
 
-        // Si alguna imagen subió, actualizás el perfil con esas URLs
-        if (dniFrenteUrl || dniFondoUrl) {
-          await api.patch('/me/upgrade_alumno', {
-            dniFrente: dniFrenteUrl,
-            dniFondo: dniFondoUrl,
-          });
-        }
+        Alert.alert('Éxito', 'Tu perfil ha sido actualizado a alumno');
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', error.response?.data?.detail || 'Error desconocido');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      Alert.alert('Éxito', 'Tu perfil ha sido actualizado a alumno');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', error.response);
-    }
-  };
 
 
   return (
     <View style={styles.container}>
+       {loading && (
+           <View style={styles.loadingOverlay}>
+             <ActivityIndicator size="large" color="#000" />
+           </View>
+         )}
       <View style={styles.form}>
         <Image source={welcomeIcon} style={styles.img} />
         <Text style={styles.title}>Registro Alumno</Text>
@@ -129,13 +127,6 @@ export default function RegistroAlumnoScreen() {
             onChangeText={setCvv}
           />
         </View>
-        <TextInput
-          placeholder="Cuenta Corriente"
-          style={styles.textInput}
-          keyboardType="numeric"
-          value={cuentaCorriente}
-          onChangeText={setCuentaCorriente}
-        />
 
         {/* DATOS PERSONALES */}
         <View style={styles.row}>
@@ -178,6 +169,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingOverlay: {
+      position: 'absolute',
+      top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(255,255,255,0.7)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10,
+    },
   form: {
     justifyContent: 'center',
     alignItems: 'center',

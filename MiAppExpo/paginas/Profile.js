@@ -12,10 +12,12 @@ import API_BASE_URL from "../utils/config";
 const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
 
+
 export default function Profile({navigation}) {
   const [pressed, setPressed] = useState(0);
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const[cuentaCorriente, setCuentaCorriente] = useState(0);
   const { user } = useContext(AuthContext);
   console.log("User en Profile:", user);
   const [visible, setVisible] = useState(false);
@@ -53,11 +55,23 @@ export default function Profile({navigation}) {
       }
     }, []);
 
+    const cuentacorriente = useCallback(async () => {
+        try {
+            const response = await api.get("user/me");
+            setCuentaCorriente(response.data.cuentaCorriente);
+
+        } catch (error) {
+            console.error("Error al obtener cuenta corriente:", error);
+            setCuentaCorriente(0);
+        }
+    }, []);
+
     useFocusEffect(
       useCallback(() => {
         favorite_recipes();
         if (user?.tipo_usuario === "Alumno") {
           courses();
+          cuentacorriente();
         }
       }, [])
     );
@@ -88,6 +102,13 @@ export default function Profile({navigation}) {
                 </Pressable>
               </View>
       </View>
+      {user?.tipo_usuario === "Alumno" && (
+        <Text style={styles.cuentaCorriente}>
+          Cuenta corriente: {cuentaCorriente}
+        </Text>
+      )}
+
+
       <View style={styles.btnContainer}>
         
         {buttons.map((title, index) => (
@@ -160,6 +181,17 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       alignItems: "center",
     },
+    cuentaCorriente: {
+        fontSize: 18,
+        color: colors.primary,
+        fontWeight: '700',
+        marginVertical: 10,
+        marginHorizontal: 20,
+        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 1,
+        paddingBottom: 4,
+      },
     header: {
       flexDirection: "row",
       justifyContent: "center",

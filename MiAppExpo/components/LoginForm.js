@@ -18,14 +18,17 @@ const eye_open = require("../assets/eye-check.png");
 const eye_closed = require("../assets/eye-closed.png");
 
 export default function LoginForm({ navigation }) {
-  const { login } = useContext(AuthContext); //extraigo la funcion login del authprovider
-
+  const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
   const [form, setForm] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
-
   const [visibility, setVisibility] = useState(true);
 
   const handleChange = (name, value) => {
@@ -34,31 +37,74 @@ export default function LoginForm({ navigation }) {
 
   useEffect(() => {
     const cargarCredenciales = async () => {
-      const savedUsername = await SecureStore.getItemAsync("username");
+      const savedEmail = await SecureStore.getItemAsync("email");
       const savedPassword = await SecureStore.getItemAsync("password");
-      if (savedUsername && savedPassword) {
-        setForm((prev) => ({
-          ...prev,
-          username: savedUsername,
+      if (savedEmail && savedPassword) {
+        setForm({
+          email: savedEmail,
           password: savedPassword,
           rememberMe: true,
-        }));
+        });
+
+        Alert.alert("Autocompletado", "Tus credenciales fueron cargadas.");
       }
     };
     cargarCredenciales();
-    //handleLogin() --> es menos seguro
   }, []);
 
-  const handleLogin = async () => {
-    try {
-      const success = await login(form.email, form.password, form.rememberMe);
-      if (success) {
-        navigation.navigate("Menú");
+  const validarFormulario = () => {
+    let valid = true;
+    let newErrors = { email: "", password: "" };
+
+    const emailVacio = !form.email.trim();
+    const passwordVacio = !form.password.trim();
+
+    if (emailVacio && passwordVacio) {
+      newErrors.email = "Debés completar el email y la contraseña.";
+      valid = false;
+    } else {
+      if (emailVacio) {
+        newErrors.email = "El email es obligatorio.";
+        valid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+        newErrors.email = "El email no tiene un formato válido.";
+        valid = false;
       }
-    } catch (error) {
-      Alert.alert("Error", "Credenciales inválidas o problema de red.");
+
+      if (passwordVacio) {
+        newErrors.password = "La contraseña es obligatoria.";
+        valid = false;
+      }
     }
+
+    setErrors(newErrors);
+    return valid;
   };
+
+
+
+ const handleLogin = async () => {
+   if (!validarFormulario()) return;
+   try {
+     setLoading(true);
+     const success = await login(form.email, form.password, form.rememberMe);
+     if (success) {
+       if (form.rememberMe) {
+         await SecureStore.setItemAsync("email", form.email);
+         await SecureStore.setItemAsync("password", form.password);
+       } else {
+         await SecureStore.deleteItemAsync("email");
+         await SecureStore.deleteItemAsync("password");
+       }
+       navigation.navigate("Menú");
+     }
+   } catch (error) {
+     Alert.alert("Error", "Credenciales inválidas o problema de red.");
+   } finally {
+     setLoading(false);
+   }
+ };
+
 
   return (
     <View style={styles.view}>
@@ -70,27 +116,34 @@ export default function LoginForm({ navigation }) {
           style={styles.input}
           value={form.email}
           placeholder="Email"
+          autoCapitalize="none"
+          keyboardType="email-address"
           onChangeText={(value) => {
             handleChange("email", value);
+            setErrors((prev) => ({ ...prev, email: "" }));
           }}
-        ></TextInput>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        />
+        <View style={styles.passwordContainer}>
           <TextInput
-            style={styles.input}
+            style={styles.passwordInput}
             value={form.password}
             secureTextEntry={visibility}
             placeholder="Password"
+            textContentType="password"
             onChangeText={(value) => {
               handleChange("password", value);
+              setErrors((prev) => ({ ...prev, password: "" }));
             }}
-          ></TextInput>
-          <Pressable onPress={() => setVisibility(!visibility)}>
+          />
+          <Pressable onPress={() => setVisibility(!visibility)} style={styles.eyeButton}>
             <Image
               source={visibility ? eye_open : eye_closed}
-              style={{ width: 20, height: 20 }}
+              style={styles.eyeIcon}
             />
           </Pressable>
         </View>
+        {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
+        {errors.password ? <Text style={styles.error}>{errors.password}</Text> : null}
         <View style={styles.check}>
           <Checkbox
             value={form.rememberMe}
@@ -99,17 +152,21 @@ export default function LoginForm({ navigation }) {
           ></Checkbox>
           <Text style={{fontFamily:'Sora_400Regular'}}>Recordarme</Text>
         </View>
-        <Pressable style={styles.button} onPress={handleLogin}>
-          <Text style={styles.btnText}>Ingresar</Text>
+        <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
+          <Text style={styles.btnText}>
+            {loading ? "Ingresando..." : "Ingresar"}
+          </Text>
         </Pressable>
-        <Pressable
-          style={styles.btn}
-          onPress={() => navigation.navigate("RegisterPage")}>
-          <Text style={{fontFamily:'Sora_400Regular',}}>No tenés cuenta? Registrate</Text>
-        </Pressable>
-        <Pressable style={styles.btn} onPress={() => navigation.navigate("ForgotPassword")}>
-          <Text style={{fontFamily:'Sora_400Regular',}}>Olvidaste tu contraseña? Recuperala</Text>
-        </Pressable>
+        <View style={styles.extraOptions}>
+          <Pressable style={styles.linkBtn} onPress={() => navigation.navigate("RegisterPage")}>
+            <Text style={styles.linkText}>¿No tenés cuenta? <Text style={styles.linkBold}>Registrate</Text></Text>
+          </Pressable>
+
+          <Pressable style={styles.linkBtn} onPress={() => navigation.navigate("ForgotPassword")}>
+            <Text style={styles.linkText}>¿Olvidaste tu contraseña? <Text style={styles.linkBold}>Recuperala</Text></Text>
+          </Pressable>
+        </View>
+
       </View>
     </View>
   );
@@ -119,11 +176,17 @@ const styles = StyleSheet.create({
   view: {
     backgroundColor: "#fff",
     width: 344,
-    height:480,
+    height:525,
     justifyContent: "center",
     alignItems: "center",
     borderColor: "#000",
     borderRadius: sizes.radius,
+  },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 8,
+    marginLeft: 5,
   },
   input: {
     width: 277,
@@ -139,7 +202,7 @@ const styles = StyleSheet.create({
     width: 132,
     height: 133,
     position: "absolute",
-    top: -90, // la mitad de la altura para que sobresalga
+    top: -90,
     alignSelf: "center",
     zIndex: 1,
   },
@@ -166,7 +229,7 @@ const styles = StyleSheet.create({
   content: {
     justifyContent: "space-around",
     alignItems: "center",
-    marginTop: 45,
+    marginTop: 20,
     borderColor: "#000",
   },
   text: {
@@ -198,4 +261,56 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     marginBottom:5
   },
+  passwordContainer: {
+    width: 277,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#d9d9d9",
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: "#f1f5f5",
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    position: "relative",
+  },
+
+  passwordInput: {
+    flex: 1,
+    height: "100%",
+    fontSize: 16,
+  },
+
+  eyeButton: {
+    padding: 5,
+  },
+
+  eyeIcon: {
+    width: 20,
+    height: 20,
+    tintColor: "#666",
+  },
+  extraOptions: {
+    marginTop: 10,
+    alignItems: "center",
+    gap: 5,
+  },
+
+  linkBtn: {
+    paddingVertical: 6,
+  },
+
+  linkText: {
+    fontSize: 14,
+    color: "#333",
+    fontFamily: "Sora_400Regular",
+    textAlign: "center",
+  },
+
+  linkBold: {
+    fontFamily: "Sora_700Bold",
+    color: "#505c86",
+  },
+
+
 });

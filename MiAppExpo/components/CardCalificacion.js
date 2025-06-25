@@ -1,24 +1,36 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { AuthContext } from "../auth/AuthContext";
+import { useContext  } from "react";
 
 export default function CardCalificacion({ data }) {
+  const { user } = useContext(AuthContext);
   const renderEstrellas = (cantidad) => {
     const max = 5;
     return "★".repeat(cantidad) + "☆".repeat(max - cantidad);
   };
+  const esAutor = data.nickname === user?.nickname;
+  const estaAprobado = data.estado === "aprobado";
 
   return (
-      <View style={styles.card}>
-        <View style={styles.header}>
-          <Text style={styles.nickname}>{data.nickname || "Anónimo"}</Text>
-          {data.calificacion !== undefined && data.estado === "aprobado" &&(
-            <Text style={styles.estrellas}>{data.calificacion} {renderEstrellas(data.calificacion)}</Text>
-          )}
-        </View>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.nickname}>{data.nickname}</Text>
+        {data.calificacion !== undefined  && (
+          <Text style={styles.estrellas}>
+            {data.calificacion} {renderEstrellas(data.calificacion)}
+          </Text>
+        )}
+      </View>
 
-        <Text style={styles.comentario}>{data.comentarios || "Sin comentarios."}</Text>
+      {(estaAprobado || esAutor) && (
+        <Text style={styles.comentario}>
+          {data.comentarios}
+        </Text>
+      )}
 
+      { data.fechaEstado!== undefined && (
         <Text style={styles.fecha}>
           {new Date(data.fechaEstado).toLocaleDateString("es-AR", {
             day: "2-digit",
@@ -26,16 +38,18 @@ export default function CardCalificacion({ data }) {
             year: "numeric",
           })}
         </Text>
+      )}
 
-        {data.estado !== "aprobado" && (
-          <View style={styles.estadoPendiente}>
-            <MaterialIcons name="access-time" size={16} color="#fbc02d" />
-            <Text style={styles.estadoPendienteTexto}>{data.estado}</Text>
-          </View>
-        )}
-      </View>
-    );
-  }
+      {!estaAprobado && esAutor && (
+        <View style={styles.estadoPendiente}>
+          <MaterialIcons name="access-time" size={16} color="#fbc02d" />
+          <Text style={styles.estadoPendienteTexto}>{data.estado}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 
   const styles = StyleSheet.create({
     card: {
@@ -83,7 +97,7 @@ export default function CardCalificacion({ data }) {
     },
     estadoPendiente: {
       position: "absolute",
-      top: 10,
+      bottom:10 ,
       right: 10,
       backgroundColor: "#FFF9C4",
       borderRadius: 12,

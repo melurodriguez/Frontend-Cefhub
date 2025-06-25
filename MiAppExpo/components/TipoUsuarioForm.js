@@ -16,7 +16,7 @@ export default function TipoUsuarioForm({navigation, email, password}) {
           if(tipoUsuario === "usuario"){
             navigation.navigate("LoginPage")
           }else{
-            navigation.navigate()
+            navigation.navigate("UpgradeAlumnoForm")
           }
           
           

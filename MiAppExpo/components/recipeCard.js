@@ -2,6 +2,7 @@ import { View, Image, StyleSheet, Text, Pressable } from "react-native";
 import API_BASE_URL from "../utils/config";
 const star = require("../assets/star.png");
 const userIcon = require("../assets/user.png");
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export default function RecipeCard({ data, onPress }) {
   return (
@@ -20,7 +21,7 @@ export default function RecipeCard({ data, onPress }) {
 
         <View style={styles.footer}>
           <View style={styles.userInfo}>
-            <Image source={{ uri: `${API_BASE_URL}/static/${data.avatar}`}} style={styles.icon} />
+            <Image source={{ uri: `${API_BASE_URL}/static/${data.avatar}` }} style={styles.icon} />
             <Text style={styles.userText}>{data.nickname}</Text>
           </View>
           <View style={styles.rating}>
@@ -28,9 +29,18 @@ export default function RecipeCard({ data, onPress }) {
             <Image source={star} style={styles.icon} />
           </View>
         </View>
+
+        {data.estado && data.estado !== "aprobado" && (
+          <View style={styles.estadoPendiente}>
+            <MaterialIcons name="access-time" size={16} color="#fbc02d" />
+            <Text style={styles.estadoPendienteTexto}>{data.estado}</Text>
+          </View>
+        )}
+
       </View>
     </Pressable>
   );
+
 }
 
 
@@ -50,6 +60,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
   },
+  estadoPendiente: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "#FFF9C4",
+    borderRadius: 12,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FBC02D",
+  },
+  estadoPendienteTexto: {
+    marginLeft: 4,
+    fontFamily: "Sora_600SemiBold",
+    color: "#F57F17",
+    fontSize: 12,
+    textTransform: "capitalize",
+  },
+
   row: {
     flexDirection: "row",
     alignItems: "flex-start",

@@ -1,7 +1,23 @@
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { sizes } from "../utils/themes";
 
 export default function CardIngredient({ name, quantity, unidad, onCantidadChange, editable }) {
+  const [valorInput, setValorInput] = useState(quantity.toString());
+
+  useEffect(() => {
+    setValorInput(quantity.toString());
+  }, [quantity]);
+
+  const handleBlur = () => {
+    const nuevaCantidad = parseFloat(valorInput);
+    if (!isNaN(nuevaCantidad) && nuevaCantidad > 0 && onCantidadChange) {
+      onCantidadChange(nuevaCantidad);
+    } else {
+      setValorInput(quantity.toString());
+    }
+  };
+
   return (
     <View style={styles.card}>
       <Text style={styles.name}>{name}</Text>
@@ -9,14 +25,10 @@ export default function CardIngredient({ name, quantity, unidad, onCantidadChang
         {editable ? (
           <TextInput
             style={styles.quantityInput}
-            value={quantity.toString()}
+            value={valorInput}
             keyboardType="numeric"
-            onChangeText={(text) => {
-              const nuevaCantidad = parseFloat(text);
-              if (!isNaN(nuevaCantidad) && nuevaCantidad > 0) {
-                onCantidadChange(nuevaCantidad);
-              }
-            }}
+            onChangeText={setValorInput}
+            onBlur={handleBlur}
           />
         ) : (
           <Text style={styles.quantityText}>{quantity}</Text>

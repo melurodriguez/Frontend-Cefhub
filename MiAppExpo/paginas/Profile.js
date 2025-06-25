@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { Pressable, View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { Pressable, View, Text, Image, StyleSheet, ScrollView, Alert } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCursoInscripcion from "../components/CardCursoInscripcion";
 import api from "../api/axiosInstance";
@@ -11,7 +11,7 @@ import { colors, fonts, sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
 const menu = require("../assets/menu.png");
 const userAvatar = require("../assets/user.png");
-
+import * as SecureStore from "expo-secure-store";
 
 export default function Profile({navigation}) {
   const [pressed, setPressed] = useState(0);
@@ -22,7 +22,9 @@ export default function Profile({navigation}) {
   console.log("User en Profile:", user);
   const [visible, setVisible] = useState(false);
   const [popUpMessage, setPopUpMessage] = useState("");
-  const [popUpVisible, setPopUpVisible]=useState(false)
+  const [popUpVisible, setPopUpVisible]=useState(false);
+  const [recetasDescargadas, setRecetasDescargadas] = useState([]);
+
 
 
   const buttons = user?.tipo_usuario === "Alumno"
@@ -76,9 +78,55 @@ export default function Profile({navigation}) {
       }, [])
     );
 
+    useEffect(() => {
+      const obtenerRecetasGuardadas = async () => {
+        try {
+          const recetasJson = await SecureStore.getItemAsync('recetas_guardadas');
+          const recetas = recetasJson ? JSON.parse(recetasJson) : [];
+          setRecetasDescargadas(recetas);
+        } catch (error) {
+          console.error("Error al obtener recetas locales:", error);
+          setRecetasDescargadas([]);
+        }
+      };
+
+      if (pressed === buttons.indexOf("Descargas")) {
+        obtenerRecetasGuardadas();
+      }
+    }, [pressed]);
+
     function handleLogOut(){
       setPopUpVisible(true)
     }
+
+    const guardarRecetasEnSecureStore = async (recetas) => {
+      try {
+        await SecureStore.setItemAsync('recetas_guardadas', JSON.stringify(recetas));
+      } catch (error) {
+        console.error("Error al guardar recetas en SecureStore:", error);
+      }
+    };
+
+    const borrarReceta = (index) => {
+      Alert.alert(
+        "Confirmar eliminación",
+        "¿Querés borrar esta receta descargada?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Borrar",
+            style: "destructive",
+            onPress: () => {
+              const nuevasRecetas = [...recetasDescargadas];
+              nuevasRecetas.splice(index, 1);
+              setRecetasDescargadas(nuevasRecetas);
+              // Opcional: actualizar también en SecureStore si las cargas desde ahí
+              guardarRecetasEnSecureStore(nuevasRecetas);
+            }
+          }
+        ]
+      );
+    };
 
   return (
     <ScrollView>
@@ -158,8 +206,31 @@ export default function Profile({navigation}) {
         )}
 
         {buttons[pressed] === "Descargas" && (
-          <Text style={styles.page}>Aún no descargaste recetas</Text>
+          recetasDescargadas.length > 0 ? (
+            recetasDescargadas.map((receta, index) => (
+              <View key={index} style={styles.receta}>
+                <View style={{ position: 'relative' }}>
+                  <Pressable
+                    onPress={() => borrarReceta(index)}
+                    style={styles.btnBorrarReceta}
+                  >
+                    <Text style={styles.textoBorrarReceta}>×</Text>
+                  </Pressable>
+
+
+                  <RecipeCard
+                    data={receta}
+                    onPress={() => navigation.navigate("InfoRecetaDescargadas", { receta })}
+                  />
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.page}>Aún no descargaste recetas</Text>
+          )
         )}
+
+
       </View>
 
       <PopUp
@@ -285,4 +356,30 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
 
   },
+  btnBorrarReceta: {
+      position: 'absolute',
+      top: -2,
+      right: -2,
+      zIndex: 10,
+      backgroundColor: 'rgba(255, 59, 48, 0.85)', // rojo intenso semi-transparente
+      padding: 8,
+      borderRadius: 15, // botón circular (si el ancho y alto es 30)
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3,
+      elevation: 4,
+    },
+
+    textoBorrarReceta: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 18,
+      lineHeight: 18,
+      textAlign: 'center',
+    },
 });

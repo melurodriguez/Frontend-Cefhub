@@ -7,6 +7,7 @@ import HomePage from "./paginas/HomePage";
 import SearchPage from "./paginas/SearchPage";
 import LoginPage from "./paginas/LoginPage";
 import InfoReceta from "./paginas/InfoReceta";
+import InfoRecetaDescargadas from "./paginas/InfoRecetaDescargadas";
 import TodasRecetas from "./paginas/TodasRecetas";
 import TodosCursos from "./paginas/TodosCursos";
 import InfoCurso from "./paginas/InfoCurso";
@@ -34,6 +35,7 @@ import TipoUsuarioRegister from "./paginas/TipoUsuarioRegister";
 import CodeForgotPassword from "./paginas/CodeForgotPassword";
 import ForgotPassword from "./paginas/ForgotPassword";
 import ResetPassword from "./paginas/ResetPassword";
+import NoConexion from "./paginas/NoConexion";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -191,10 +193,6 @@ function AppNavigator() {
   const { token, loading, user } = useContext(AuthContext);
   const context = useContext(AuthContext);
 
-  if (loading) {
-      return <Splash />; // mientras carga el contexto, mostrar splash
-  }
-
   console.log("Contexto actual:", context);
   console.log("user tokn: ", token);
   console.log("usuario: ", user);
@@ -202,8 +200,7 @@ function AppNavigator() {
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-              {/* Pantalla splash inicial */}
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
               <Stack.Screen name="Splash" component={Splash} />
 
               {/* Si NO está logueado */}
@@ -221,11 +218,14 @@ function AppNavigator() {
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="InfoRecetaDescargadas" component={InfoRecetaDescargadas} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="ForgotPassword" component={ForgotPassword}/>
                   <Stack.Screen name="CodeForgotPassword" component={CodeForgotPassword}/>
                   <Stack.Screen name="ResetPassword" component={ResetPassword}/>
+                  <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
+
                 </>
               ) : (
                 <>
@@ -241,11 +241,12 @@ function AppNavigator() {
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="InfoRecetaDescargadas" component={InfoRecetaDescargadas} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
-
+                  <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
                 </>
               )}
             </Stack.Navigator>

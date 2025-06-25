@@ -1,3 +1,5 @@
+const favClicked = require("../assets/favClicked.png");
+import * as SecureStore from 'expo-secure-store';
 import { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -14,8 +16,6 @@ import {
   Alert
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
-import CardCalificacion from "../components/CardCalificacion";
-import CalificarReceta from "../components/CalificarReceta";
 import PopUp from "../components/PopUp";
 import CardCreator from "../components/CardCreator";
 import { useRoute } from "@react-navigation/native";
@@ -27,57 +27,30 @@ import { colors, fonts, sizes } from "../utils/themes";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardInstruccion from "../components/CardInstruccion";
 import { useFocusEffect } from "@react-navigation/native";
-
 const cancel = require("../assets/cancel.png");
-const fav = require("../assets/fav.png");
-const favClicked = require("../assets/favClicked.png");
-import * as SecureStore from 'expo-secure-store';
+const { width, height } = Dimensions.get("window");
 
-const { width, height } = Dimensions.get("window"); //CAMBIAR
-
-export default function InfoReceta({ navigation }) {
+export default function InfoRecetaDescargadas({ navigation }) {
   const route = useRoute();
-  const { id } = route.params;
-  const [isPressed, setPressed] = useState(0);
-  const [like, setLike] = useState(false);
-  const [visible, setPopUpVisible] = useState(false);
-  const [receta, setReceta] = useState(null);
-  const { token, user } = useContext(AuthContext);
-  const [comentario, setComentario] = useState("");
-  const [comentarios, setComentarios] = useState([]);
-  const [ingredientes, setIngredientes]=useState([])
-  const [conversiones, setConversiones] = useState([]);
-  const [porciones, setPorciones] = useState(1);
-  const [cantidadPersonas, setCantidadPersonas] = useState(1);
-  const [ingredientesCalc, setIngredientesCalc] = useState([]);
+    const { receta: recetaParam } = route.params;
+    const [receta, setReceta] = useState(null);
+    const [isPressed, setPressed] = useState(0);
+    const [like, setLike] = useState(false);
+    const [visible, setPopUpVisible] = useState(false);
+    const { token, user } = useContext(AuthContext);
+    const [ingredientesCalc, setIngredientesCalc] = useState([]);
+    const [porciones, setPorciones] = useState(1);
+    const [cantidadPersonas, setCantidadPersonas] = useState(1);
 
-   useFocusEffect(
-      useCallback(() => {
-        const fetchData = async () => {
-          try {
-            const recetaRes = await api.get(`/recetas/${id}`);
-            const recetaData = recetaRes.data;
-            setReceta(recetaData);
-            setPorciones(recetaData.porciones || 1);
-            setCantidadPersonas(recetaData.cantidadPersonas || 1);
-            setIngredientesCalc(recetaData.ingredientes || []);
-            const conversionesRes = await api.get("/recetas/conversiones");
-            setConversiones(conversionesRes.data);
-            const comentariosRes = await api.get(`/recetas/${id}/calificaciones`);
-            setComentarios(comentariosRes.data);
+  useEffect(() => {
+      if (recetaParam) {
+        setReceta(recetaParam);
+        setPorciones(recetaParam.porciones || 1);
+        setCantidadPersonas(recetaParam.cantidadPersonas || 1);
+        setIngredientesCalc(recetaParam.ingredientes || []);
+      }
+    }, [recetaParam]);
 
-            if (token) {
-              await verificarLike();
-            }
-
-          } catch (err) {
-            console.error("Error al obtener datos de la receta:", err);
-          }
-        };
-
-        fetchData();
-      }, [id, token])
-    );
 
   // Recalcular ingredientes según cantidad de porciones
   function recalcularIngredientes(nuevaPorcion) {
@@ -119,116 +92,6 @@ export default function InfoReceta({ navigation }) {
     setCantidadPersonas(nuevaCantidadPersonas);
   }
 
-    // Guarda la receta modificada en SecureStore, máximo 10 recetas guardadas
-    const guardarRecetaLocal = async () => {
-      try {
-        const recetasGuardadasJson = await SecureStore.getItemAsync('recetas_guardadas');
-        let recetasGuardadas = recetasGuardadasJson ? JSON.parse(recetasGuardadasJson) : [];
-
-        const indexExistente = recetasGuardadas.findIndex(r => r.id === receta.idReceta);
-
-        const recetaParaGuardar = {
-          id: receta.idReceta,
-          nombreReceta: receta.nombreReceta,
-          ingredientes: ingredientesCalc,
-          porciones,
-          cantidadPersonas,
-          pasos: receta.pasos,
-          descripcionReceta: receta.descripcionReceta,
-          fotoPrincipal: receta.fotoPrincipal,
-          nickname: receta.nickname,
-          promedioCalificacion: receta.calificaciones.promedio
-        };
-
-        // Si ya existe
-        if (indexExistente !== -1) {
-          Alert.alert(
-            "Receta ya guardada",
-            "¿Querés reemplazar la receta guardada?",
-            [
-              {
-                text: "Cancelar",
-                style: "cancel"
-              },
-              {
-                text: "Reemplazar",
-                onPress: async () => {
-                  recetasGuardadas[indexExistente] = recetaParaGuardar;
-                  await SecureStore.setItemAsync('recetas_guardadas', JSON.stringify(recetasGuardadas));
-                  Alert.alert("Éxito", "La receta fue reemplazada correctamente.");
-                }
-              }
-            ]
-          );
-          return;
-        }
-
-        // Si no existe y hay espacio
-        if (recetasGuardadas.length >= 10) {
-          Alert.alert("Límite alcanzado", "Solo podés guardar hasta 10 recetas localmente.");
-          return;
-        }
-
-        recetasGuardadas.push(recetaParaGuardar);
-        await SecureStore.setItemAsync('recetas_guardadas', JSON.stringify(recetasGuardadas));
-        Alert.alert("Éxito", "Receta guardada localmente.");
-      } catch (error) {
-        console.error("Error al guardar receta localmente:", error);
-        Alert.alert("Error", "No se pudo guardar la receta localmente.");
-      }
-    };
-
-
-
-  //favoritos
-  const agregarFavorito = async () => {
-    try {
-      await api.post(`user/me/recetas_favoritas/${id}`);
-      const newValue=!like
-      setLike(newValue);
-      setPopUpVisible(true);
-      console.log("agregada a favs", receta.ingredientes[0].cantidad)
-    } catch (err) {
-      console.error("Error al marcar como favorito:", err);
-    }
-  };
-
-  const eliminarFavorito = async () => {
-    try {
-      await api.delete(`user/me/recetas_favoritas/${id}`);
-      const newValue = !like;
-      setLike(newValue);
-      setPopUpVisible(true)
-      console.log("eliminada de favs")
-    } catch (err) {
-      console.error("Error al eliminar de favoritos: ", err);
-    }
-  };
-
-  const handleLike = async () => {
-      const nuevoLike=!like
-      setLike(nuevoLike);
-
-      if (nuevoLike){
-        agregarFavorito();
-      }else{
-        eliminarFavorito();
-      }
-      
-  };
-
-  const verificarLike = async () => {
-    try {
-      const response = await api.get(`user/me/recetas_favoritas/${id}`);
-      setLike(response.data.is_favorite);
-    } catch (err) {
-      console.error("Error al verificar favoritos", err);
-    }
-  };
-
-
-
-
   //botones
   function handleClick(index) {
       setPressed(index);
@@ -254,11 +117,6 @@ export default function InfoReceta({ navigation }) {
            <Pressable onPress={() => navigation.goBack()}>
              <Image source={cancel} />
            </Pressable>
-           {token && (
-             <Pressable onPress={handleLike}>
-               <Image source={like ? favClicked : fav} />
-             </Pressable>
-           )}
          </View>
        </ImageBackground>
 
@@ -286,11 +144,6 @@ export default function InfoReceta({ navigation }) {
 
          {isPressed === 0 && (
            <>
-           {token && (
-             <View style={{ marginVertical: 10 }}>
-               <Button title="Guardar receta localmente" onPress={guardarRecetaLocal} color="#505c86" />
-             </View>
-           )}
            <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center"}}>
             <Text style={styles.seleccionado}>Ingredientes</Text>
              {/* PORCIONES Y PERSONAS */}
@@ -317,7 +170,7 @@ export default function InfoReceta({ navigation }) {
                </View>}
              </View>
            </View>
-            
+
              <Text style={[styles.infoExtra, { marginTop: 5 }]}>
               Personas: {cantidadPersonas}
             </Text>
@@ -354,33 +207,15 @@ export default function InfoReceta({ navigation }) {
              contentContainerStyle={styles.flatListPadding}
            />
           </>
-           
+
          )}
 
          <CardCreator alias={receta.nickname} />
 
-         {token && <CalificarReceta idReceta={id} token={token} />}
 
-         <View style={styles.comentariosContainer}>
-           <Text style={styles.comentariosTitulo}>Comentarios</Text>
-           <View style={styles.comentariosLista}>
-             {comentarios.length === 0 ? (
-               <Text style={styles.comentariosVacio}>
-                 Aún no hay comentarios.
-               </Text>
-             ) : (
-               comentarios.map((c, index) => (
-                 <CardCalificacion
-                   key={index}
-                   data={c}
-                 />
-               ))
-             )}
-           </View>
-         </View>
+
        </View>
-       { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={true} onClose={() => setPopUpVisible(false)} duration={1500}/> :
-        <PopUp action={"La receta ha sido eliminada de favoritos"} visible={false} onClose={() => setPopUpVisible(false)} duration={1500}/>}
+
      </View>
    </ScrollView>
  );

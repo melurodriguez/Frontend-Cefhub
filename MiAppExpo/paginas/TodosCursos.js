@@ -24,6 +24,7 @@ export default function TodosCursos({ navigation }) {
   const [showFilters, setShowFilters] = useState(false);
   const [sedes, setSedes] = useState([]);
   const [sedeSeleccionada, setSedeSeleccionada] = useState("");
+  const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
 
 
   useEffect(() => {
@@ -50,15 +51,18 @@ export default function TodosCursos({ navigation }) {
    };
 
   const filtrarPorSede = () => {
-    if (!sedeSeleccionada) return;
+    const params = {};
+
+    if (sedeSeleccionada) params.id_sede = sedeSeleccionada;
+    if (estadoSeleccionado !== null) params.en_curso = estadoSeleccionado;
 
     api
-      .get(`/sedes/${sedeSeleccionada}`)
+      .get("/curso", { params })
       .then((res) => setCursos(res.data))
-      .catch((err) => console.error("Error al filtrar por sede:", err));
-
-    setShowFilters(false);
+      .catch((err) => console.error("Error al filtrar:", err))
+      .finally(() => setShowFilters(false));
   };
+
 
 
   return (
@@ -113,9 +117,9 @@ export default function TodosCursos({ navigation }) {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.filterTitle}>Filtrar por sede</Text>
-          {sedes.map((sede) => (
+          {sedes.map((sede, index) => (
             <Pressable
-              key={sede.idSede}
+              key={`${sede.idSede}-${index}`}
               onPress={() => setSedeSeleccionada(sede.idSede)}
             >
               <Text style={styles.filterItem}>
@@ -123,6 +127,17 @@ export default function TodosCursos({ navigation }) {
               </Text>
             </Pressable>
           ))}
+          <Text style={styles.filterTitle}>Filtrar por estado</Text>
+          <Pressable onPress={() => setEstadoSeleccionado(true)}>
+            <Text style={styles.filterItem}>
+              {estadoSeleccionado === true ? "✅" : "▫️"} En curso
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => setEstadoSeleccionado(false)}>
+            <Text style={styles.filterItem}>
+              {estadoSeleccionado === false ? "✅" : "▫️"} No comenzaron
+            </Text>
+          </Pressable>
           <Pressable style={styles.applyButton} onPress={filtrarPorSede}>
             <Text style={styles.applyButtonText}>Aplicar filtros</Text>
           </Pressable>
@@ -130,6 +145,7 @@ export default function TodosCursos({ navigation }) {
               style={styles.applyButton}
               onPress={() => {
                 setSedeSeleccionada("");
+                setEstadoSeleccionado(null);
                 api
                   .get("/curso")
                   .then((res) => setCursos(res.data))

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, Button, T
 import { useRoute } from "@react-navigation/native";
 import api from "../api/axiosInstance";
 import { colors } from "../utils/themes";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 import PopUp from "../components/PopUp";
 const cancel = require("../assets/cancel.png");
@@ -15,6 +16,8 @@ export default function OfertasCursos({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [popUpVisible, setPopUpVisible] = useState(false);
+  const [creditoUsado, setCreditoUsado] = useState(0);
+  const [montoRestante, setMontoRestante] = useState(0);
 
 
   useEffect(() => {
@@ -35,20 +38,24 @@ export default function OfertasCursos({ navigation }) {
       });
   }, []);
 
-  const onInscribirse = async (oferta) => {
-    try {
-      const res = await api.post(`/curso/${oferta}/alta`);
-      setPopUpVisible(true)
-    } catch (error) {
-      if (error.response?.status === 403) {
-        Alert.alert("Error", "Solo los alumnos pueden inscribirse a cursos");
-      } else if (error.response?.status === 409) {
-        Alert.alert("Ya estás inscripto", "No podés inscribirte dos veces al mismo curso");
-      } else {
-        Alert.alert("Error", "Ocurrió un error al intentar inscribirte");
-      }
-    }
-  };
+ const onInscribirse = async (idCronograma, precioAbonado) => {
+   try {
+     const res = await api.post(`/curso/${idCronograma}/alta?precioAbonado=${precioAbonado}`);
+     setCreditoUsado(res.data.creditoUsado ?? 0);
+     setMontoRestante(res.data.montoRestante ?? 0);
+     setPopUpVisible(true);
+   } catch (error) {
+     if (error.response?.status === 403) {
+       Alert.alert("Error", "Solo los alumnos pueden inscribirse a cursos");
+     } else if (error.response?.status === 409) {
+       Alert.alert("Ya estás inscripto", "No podés inscribirte dos veces al mismo curso");
+     } else {
+       Alert.alert("Error", "Ocurrió un error al intentar inscribirte");
+     }
+     console.error(error);
+   }
+ };
+
 
 
   if (loading) {
@@ -79,43 +86,75 @@ export default function OfertasCursos({ navigation }) {
           </Pressable>
         </View>
         <Text style={styles.titulo}>Ofertas disponibles para este curso</Text>
-        {ofertas.map((oferta, index) => (
-          <View key={index} style={styles.card}>
-            <Text style={styles.sedeNombre}>{oferta.nombreSede}</Text>
-            <Text style={styles.detalle}>Dirección: {oferta.direccionSede}</Text>
-            <Text style={styles.detalle}>Fechas: {oferta.fechaInicio} → {oferta.fechaFin}</Text>
-            <Text style={styles.detalle}>Vacantes disponibles: {oferta.vacantesDisponibles}</Text>
+        {ofertas.map((oferta, index) => {
+          const precioBonificado = oferta.precio - (oferta.precio * (oferta.bonificacionCursos / 100));
+          const precioFinal = precioBonificado - (precioBonificado * (oferta.promocionCursos / 100));
 
-            {oferta.bonificacionCursos > 0 && (
-              <Text style={styles.promocion}>🔥{oferta.tipoPromocion}  ¡{oferta.bonificacionCursos }% de descuento disponible !</Text>
-            )}
+          return (
+            <View key={index} style={styles.card}>
+              <Text style={styles.sedeNombre}>{oferta.nombreSede}</Text>
+              <Text style={styles.detalle}>Dirección: {oferta.direccionSede}</Text>
 
-            <View style={styles.precios}>
-              <Text style={styles.precioOriginal}>Precio original: ${oferta.precio} ARS</Text>
-              {oferta.bonificacionCursos > 0 && (
-                <Text style={styles.precioFinal}>
-                  Precio final: ${oferta.precio - oferta.precio * (oferta.bonificacionCursos / 100)} ARS
+              <View style={styles.fechasFila}>
+                <MaterialIcons name="calendar-today" size={16} color="#555" />
+                <Text style={styles.fechaItem}>
+                  <Text style={styles.fechaLabel}>Inicio:</Text> {oferta.fechaInicio}{'   '}
                 </Text>
+                <MaterialIcons name="calendar-today" size={16} color="#555" />
+                <Text style={styles.fechaItem}>
+                  <Text style={styles.fechaLabel}>Fin:</Text> {oferta.fechaFin}
+                </Text>
+              </View>
 
+              <View style={styles.vacantesContainer}>
+                <MaterialIcons name="event-available" size={16} color="#388E3C" />
+                <Text style={styles.vacantesTexto}>
+                  Vacantes disponibles:{" "}
+                  <Text style={styles.vacantesNumero}> {oferta.vacantesDisponibles}</Text>
+                </Text>
+              </View>
+
+              {oferta.bonificacionCursos > 0 && (
+                <Text style={styles.promocion}>Bonificación:  {oferta.tipoBonificacion} {oferta.bonificacionCursos}%</Text>
               )}
+              {oferta.promocionCursos > 0 && (
+                <Text style={styles.promocion}>Promoción:  {oferta.tipoPromocion} {oferta.promocionCursos}%</Text>
+              )}
+
+              <View style={styles.precios}>
+                <Text style={styles.precioOriginal}>Precio original: ${oferta.precio} ARS</Text>
+                {(oferta.bonificacionCursos > 0 || oferta.promocionCursos > 0) && (
+                  <Text style={styles.precioFinal}>
+                    Precio final: ${precioFinal.toFixed(2)} ARS
+                  </Text>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.boton,
+                  oferta.vacantesDisponibles === 0 && styles.botonDisabled,
+                ]}
+                onPress={() => onInscribirse(oferta.idCronograma, precioFinal)}
+                disabled={oferta.vacantesDisponibles === 0}
+              >
+                <Text style={styles.botonTexto}>Inscribirse</Text>
+              </TouchableOpacity>
+
+              <PopUp
+                visible={popUpVisible}
+                onClose={() => setPopUpVisible(false)}
+                duration={4000}
+                action={
+                  `Te inscribiste correctamente al curso 🎉\n` +
+                  `Descuento cuenta corriente: $${creditoUsado.toFixed(2)}\n` +
+                  `Cobro en tarjeta: $${montoRestante.toFixed(2)}`
+                }
+              />
+
             </View>
-
-            <TouchableOpacity
-              style={styles.boton}
-              onPress={() => onInscribirse(oferta.idCronograma)}
-            >
-              <Text style={styles.botonTexto}>Inscribirse</Text>
-            </TouchableOpacity>
-
-            <PopUp
-              action={ "Te inscribiste correctamente al curso 🎉"}
-              visible={popUpVisible}
-              onClose={() => setPopUpVisible(false)}
-              duration={2000}
-            />
-
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     );
 
@@ -159,6 +198,43 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontFamily:'Sora_400Regular',
   },
+  fechasFila: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E3F2FD",
+    gap: 6,
+    flexWrap: "wrap",
+    marginVertical: 6,
+  },
+
+  fechaLabel: {
+    fontFamily: "Sora_700Bold",
+    color: "#333",
+  },
+
+  fechaItem: {
+    fontFamily: "Sora_400Regular",
+    color: "#444",
+    fontSize: 14,
+  },
+  vacantesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 4,
+    gap: 6,
+  },
+
+  vacantesTexto: {
+    fontFamily: "Sora_400Regular",
+    color: "#333",
+    fontSize: 14,
+  },
+
+  vacantesNumero: {
+    fontFamily: "Sora_700Bold",
+    color: "#2E7D32", // verde fuerte
+  },
+
   promocion: {
     fontSize: 16,
     color: "#d32f2f",
@@ -192,6 +268,11 @@ const styles = StyleSheet.create({
       fontFamily:'Sora_700Bold',
       fontSize: 16,
     },
+    botonDisabled: {
+      backgroundColor: "#ccc",  // gris claro
+      opacity: 0.6,
+    },
+
   popUp:{
     backgroundColor:"#f4f6f8"
   },

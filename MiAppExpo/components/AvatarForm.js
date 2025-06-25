@@ -21,7 +21,7 @@ export default function AvatarForm({navigation, email, password}) {
 
   const handleFourthStep= async()=>{
     try{
-      const res=await api.post("/register/avatar", {email:email, avatar:chosenAvatar})
+      const res=await api.post("/register/avatar", {email:email, avatar:chosenAvatar.toString()})
       console.log("Respuesta del backend:", res)
       navigation.navigate("TipoUsuarioRegister", {email:email, password:password})
     }catch(err){

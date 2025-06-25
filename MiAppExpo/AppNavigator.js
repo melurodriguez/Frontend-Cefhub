@@ -7,6 +7,7 @@ import HomePage from "./paginas/HomePage";
 import SearchPage from "./paginas/SearchPage";
 import LoginPage from "./paginas/LoginPage";
 import InfoReceta from "./paginas/InfoReceta";
+import InfoRecetaDescargadas from "./paginas/InfoRecetaDescargadas";
 import TodasRecetas from "./paginas/TodasRecetas";
 import TodosCursos from "./paginas/TodosCursos";
 import InfoCurso from "./paginas/InfoCurso";
@@ -26,6 +27,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import UserData from "./paginas/UserData";
 import PopUpLogOut from "./components/PopUpLogOut";
 import CustomDrawer from "./components/CustomDrawer";
+import RegistroAlumnoScreen from "./components/RegistroAlumnoScreen";
 import { colors } from "./utils/themes";
 import "react-native-reanimated";
 import FourthStepRegister from "./paginas/FourthStepRegister";
@@ -33,6 +35,7 @@ import TipoUsuarioRegister from "./paginas/TipoUsuarioRegister";
 import CodeForgotPassword from "./paginas/CodeForgotPassword";
 import ForgotPassword from "./paginas/ForgotPassword";
 import ResetPassword from "./paginas/ResetPassword";
+import NoConexion from "./paginas/NoConexion";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -70,13 +73,13 @@ function DrawerNavigator() {
       }}
     />
     <Drawer.Screen
-              name="Upgrade a Alumno"
-              component={PopUpLogOut}
-              options={{
-                drawerIcon: ({ color }) => (
-                  <Ionicons name="school-outline" size={22}color={color} />
-                ),
-              }}
+      name="Upgrade a Alumno"
+      component={RegistroAlumnoScreen}
+      options={{
+        drawerIcon: ({ color }) => (
+          <Ionicons name="school-outline" size={22}color={color} />
+        ),
+      }}
     />
     <Drawer.Screen
       name="Cerrar Sesion"
@@ -190,10 +193,6 @@ function AppNavigator() {
   const { token, loading, user } = useContext(AuthContext);
   const context = useContext(AuthContext);
 
-  if (loading) {
-      return <Splash />; // mientras carga el contexto, mostrar splash
-  }
-
   console.log("Contexto actual:", context);
   console.log("user tokn: ", token);
   console.log("usuario: ", user);
@@ -201,8 +200,7 @@ function AppNavigator() {
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-              {/* Pantalla splash inicial */}
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
               <Stack.Screen name="Splash" component={Splash} />
 
               {/* Si NO está logueado */}
@@ -217,14 +215,18 @@ function AppNavigator() {
                   <Stack.Screen name="ThirdStepRegister" component={ThirdStepRegister} />
                   <Stack.Screen name="FourthStepRegister" component={FourthStepRegister}/>
                   <Stack.Screen name="TipoUsuarioRegister" component={TipoUsuarioRegister}/>
+                  <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="InfoRecetaDescargadas" component={InfoRecetaDescargadas} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="ForgotPassword" component={ForgotPassword}/>
                   <Stack.Screen name="CodeForgotPassword" component={CodeForgotPassword}/>
                   <Stack.Screen name="ResetPassword" component={ResetPassword}/>
+                  <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
+
                 </>
               ) : (
                 <>
@@ -240,9 +242,12 @@ function AppNavigator() {
                   <Stack.Screen name="TodasRecetas" component={TodasRecetas} />
                   <Stack.Screen name="TodosCursos" component={TodosCursos} />
                   <Stack.Screen name="InfoReceta" component={InfoReceta} />
+                  <Stack.Screen name="InfoRecetaDescargadas" component={InfoRecetaDescargadas} />
                   <Stack.Screen name="InfoCurso" component={InfoCurso} />
                   <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
+                  <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
+                  <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
                 </>
               )}
             </Stack.Navigator>

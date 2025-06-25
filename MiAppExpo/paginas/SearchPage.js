@@ -69,11 +69,9 @@ export default function SearchPage({ navigation }) {
    return (
      <ScrollView>
        <View style={styles.header}>
-         <Pressable onPress={() => navigation.goBack()}>
-           <Ionicons name="arrow-back" size={24} color={colors.black} />
-         </Pressable>
+
          <Text style={styles.pageTitle}>Búsqueda</Text>
-         <View style={{ width: 24 }} />
+
        </View>
 
        <View style={styles.searchContainer}>

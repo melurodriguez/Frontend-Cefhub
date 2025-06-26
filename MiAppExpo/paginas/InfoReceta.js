@@ -27,6 +27,7 @@ import { colors, fonts, sizes } from "../utils/themes";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardInstruccion from "../components/CardInstruccion";
 import { useFocusEffect } from "@react-navigation/native";
+//import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -121,8 +122,43 @@ export default function InfoReceta({ navigation }) {
   }
 
     // Guarda la receta modificada en SecureStore, máximo 10 recetas guardadas
+    //en el caso de no haber red, se guarda como copia
     const guardarRecetaLocal = async () => {
       try {
+      /*
+        const estadoRed = await NetInfo.fetch(); // reviso si conexion ok
+
+
+
+
+        //Para verificar que conexion es:
+
+        if (!estadoRed.isConnected){
+              // Guardamos en dispositivo como pendiente
+              const pendientesJson = await SecureStore.getItemAsync('recetas_pendientes');
+              let pendientes = pendientesJson ? JSON.parse(pendientesJson) : [];
+
+              pendientes.push(recetaParaGuardar);
+              await SecureStore.setItemAsync('recetas_pendientes', JSON.stringify(pendientes));
+
+              Alert.alert("Guardado en dispositivo hasta retomar señal");
+              return;
+        }
+
+
+        //Muestra a usuario
+
+          //  Alert.alert(
+                   "Tipo de conexión",
+                   `Estás conectado por: ${estadoRed.type}. ¿Querés guardar la receta con esta conexión?`,
+                   [
+                     { text: "Cancelar", style: "cancel" },
+                     {
+                       text: "Sí, guardar",
+                       onPress: async () => {
+        //  Guardado como siempre
+
+        */
         const recetasGuardadasJson = await SecureStore.getItemAsync('recetas_guardadas');
         let recetasGuardadas = recetasGuardadasJson ? JSON.parse(recetasGuardadasJson) : [];
 

@@ -6,6 +6,7 @@ import {
   Image,
   Pressable,
   TextInput,
+  Alert,
 } from "react-native";
 import { sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
@@ -27,7 +28,7 @@ const handleChange=(name, value)=>{
 const handleThirdStep=async()=>{
 
   if (form.contrasenia !== form.contrasenia_repetida){
-    console.log("Las contraseñas no coinciden")
+    Alert.alert("Contraseña invalida", "Las contraseñas no coinciden")
     return
   }
 
@@ -51,12 +52,14 @@ const handleThirdStep=async()=>{
             placeholder="Contraseña"
             onChangeText={(value) => handleChange("contrasenia", value)}
             style={styles.input}
+            secureTextEntry
           />
           <TextInput
             value={form.constrasenia_repetida}
             placeholder="Repeti tu contraseña"
             onChangeText={(value) => handleChange("contrasenia_repetida",value)}
             style={styles.input}
+            secureTextEntry
           />
 
           <Pressable style={styles.button} onPress={handleThirdStep}>

@@ -1,4 +1,4 @@
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
 import { TextInput } from "react-native-paper";
 import { sizes } from "../utils/themes";
 import { useState } from "react";
@@ -28,6 +28,15 @@ export default function CodeForm({email, navigation }) {
       console.log("Respuesta del backend:", res);
       navigation.navigate("ThirdStepRegister", {email: email});
     }catch(err){
+      if (err.response) {
+        if (err.response.status === 403) {
+          Alert.alert("Codigo Incorrecto", "Verifica tu mail.");
+        } else {
+          Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
+        }
+      } else {
+        Alert.alert("Error", "No se pudo conectar con el servidor.");
+      }
       console.log("Error en el envio del codigo: ", err)
     }
   };

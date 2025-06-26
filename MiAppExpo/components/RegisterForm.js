@@ -6,8 +6,9 @@ import {
   Image,
   Pressable,
   TextInput,
+  Alert,
 } from "react-native";
-import { sizes } from "../utils/themes";
+import { colors, sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
 
@@ -19,34 +20,61 @@ export default function RegisterForm({ navigation }) {
     email: "",
   });
 
-  const [invalidUsernames, setInvalidUsernames]=useState([])
-
-  //para manejar los usuarios no disponibles (hay manejo en el back igual)
-  useEffect(() => {
-    api.get("/register/invalid-usernames")
-      .then((res) => setInvalidUsernames(res.data))
-      .catch((err) => console.error("Error al traer usernames inválidos:", err));
-  }, []);
-
+  const[aliasSugeridos, setAliasSugeridos]=useState([])
 
   const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFirstStep = async () => {
-    if (invalidUsernames.includes(form.username)) {
-      alert("Este nombre de usuario no está disponible.");
-      return;
-    }
 
     try {
       const res = await api.post("/register/first-step", {username: form.username, email:form.email});
       console.log("Respuesta del backend:", res);
       navigation.navigate("SecondStepRegister", {email:form.email});
     } catch (err) {
-      console.error("Error al registrar:", err);
+      if (err.response) {
+        if (err.response.status === 409) {
+          Alert.alert("Alias en uso", "El alias ya está registrado. Por favor, elegí otro.");
+          const sugerencias = await generarSugerenciasAlias(form.username);
+          setAliasSugeridos(sugerencias);
+        } else {
+          Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
+        }
+      } else {
+        Alert.alert("Error", "No se pudo conectar con el servidor.");
+      }
     }
   };
+
+  const generarSugerenciasAlias= async(base)=>{
+    const sufijos = [
+      Math.floor(Math.random() * 100),
+      new Date().getFullYear(),
+      Math.floor(Math.random() * 9000 + 1000),
+      "_dev",
+      "_x",
+      "_ok"
+    ];
+
+    
+    const posibles= sufijos.map(sufijo => `${base}${sufijo}`);
+
+    const sugerencias = await Promise.all(
+        posibles.map(async (alias) => {
+          try {
+            const res = await api.get(`/alias-sugerido?alias=${alias}`);
+            return res.data.disponible ? alias : null;
+          } catch (err) {
+            console.error(`Error al verificar alias: ${alias}`, err);
+            return null;
+          }
+        })
+    )
+    console.log(sugerencias.filter(Boolean).slice(0,5))
+    return sugerencias.filter(Boolean).slice(0, 5);
+
+  }
 
   return (
     <View style={styles.container}>
@@ -57,16 +85,26 @@ export default function RegisterForm({ navigation }) {
           <TextInput
             value={form.email}
             placeholder="Correo"
+            autoCapitalize="none"
+            keyboardType="email-address"
             onChangeText={(value) => handleChange("email", value)}
             style={styles.input}
           />
+          
           <TextInput
             value={form.username}
             placeholder="Nombre de Usuario"
             onChangeText={(value) => handleChange("username", value)}
             style={styles.input}
           />
-
+          {aliasSugeridos.length > 0 && 
+          <View>
+            <Text style={styles.sugerenciasTitle}>Sugerencias:</Text>
+            {aliasSugeridos.map((alias, index) => (
+              <Text key={index} style={styles.sugerencias}>{alias}</Text>
+            ))}
+          </View>
+          }
           <Pressable style={styles.button} onPress={handleFirstStep}>
             <Text style={styles.btnText}>Registarme</Text>
           </Pressable>
@@ -89,7 +127,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 15,
     width: sizes.width * 0.8,
-    height: sizes.height * 0.45,
+    paddingVertical: 20,
+    minHeight: sizes.height * 0.45,
   },
   catImage: {
     width: 132,
@@ -131,5 +170,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily:'Sora_700Bold',
     fontSize: 20,
+  }, 
+  sugerenciasTitle:{
+    fontFamily:"Sora_700Bold",
+    color:colors.primary,
+    fontSize:18,
+    alignSelf:"center"
   },
+  sugerencias:{
+    fontFamily:"Sora_700Bold",
+    fontSize:14,
+    alignSelf:"center"
+  }
 });

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     color: "#000",
     fontFamily:'Sora_700Bold',
     padding: 20,
-    fontSize: 24,
+    fontSize: 22,
   },
   card: {
     padding: 5,

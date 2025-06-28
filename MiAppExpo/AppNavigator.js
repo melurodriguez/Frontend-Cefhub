@@ -81,15 +81,7 @@ function DrawerNavigator() {
         ),
       }}
     />
-    <Drawer.Screen
-      name="Cerrar Sesion"
-      component={PopUpLogOut}
-      options={{
-        drawerIcon: ({ color }) => (
-          <Ionicons name="log-out-outline" size={22}color={color} />
-        ),
-      }}
-    />
+    
   </Drawer.Navigator>)
 }
 

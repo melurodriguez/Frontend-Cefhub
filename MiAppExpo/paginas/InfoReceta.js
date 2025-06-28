@@ -341,7 +341,7 @@ export default function InfoReceta({ navigation }) {
              {/* PORCIONES Y PERSONAS */}
              <View style={{ alignItems: 'center', marginBottom: 10 }}>
               {token &&
-               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, marginRight:5}}>
                  <Pressable
                    onPress={() => recalcularIngredientes(porciones - 1)}
                    style={[styles.btn, { paddingHorizontal: 12 }]}
@@ -349,7 +349,7 @@ export default function InfoReceta({ navigation }) {
                    <Text style={styles.btnText}>-</Text>
                  </Pressable>
 
-                 <Text style={{ marginHorizontal: 15, fontSize: 18, fontFamily:"Sora_700Bold" }}>
+                 <Text style={{  fontSize: 15, fontFamily:"Sora_700Bold" }}>
                    Porciones: {porciones}
                  </Text>
 

@@ -482,7 +482,7 @@ export default function LoadForm() {
                   selectedValue={recipe.tipo}
                   onValueChange={(v) => handleChange("tipo", v)}
                 >
-                  <Picker.Item label="Seleccione un tipo" value="" />
+                  <Picker.Item label="Seleccione un tipo" value="" style={{fontFamily:"SOra_400Regular"}}/>
                   {tipos.map((t) => (
                     <Picker.Item
                       key={t.idTipo}
@@ -794,10 +794,11 @@ const styles = StyleSheet.create({
 
   addButton: {
     backgroundColor: colors.primary,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 15,
     alignItems: "center",
-    marginTop: 10,
+    marginVertical: 15,
+
   },
   addButtonText: {
     fontFamily: "Sora_700Bold",
@@ -806,7 +807,7 @@ const styles = StyleSheet.create({
   },
   save: {
     backgroundColor: colors.primary,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 20,
     alignItems: "center",
     marginTop: 30,

@@ -17,12 +17,7 @@ export default function RecipeLoad({ navigation }) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <Image
-            source={backArrow}
-            style={{ tintColor: "#000", width: 24, height: 24 }}
-          />
-        </Pressable>
+
         <Text style={styles.title}>Cargar Receta</Text>
         <Image source={writingCat} style={styles.catImage} />
       </View>
@@ -40,7 +35,7 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     padding: 20,
     width: "100%",
   },

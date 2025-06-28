@@ -142,13 +142,7 @@ export default function Profile({navigation}) {
           <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>
         </View>
 
-        <View style={{ marginTop: 10, marginRight:10, alignItems: "flex-end" }}>
-                <Pressable onPress={handleLogOut} style={{backgroundColor:colors.red, borderRadius:15, paddingHorizontal:20, paddingVertical:10}}>
-                  <Text style={{ color: "#fff", fontFamily:"Sora_700Bold", fontSize: 16 }}>
-                    Cerrar sesión
-                  </Text>
-                </Pressable>
-              </View>
+        
       </View>
       {user?.tipo_usuario === "Alumno" && (
         <Text style={styles.cuentaCorriente}>
@@ -273,7 +267,7 @@ const styles = StyleSheet.create({
     },
     page: {
       fontFamily:'Sora_700Bold',
-      fontSize: 24,
+      fontSize: 18,
       alignSelf:"center"
     },
     userContainer: {

@@ -399,14 +399,14 @@ const styles = StyleSheet.create({
 
   closeButton: {
     alignSelf: "flex-end",
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    fontSize: 14,
+    fontFamily:"Sora_700Bold",
+    color: colors.red,
     marginBottom: 10,
   },
 
   filterTitle: {
-    fontWeight: "bold",
+    fontFamily:"Sora_700Bold",
     fontSize: 18,
     marginTop: 15,
     marginBottom: 10,
@@ -414,6 +414,7 @@ const styles = StyleSheet.create({
   },
 
   filterItem: {
+    fontFamily:"Sora_400Regular",
     fontSize: 16,
     marginLeft: 10,
     marginVertical: 6,
@@ -421,7 +422,7 @@ const styles = StyleSheet.create({
   },
 
   applyButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 25,
@@ -431,8 +432,8 @@ const styles = StyleSheet.create({
 
   applyButtonText: {
     color: "#fff",
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 15,
+    fontFamily:"Sora_700Bold",
     textAlign: "center",
   },
 });

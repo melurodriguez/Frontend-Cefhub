@@ -3,6 +3,14 @@ import API_BASE_URL from "../utils/config";
 const star = require("../assets/star.png");
 const userIcon = require("../assets/user.png");
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+const avatars = [
+    require("../assets/user.png"),     // 0
+    require("../assets/user2.png"),    // 1
+    require("../assets/user3.png"),    // 2
+    require("../assets/user4.png"),    // 3
+    require("../assets/user5.png"),    // 4
+    require("../assets/user6.png"),    // 5
+  ];
 
 export default function RecipeCard({ data, onPress }) {
   return (
@@ -21,7 +29,7 @@ export default function RecipeCard({ data, onPress }) {
 
         <View style={styles.footer}>
           <View style={styles.userInfo}>
-            <Image source={{ uri: `${API_BASE_URL}/static/${data.avatar}` }} style={styles.icon} />
+            <Image source={avatars[parseInt(data.avatar)]} style={styles.icon} />
             <Text style={styles.userText}>{data.nickname}</Text>
           </View>
           <View style={styles.rating}>

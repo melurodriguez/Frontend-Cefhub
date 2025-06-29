@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import api from "../api/axiosInstance";
 import { colors } from "../utils/themes";
-
+import { MaterialIcons } from '@expo/vector-icons';
 const welcomeIcon = require("../assets/welcomeIcon.png");
 const user = require("../assets/user.png");
 const user2 = require("../assets/user2.png");
@@ -21,6 +21,7 @@ export default function AvatarForm({navigation, email, password}) {
 
   const handleFourthStep= async()=>{
     try{
+      console.log("Avatar elegido:", chosenAvatar);
       const res=await api.post("/register/avatar", {email:email, avatar:chosenAvatar.toString()})
       console.log("Respuesta del backend:", res)
       navigation.navigate("TipoUsuarioRegister", {email:email, password:password})
@@ -37,35 +38,68 @@ export default function AvatarForm({navigation, email, password}) {
           <Text style={styles.title}>Elije tu avatar</Text>
           <View style={styles.row}>
             {user_images_row1.map((img, index) => (
-              <Pressable key={index} style={styles.circle} onPress={()=>setChoseAvatar(index)}>
+              <Pressable
+                key={index}
+                style={[
+                  styles.circle,
+                  chosenAvatar === index && styles.selectedCircle,
+                ]}
+                onPress={() => setChoseAvatar(index)}
+              >
                 <Image source={img} style={styles.img} />
+                {chosenAvatar === index && (
+                  <MaterialIcons
+                    name="check-circle"
+                    size={24}
+                    color="green"
+                    style={styles.checkIcon}
+                  />
+                )}
               </Pressable>
             ))}
           </View>
           <View style={styles.row}>
-            {user_images_row2.map((img, index) => (
-              <Pressable key={index} style={[styles.circle, {backgroundColor:colors.backgroundColorLight}]}>
-                <Image source={img} style={styles.img} />
-              </Pressable>
-            ))}
+            {user_images_row2.map((img, index) => {
+              const currentIndex = index + user_images_row1.length;
+              return (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.circle,
+                    { backgroundColor: colors.backgroundColorLight },
+                    chosenAvatar === currentIndex && styles.selectedCircle,
+                  ]}
+                  onPress={() => setChoseAvatar(currentIndex)}
+                >
+                  <Image source={img} style={styles.img} />
+                  {chosenAvatar === currentIndex && (
+                    <MaterialIcons
+                      name="check-circle"
+                      size={24}
+                      color="#28a745"
+                      style={styles.checkIcon}
+                    />
+                  )}
+                </Pressable>
+              );
+            })}
           </View>
         </View>
         <Pressable style={styles.button} onPress={handleFourthStep}>
           <Text style={styles.btnText}>Registarme</Text>
         </Pressable>
       </View>
-
-  );
-}
+    );
+  }
 
 const styles = StyleSheet.create({
   form: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor:"#fff",
-    borderRadius:15,
-    paddingVertical:50,
-    paddingHorizontal:10,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    paddingVertical: 50,
+    paddingHorizontal: 10,
   },
   content: {
     justifyContent: "center",
@@ -88,19 +122,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 20,
   },
+  selectedCircle: {
+    borderWidth: 3,
+    borderColor: "#505c86",
+  },
   img: {
     width: 60,
     height: 60,
   },
-   catImage: {
+  checkIcon: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: "white",  // Fondo sólido para que no sea transparente
+  },
+  catImage: {
     width: 132,
     height: 133,
     position: "absolute",
-    top: -90, // la mitad de la altura para que sobresalga
+    top: -90,
     alignSelf: "center",
     zIndex: 1,
   },
-    button: {
+  button: {
     backgroundColor: "#505c86",
     borderRadius: 15,
     justifyContent: "center",
@@ -111,7 +155,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 20,
   },
 });

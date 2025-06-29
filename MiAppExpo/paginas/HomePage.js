@@ -36,7 +36,7 @@ export default function HomePage({ navigation }) {
         <Pressable style={styles.card} key={index}>
           <RecipeCard
             data={receta}
-            onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta })}
+            onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta, avatar: receta.avatar })}
           />
         </Pressable>
       ))}

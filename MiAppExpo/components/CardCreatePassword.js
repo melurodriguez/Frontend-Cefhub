@@ -16,37 +16,68 @@ const welcomeIcon=require('../assets/welcomeIcon.png')
 
 export default function CardCreatePassword({ email, navigation }) {
 
-const [form, setForm]=useState({
-  contrasenia:"",
-  contrasenia_repetida:""
-})
+    const [form, setForm]=useState({
+      contrasenia:"",
+      contrasenia_repetida:""
+    })
 
-const handleChange=(name, value)=>{
-  setForm((prev) => ({ ...prev, [name]: value }));
-}
+    const handleChange=(name, value)=>{
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
 
-const handleThirdStep=async()=>{
 
-  if (form.contrasenia !== form.contrasenia_repetida){
-    Alert.alert("Contraseña invalida", "Las contraseñas no coinciden")
-    return
-  }
 
-  try{
-    const res= await api.post("/register/create-password", {password: form.contrasenia, email:email})
-    console.log("Respuesta del backend:", res)
-    navigation.navigate("FourthStepRegister", {email:email, password:form.contrasenia})
-  }catch(err){
-    console.log("Error al crear contraseña: ", err)
-  }
-  
-}
+    // Reglas de validación
+  const passwordRules = [
+    { label: "Mínimo 8 caracteres", test: (pw) => pw.length >= 8 },
+    { label: "Al menos una mayúscula", test: (pw) => /[A-Z]/.test(pw) },
+    { label: "Al menos una minúscula", test: (pw) => /[a-z]/.test(pw) },
+    { label: "Al menos un número", test: (pw) => /[0-9]/.test(pw) },
+    { label: "Al menos un caracter especial", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+  ];
+
+  // Si todas las reglas pasan
+  const esContraseniaValida = passwordRules.every(({ test }) => test(form.contrasenia));
+  // Las dos contraseñas coinciden
+  const coincidenContrasenias = form.contrasenia === form.contrasenia_repetida && form.contrasenia !== "";
+
+  const handleThirdStep = async () => {
+    if (!esContraseniaValida) {
+      Alert.alert("Contraseña inválida", "Tu contraseña no cumple con los requisitos mínimos.");
+      return;
+    }
+    if (!coincidenContrasenias) {
+      Alert.alert("Contraseña inválida", "Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      const res = await api.post("/register/create-password", {
+        password: form.contrasenia,
+        email: email,
+      });
+      console.log("Respuesta del backend:", res.data);
+
+      const hashedPassword = res.data.hashed_password;
+
+      navigation.navigate("FourthStepRegister", {
+        email: email,
+        password: hashedPassword,
+      });
+    } catch (err) {
+      console.log("Error al crear contraseña: ", err);
+    }
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.form}>
         <Image source={welcomeIcon} style={styles.catImage} />
         <View style={styles.content}>
-          <Text style={styles.title}>Registrarme</Text>
+          <Text style={styles.title}>Crear contraseña</Text>
+
+          <Text style={styles.label}>Contraseña</Text>
           <TextInput
             value={form.contrasenia}
             placeholder="Contraseña"
@@ -54,22 +85,45 @@ const handleThirdStep=async()=>{
             style={styles.input}
             secureTextEntry
           />
+
+          <Text style={styles.label}>Repetí tu contraseña</Text>
           <TextInput
-            value={form.constrasenia_repetida}
-            placeholder="Repeti tu contraseña"
-            onChangeText={(value) => handleChange("contrasenia_repetida",value)}
+            value={form.contrasenia_repetida}
+            placeholder="Repetí tu contraseña"
+            onChangeText={(value) => handleChange("contrasenia_repetida", value)}
             style={styles.input}
             secureTextEntry
           />
+          {/* Checklist validación */}
+            <View style={{ alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 }}>
+              {passwordRules.map(({ label, test }, i) => (
+                <Text
+                  key={i}
+                  style={{ color: test(form.contrasenia) ? "green" : "red", fontSize: 12, marginVertical: 2 }}
+                >
+                  {test(form.contrasenia) ? "✓ " : "✗ "} {label}
+                </Text>
+              ))}
+            </View>
+          {!coincidenContrasenias && form.contrasenia_repetida.length > 0 && (
+            <Text style={{ color: "red", alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 }}>
+              Las contraseñas no coinciden
+            </Text>
+          )}
 
-          <Pressable style={styles.button} onPress={handleThirdStep}>
-            <Text style={styles.btnText}>Registarme</Text>
+          <Pressable
+            style={[styles.button, !(esContraseniaValida && coincidenContrasenias) && { backgroundColor: "#aaa" }]}
+            onPress={handleThirdStep}
+            disabled={!(esContraseniaValida && coincidenContrasenias)}
+          >
+            <Text style={styles.btnText}>Registrarme</Text>
           </Pressable>
         </View>
       </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -84,13 +138,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 15,
     width: sizes.width * 0.8,
-    height: sizes.height * 0.45,
+    height: sizes.height * 0.55,
   },
   catImage: {
     width: 132,
     height: 133,
     position: "absolute",
-    top: -90, // la mitad de la altura para que sobresalga
+    top: -90,
     alignSelf: "center",
     zIndex: 1,
   },
@@ -99,16 +153,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 24,
     padding: 20,
+  },
+  label: {
+    fontFamily: "Sora_600SemiBold",
+    alignSelf: "flex-start",
+    marginLeft: 15,
+    marginBottom: 5,
   },
   input: {
     width: 277,
     height: 50,
     borderColor: "#d9d9d9",
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 10,
     paddingHorizontal: 10,
     borderRadius: 15,
     backgroundColor: "#f1f5f5",
@@ -124,7 +184,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: "#fff",
-    fontFamily:'Sora_700Bold',
+    fontFamily: "Sora_700Bold",
     fontSize: 20,
   },
 });

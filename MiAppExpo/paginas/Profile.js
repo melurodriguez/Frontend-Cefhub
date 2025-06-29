@@ -24,6 +24,15 @@ export default function Profile({navigation}) {
   const [popUpMessage, setPopUpMessage] = useState("");
   const [popUpVisible, setPopUpVisible]=useState(false);
   const [recetasDescargadas, setRecetasDescargadas] = useState([]);
+  const avatars = [
+    require("../assets/user.png"),     // 0
+    require("../assets/user2.png"),    // 1
+    require("../assets/user3.png"),    // 2
+    require("../assets/user4.png"),    // 3
+    require("../assets/user5.png"),    // 4
+    require("../assets/user6.png"),    // 5
+  ];
+
 
 
 
@@ -136,7 +145,7 @@ export default function Profile({navigation}) {
 
       <View style={styles.userContainer}>
         <View style={styles.innerShadow}></View>
-        <Image  style={styles.avatar} source={{ uri: `${API_BASE_URL}/static/${user.avatar}`}}/>
+        <Image  style={styles.avatar} source={avatars[parseInt(user.avatar)]}/>
         <View style={{ justifyContent: 'center', marginLeft: 10, flex: 1 }}>
           <Text style={{ fontWeight: fonts.bold, fontSize: fonts.medium, fontFamily:'Sora_700Bold' }}>{user?.nickname ?? "Mi Usuario"}</Text>
           <Text style={{ color: "#c0c0c0" , fontFamily:'Sora_400Regular',}}>{user?.tipo_usuario ?? "Tipo Usuario"}</Text>

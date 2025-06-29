@@ -39,7 +39,7 @@ const download=require("../assets/cloud-download-outline.png")
 
 export default function InfoReceta({ navigation }) {
   const route = useRoute();
-  const { id } = route.params;
+  const { id, avatar } = route.params;
   const [isPressed, setPressed] = useState(0);
   const [like, setLike] = useState(false);
   const [visible, setPopUpVisible] = useState(false);
@@ -402,7 +402,7 @@ export default function InfoReceta({ navigation }) {
            
          )}
 
-         <CardCreator alias={receta.nickname} />
+         <CardCreator alias={receta.nickname}  avatar={avatar}/>
 
          {token && <CalificarReceta idReceta={id} token={token} />}
 

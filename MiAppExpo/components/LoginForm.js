@@ -99,6 +99,7 @@ export default function LoginForm({ navigation }) {
        navigation.navigate("Menú");
      }
    } catch (error) {
+     console.log("Error al iniciar sesión:", error);
      Alert.alert("Error", "Credenciales inválidas o problema de red.");
    } finally {
      setLoading(false);

@@ -27,13 +27,13 @@ export default function TodasRecetas({ navigation }) {
     tipo: "",
     conIngrediente: "",
     sinIngrediente: "",
-    nickname: "", // 👈 nuevo
+    nickname: "",
   });
   const [mostrarCampos, setMostrarCampos] = useState({
     tipo: false,
     conIngrediente: false,
     sinIngrediente: false,
-    nickname: false, // 👈 nuevo
+    nickname: false,
   });
 
   // drop downs
@@ -147,9 +147,7 @@ export default function TodasRecetas({ navigation }) {
             <View style={styles.card} key={index}>
               <RecipeCard
                 data={receta}
-                onPress={() =>
-                  navigation.navigate("InfoReceta", { id: receta.idReceta })
-                }
+                onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta, avatar: receta.avatar })}
               />
             </View>
           ))}

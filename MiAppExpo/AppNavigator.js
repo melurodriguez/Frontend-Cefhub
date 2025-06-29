@@ -72,15 +72,6 @@ function DrawerNavigator() {
         ),
       }}
     />
-    <Drawer.Screen
-      name="Upgrade a Alumno"
-      component={RegistroAlumnoScreen}
-      options={{
-        drawerIcon: ({ color }) => (
-          <Ionicons name="school-outline" size={22}color={color} />
-        ),
-      }}
-    />
     
   </Drawer.Navigator>)
 }
@@ -154,10 +145,29 @@ function TabNavigator() {
       <Tab.Screen name="Búsqueda" component={SearchStack} />
       <Tab.Screen name="Cargar" component={LoadStack} />
       <Tab.Screen name="Notificaciones" component={NotifStack} />
-      <Tab.Screen name="Perfil" component={ProfileStack} />
+      <Tab.Screen
+        name="Perfil"
+        component={ProfileStack}
+        listeners={({ navigation, route }) => ({
+          tabPress: e => {
+            const state = navigation.getState();
+            const tabIndex = state.routes.findIndex(r => r.key === route.key);
+            const tabRoute = state.routes[tabIndex];
+
+            if (
+              tabRoute.state &&
+              tabRoute.state.index > 0
+            ) {
+              e.preventDefault();
+              navigation.navigate('Perfil', { screen: 'Profile' });
+            }
+          },
+        })}
+      />
     </Tab.Navigator>
   );
 }
+
 
 function TabNavigatorVisitante() {
   return (

@@ -14,7 +14,7 @@ const CustomDrawer = (props) => {
 
  const { navigation } = props;
  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
-  const { logout } = useContext(AuthContext); 
+  const { logout , user} = useContext(AuthContext);
 
   // Función para navegar a UserData dentro del tab Perfil
   const goToUserData = () => {
@@ -37,6 +37,18 @@ const CustomDrawer = (props) => {
         </View>
         
         <DrawerItemList {...props} />
+        { user?.tipo_usuario === "Usuario" && (
+            <DrawerItem
+              label="Upgrade a Alumno"
+              onPress={() => navigation.navigate("RegistroAlumnoScreen")}
+                icon={({ color, size }) => (
+                  <Ionicons name="school-outline" size={22}color={color} />
+                )}
+
+            />
+        )
+        }
+
 
         <DrawerItem
           label="Mis Datos"
@@ -45,6 +57,7 @@ const CustomDrawer = (props) => {
             <Ionicons name="server-outline" color={color} size={size} />
           )}
         />
+
         <DrawerItem
           label="Cerrar Sesión"
           onPress={() => setShowLogoutPopup(true)}

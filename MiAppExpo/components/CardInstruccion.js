@@ -1,6 +1,8 @@
-import { View, Text, FlatList, Image, Dimensions } from "react-native";
+import { View, Text, FlatList, Image, Dimensions, ScrollView } from "react-native";
 import API_BASE_URL from "../utils/config";
 import { StyleSheet } from "react-native";
+import { Video } from 'expo-av';
+
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -10,25 +12,47 @@ export default function CardInstruccion({ paso }) {
       <Text style={styles.titulo}>Paso {paso.nroPaso}</Text>
       <Text style={styles.descripcion}>{paso.descripcionPaso}</Text>
 
+
       {paso.multimedia?.length > 0 && (
-        <FlatList
-          data={paso.multimedia.filter((item) => item.tipo === "foto")}
-          keyExtractor={(item, index) => index.toString()}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={{ marginTop: 10 }}
-          renderItem={({ item }) => (
-            <Image
-              source={{ uri: `${API_BASE_URL}/static/${item.url}` }}
-              style={styles.imagen}
-              resizeMode="cover"
-            />
-            )}
-        />
+        >
+          {paso.multimedia.map((item, index) => {
+            const uri = `${API_BASE_URL}/static/${item.url}`;
+            if (item.tipo === "foto") {
+              return (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={styles.imagen}
+                  resizeMode="cover"
+                />
+              );
+            } else if (item.tipo === "video") {
+              return (
+                <Video
+                  key={index}
+                  source={{ uri }}
+                  style={[styles.imagen, { backgroundColor: "#000" }]}
+                  resizeMode="contain"
+                  useNativeControls
+                  isLooping={false}
+                  shouldPlay={false}
+                />
+              );
+            } else {
+              return null;
+            }
+          })}
+        </ScrollView>
       )}
+
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

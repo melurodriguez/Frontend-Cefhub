@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       console.log("Login exitoso:", userData);
       return true;
     } catch (err) {
-      console.error("Error en el inicio de sesión:", err);
+      console.log("Error en el inicio de sesión:", err);
       throw err;
     } finally {
       setLoading(false);

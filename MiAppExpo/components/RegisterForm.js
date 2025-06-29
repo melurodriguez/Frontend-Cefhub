@@ -17,16 +17,21 @@ import { MaterialIcons } from '@expo/vector-icons';
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
 export default function RegisterForm({ navigation }) {
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-  });
+   const [form, setForm] = useState({
+      username: "",
+      email: "",
+      nombre: "",
+      direccion: "",
+    });
 
   const [aliasSugeridos, setAliasSugeridos] = useState([]);
   const [aliasDisponible, setAliasDisponible] = useState(null);
   const [verificandoAlias, setVerificandoAlias] = useState(false);
-  const [emailValido, setEmailValido] = useState(null); // true | false | null
+  const [emailValido, setEmailValido] = useState(null);
   const [cargando, setCargando] = useState(false);
+  const nombreYDireccionCompletos = form.nombre.trim() !== "" && form.direccion.trim() !== "";
+
+
 
 
 
@@ -63,21 +68,53 @@ export default function RegisterForm({ navigation }) {
     }
   };
 
+
   const handleFirstStep = async () => {
     if (!aliasDisponible) {
       Alert.alert("Alias inválido", "Por favor, elegí un alias disponible.");
       return;
     }
 
-    setCargando(true); // 👈 Inicia loading
+    setCargando(true);
 
     try {
       const res = await api.post("/register/first-step", {
         username: form.username,
         email: form.email,
+        nombre: form.nombre,
+        direccion: form.direccion,
       });
-      console.log("Respuesta del backend:", res);
+
+      const data = res.data;
+      console.log("Respuesta del backend:", data);
+
+      if (data.status === "usuario_existente") {
+        if (data.puede_recuperar) {
+          Alert.alert(
+            "Ya tenés una cuenta",
+            "El correo ya está registrado. ¿Querés recuperar tu contraseña?",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel",
+              },
+              {
+                text: "Sí, recuperar",
+                onPress: () => navigation.navigate("ForgotPassword"),
+              },
+            ]
+          );
+        } else {
+          Alert.alert(
+            "Cuenta deshabilitada",
+            "El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."
+          );
+        }
+        return;
+      }
+
       navigation.navigate("SecondStepRegister", { email: form.email });
+
     } catch (err) {
       if (err.response) {
         Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
@@ -85,9 +122,10 @@ export default function RegisterForm({ navigation }) {
         Alert.alert("Error", "No se pudo conectar con el servidor.");
       }
     } finally {
-      setCargando(false); // 👈 Termina loading
+      setCargando(false);
     }
   };
+
 
 
   const generarSugerenciasAlias = async (base) => {
@@ -124,10 +162,12 @@ export default function RegisterForm({ navigation }) {
           <Text style={styles.title}>Registrarme</Text>
 
           {/* NICKNAME (alias) PRIMERO */}
+          <View style={{ marginBottom: 8, alignSelf: "flex-start" }}>
+            <Text style={styles.label}>Nombre de Usuario</Text>
+          </View>
           <View style={styles.inputWithIcon}>
             <TextInput
               value={form.username}
-              placeholder="Nombre de Usuario"
               onChangeText={(value) => {
                 handleChange("username", value);
                 setAliasDisponible(null);
@@ -143,35 +183,32 @@ export default function RegisterForm({ navigation }) {
               <MaterialIcons name="cancel" size={20} color="red" />
             ) : null}
           </View>
-
-          {aliasDisponible === false && (
-            <Text style={styles.aliasNoDisponible}>Alias en uso . Probá con alguno de estos:</Text>
-          )}
-
           {/* SUGERENCIAS */}
-          {aliasSugeridos.length > 0 && (
-            <View style={styles.sugerenciasContainer}>
-              {aliasSugeridos.map((alias, index) => (
-                <Pressable
-                  key={index}
-                  style={styles.sugerenciaItem}
-                  onPress={() => {
-                    handleChange("username", alias);
-                    setAliasDisponible(true);
-                    setAliasSugeridos([]);
-                  }}
-                >
-                  <Text style={styles.sugerenciaText}>{alias}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
+            {aliasSugeridos.length > 0 && (
+              <View style={styles.sugerenciasContainer}>
+                {aliasSugeridos.map((alias, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.sugerenciaItem}
+                    onPress={() => {
+                      handleChange("username", alias);
+                      setAliasDisponible(true);
+                      setAliasSugeridos([]);
+                    }}
+                  >
+                    <Text style={styles.sugerenciaText}>{alias}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
 
           {/* EMAIL */}
+          <View style={{ marginTop: 10, marginBottom: 8, alignSelf: "flex-start" }}>
+            <Text style={styles.label}>Correo Electrónico</Text>
+          </View>
           <View style={styles.inputWithIcon}>
             <TextInput
               value={form.email}
-              placeholder="Correo"
               autoCapitalize="none"
               keyboardType="email-address"
               onChangeText={(value) => {
@@ -187,14 +224,39 @@ export default function RegisterForm({ navigation }) {
             ) : null}
           </View>
 
+          {/* NOMBRE */}
+          <View style={{ marginTop: 10, marginBottom: 8, alignSelf: "flex-start" }}>
+            <Text style={styles.label}>Nombre completo</Text>
+          </View>
+          <View style={styles.inputWithIcon}>
+            <TextInput
+              value={form.nombre}
+              onChangeText={(value) => setForm((prev) => ({ ...prev, nombre: value }))}
+              style={[styles, { flex: 1, marginBottom: 0 }]}
+            />
+          </View>
+
+          {/* DIRECCIÓN */}
+          <View style={{ marginTop: 10, marginBottom: 8, alignSelf: "flex-start" }}>
+            <Text style={styles.label}>Dirección</Text>
+          </View>
+          <View style={styles.inputWithIcon}>
+            <TextInput
+              value={form.direccion}
+              onChangeText={(value) => setForm((prev) => ({ ...prev, direccion: value }))}
+              style={[styles, { flex: 1, marginBottom: 0 }]}
+            />
+          </View>
+
 
           {/* BOTÓN */}
           <Pressable
-            disabled={cargando || !aliasDisponible || verificandoAlias || !emailValido}
+            disabled={cargando || !aliasDisponible || verificandoAlias || !emailValido || !nombreYDireccionCompletos}
             style={[
               styles.button,
-              (cargando || !aliasDisponible || verificandoAlias || !emailValido) && { backgroundColor: "#aaa" },
+              (cargando || !aliasDisponible || verificandoAlias || !emailValido || !nombreYDireccionCompletos) && { backgroundColor: "#aaa" },
             ]}
+
             onPress={handleFirstStep}
           >
             {cargando ? (
@@ -217,6 +279,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: sizes.height * 0.5,
   },
+  label: {
+    fontFamily: "Sora_600SemiBold",
+    fontSize: 14,
+    color: "#333",
+    marginLeft: 25,
+  },
+
   form: {
     justifyContent: "center",
     alignItems: "center",

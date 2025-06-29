@@ -102,9 +102,7 @@ export default function SearchPage({ navigation }) {
            <View style={styles.card} key={index}>
              <RecipeCard
                data={receta}
-               onPress={() =>
-                 navigation.navigate("InfoReceta", { id: receta.idReceta })
-               }
+               onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta, avatar: receta.avatar })}
              />
            </View>
          ))}

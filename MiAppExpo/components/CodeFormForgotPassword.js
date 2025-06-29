@@ -8,12 +8,31 @@ const welcomeIcon = require("../assets/welcomeIcon.png");
 export default function CodeFormForgotPassword({email, navigation }) {
 
   const[codeDigits, setCodeDigits]=useState(["","","",""])
+  const inputRefs = useRef([]);
 
-  const handleChange = (value, index) => {
-    const updated = [...codeDigits];
-    updated[index] = value;
-    setCodeDigits(updated);
-  };
+
+    const handleChange = (value, index) => {
+      const newDigits = [...codeDigits];
+
+      if (value.length === 4) {
+        const split = value.split("");
+        setCodeDigits(split);
+        split.forEach((digit, i) => {
+          if (inputRefs.current[i]) {
+            inputRefs.current[i].setNativeProps({ text: digit });
+          }
+        });
+        return;
+      }
+
+      newDigits[index] = value.slice(-1);
+      setCodeDigits(newDigits);
+
+      if (value && index < inputRefs.current.length - 1) {
+        inputRefs.current[index + 1].focus();
+      }
+    };
+
 
   const handleCode = async () => {
     const code = codeDigits.join(""); 
@@ -41,15 +60,16 @@ export default function CodeFormForgotPassword({email, navigation }) {
 
           <View style={styles.inputContainer}>
             {codeDigits.map((digit, index) => (
-            <TextInput
-              key={index}
-              style={styles.input}
-              value={digit}
-              onChangeText={(value) => handleChange(value.slice(-1), index)}
-              keyboardType="numeric"
-              maxLength={1}
-            />
-            ))}
+              <TextInput
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                style={styles.input}
+                value={digit}
+                onChangeText={(value) => handleChange(value, index)}
+                keyboardType="numeric"
+                maxLength={4}
+              />
+                        ))}
           </View>
 
           <Pressable

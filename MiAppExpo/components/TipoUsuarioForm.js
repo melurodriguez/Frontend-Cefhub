@@ -8,21 +8,14 @@ export default function TipoUsuarioForm({navigation, email, password}) {
 
 
     const handleTipoUsuario=async (tipoUsuario)=>{
-
-      try{
-          const res=  await api.post("/register/tipo_usuario", {email:email,password:password, tipo_usuario:tipoUsuario})
-          console.log("Respuesta del backend:", res)
-
-          if(tipoUsuario === "usuario"){
-            navigation.navigate("LoginPage")
-          }else{
-            navigation.navigate("RegistroAlumnoScreen", {email: email})
-          }
+      if(tipoUsuario === "usuario"){
+        navigation.navigate("LoginPage")
+      }else{
+        navigation.navigate("RegistroAlumnoScreen", {email: email})
+      }
           
           
-        }catch (err){
-            return ("Error al generar usuario: ", err.message)
-        }
+
 
     }
 

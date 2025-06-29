@@ -32,7 +32,7 @@ const { width, height } = Dimensions.get("window");
 
 export default function InfoRecetaDescargadas({ navigation }) {
   const route = useRoute();
-    const { receta: recetaParam } = route.params;
+    const { receta: recetaParam} = route.params;
     const [receta, setReceta] = useState(null);
     const [isPressed, setPressed] = useState(0);
     const [like, setLike] = useState(false);
@@ -210,7 +210,7 @@ export default function InfoRecetaDescargadas({ navigation }) {
 
          )}
 
-         <CardCreator alias={receta.nickname} />
+         <CardCreator alias={receta.nickname}  avatar={receta.avatar}/>
 
 
 

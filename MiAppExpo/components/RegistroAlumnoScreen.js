@@ -102,9 +102,7 @@ export default function RegistroAlumnoScreen() {
           datosAlumno.email = email; 
         }
 
-        await api.post('/user/me/upgrade_alumno', datosAlumno, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
+        await api.post('/user/me/upgrade_alumno', datosAlumno);
 
 
         if (dniFrente) await subirImagen(dniFrente, 'dniFrente');

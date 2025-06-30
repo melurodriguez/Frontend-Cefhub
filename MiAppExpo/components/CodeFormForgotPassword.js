@@ -1,15 +1,15 @@
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, Image, Pressable, StyleSheet, ActivityIndicator  } from "react-native";
 import { TextInput } from "react-native-paper";
 import { sizes } from "../utils/themes";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import api from "../api/axiosInstance";
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
 export default function CodeFormForgotPassword({email, navigation }) {
 
   const[codeDigits, setCodeDigits]=useState(["","","",""])
-  const inputRefs = useRef([]);
-
+  const [isLoading, setIsLoading] = useState(false);
+    const inputRefs = useRef([]);
 
     const handleChange = (value, index) => {
       const newDigits = [...codeDigits];
@@ -33,30 +33,36 @@ export default function CodeFormForgotPassword({email, navigation }) {
       }
     };
 
+    const handleCode = async () => {
+      const code = codeDigits.join("");
+      console.log("Código ingresado:", code);
 
-  const handleCode = async () => {
-    const code = codeDigits.join(""); 
-    console.log("Código ingresado:", code);
-    if (code.length !== 4) {
-      console.log("debe tener 4 digitos")
-      return
-    }
+      if (code.length !== 4) {
+        console.log("Debe tener 4 dígitos");
+        return;
+      }
 
-    try{
-      const res= await api.post("/forgot-password-code-verification", {email: email, code:code})
-      console.log("Respuesta del backend:", res);
-      navigation.navigate("ResetPassword", {email: email});
-    }catch(err){
-      console.log("Error en el envio del codigo: ", err)
-    }
-  };
+      setIsLoading(true);
+      try {
+        const res = await api.post("/forgot-password-code-verification", {
+          email: email,
+          code: code
+        });
+        console.log("Respuesta del backend:", res);
+        navigation.navigate("ResetPassword", { email: email });
+      } catch (err) {
+        console.log("Error en el envío del código: ", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  return (
+    return (
       <View style={styles.form}>
-        <Image source={welcomeIcon} style={styles.img}/>
+        <Image source={welcomeIcon} style={styles.img} />
         <View style={styles.content}>
           <Text style={styles.title}>Ingresá tu código</Text>
-          <Text style={{fontFamily:'Sora_400Regular',}}>Se ha enviado un código a tu correo</Text>
+          <Text style={{ fontFamily: 'Sora_400Regular' }}>Se ha enviado un código a tu correo</Text>
 
           <View style={styles.inputContainer}>
             {codeDigits.map((digit, index) => (
@@ -69,22 +75,25 @@ export default function CodeFormForgotPassword({email, navigation }) {
                 keyboardType="numeric"
                 maxLength={4}
               />
-                        ))}
+            ))}
           </View>
 
           <Pressable
-            style={styles.button}
-            onPress={() => {
-              handleCode();
-            }}
+            style={[styles.button, isLoading && { opacity: 0.6 }]}
+            onPress={handleCode}
+            disabled={isLoading}
           >
-            <Text style={styles.btnText}>Verificar</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Verificar</Text>
+            )}
           </Pressable>
         </View>
       </View>
+    );
+  }
 
-  );
-}
 
 const styles = StyleSheet.create({
   form: {

@@ -6,6 +6,7 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import api from "../api/axiosInstance";
 import { sizes } from "../utils/themes";
@@ -14,10 +15,12 @@ const welcomeIcon=require('../assets/welcomeIcon.png')
 
 export default function ForgotPasswordForm({navigation}) {
 
-  const[email, setEmail]=useState("")
+  const[email, setEmail]=useState("");
+  const [isLoading, setIsLoading] = useState(false);;
 
   const sendCode= async () =>{
-
+    if (!email) return;
+    setIsLoading(true);
     try{
       const res= await api.post('/forgot_password', JSON.stringify(email), {
       headers: { 'Content-Type': 'application/json' }
@@ -30,28 +33,38 @@ export default function ForgotPasswordForm({navigation}) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Image source={welcomeIcon} style={styles.catImage} />
-        <View style={styles.content}>
-          <Text style={styles.title}>Ingresa tu Correo</Text>
-          <Text style={{fontFamily:"Sora_400Regular", paddingBottom:20}}>Enviaremos un código de verificacion a tu correo.</Text>
-          <TextInput
-            value={email}
-            placeholder="Correo"
-            onChangeText={setEmail}
-            style={styles.input}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <Pressable style={styles.button} onPress={sendCode}>
-            <Text style={styles.btnText}>Enviar Código</Text>
-          </Pressable>
+      <View style={styles.container}>
+        <View style={styles.form}>
+          <Image source={welcomeIcon} style={styles.catImage} />
+          <View style={styles.content}>
+            <Text style={styles.title}>Ingresa tu Correo</Text>
+            <Text style={{ fontFamily: "Sora_400Regular", paddingBottom: 20, marginHorizontal: 20 }}>
+              Enviaremos un código de verificación a tu correo.
+            </Text>
+            <TextInput
+              value={email}
+              placeholder="Correo"
+              onChangeText={setEmail}
+              style={styles.input}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <Pressable
+              style={[styles.button, isLoading && { opacity: 0.6 }]}
+              onPress={sendCode}
+              disabled={isLoading || !email}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Enviar Código</Text>
+              )}
+            </Pressable>
+          </View>
         </View>
       </View>
-    </View>
-  );
-}
+    );
+  }
 
 const styles = StyleSheet.create({
   container: {
@@ -96,17 +109,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#f1f5f5",
   },
   button: {
-    backgroundColor: "#505c86",
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    width: 277,
-    height: 50,
-    margin: 20,
-  },
-  btnText: {
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: 20,
-  },
+      backgroundColor: "#505c86",
+      borderRadius: 15,
+      justifyContent: "center",
+      alignItems: "center",
+      width: 277,
+      height: 50,
+      margin: 20,
+    },
+    btnText: {
+      color: "#fff",
+      fontWeight: "700", // Arreglado: estaba sin comillas
+    },
 });

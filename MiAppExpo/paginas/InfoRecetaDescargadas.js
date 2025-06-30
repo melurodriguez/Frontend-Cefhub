@@ -196,19 +196,15 @@ export default function InfoRecetaDescargadas({ navigation }) {
 
 
          {isPressed === 1 && (
-          <>
-          <Text style={styles.seleccionado}>Instrucciones</Text>
-          <FlatList
-             data={receta.pasos}
-             keyExtractor={(item) =>
-               item.idPaso?.toString() ?? item.nroPaso?.toString()
-             }
-             renderItem={({ item }) => <CardInstruccion paso={item} />}
-             contentContainerStyle={styles.flatListPadding}
-           />
-          </>
-
-         )}
+            <>
+              <Text style={styles.seleccionado}>Instrucciones</Text>
+              <View style={styles.flatListPadding}>
+                {receta.pasos.map((paso, index) => (
+                  <CardInstruccion key={paso.idPaso ?? paso.nroPaso ?? index} paso={paso} />
+                ))}
+              </View>
+            </>
+          )}
 
          <CardCreator alias={receta.nickname}  avatar={receta.avatar}/>
 

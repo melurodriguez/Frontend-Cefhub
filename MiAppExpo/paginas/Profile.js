@@ -175,7 +175,7 @@ export default function Profile({navigation}) {
               <View key={index} style={styles.receta}>
                 <RecipeCard
                   data={receta}
-                  onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta })}
+                  onPress={() => navigation.navigate("InfoReceta", { id: receta.idReceta , avatrar:receta.avatar})}
                 />
               </View>
             ))

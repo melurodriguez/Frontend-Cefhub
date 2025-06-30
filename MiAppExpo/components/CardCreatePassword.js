@@ -29,8 +29,6 @@ export default function CardCreatePassword({ email, navigation }) {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
 
-
-
     // Reglas de validación
   const passwordRules = [
     { label: "Mínimo 8 caracteres", test: (pw) => pw.length >= 8 },

@@ -33,7 +33,7 @@ export default function CardIngredient({ name, quantity, unidad, onCantidadChang
         ) : (
           <Text style={styles.quantityText}>{quantity}</Text>
         )}
-        <Text style={styles.unidad}>{unidad}</Text>
+        <Text style={styles.unidad}> {unidad}</Text>
       </View>
     </View>
   );
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     padding: 6,
     minWidth: 60,
     fontFamily: 'Sora_400Regular',
-    fontSize: 15,
+    fontSize: 16,
     color: "#666",
     marginRight: 8,
   },
@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
   unidad: {
     fontSize: 15,
     fontFamily: 'Sora_400Regular',
-    color: "#666",
   },
 });
 

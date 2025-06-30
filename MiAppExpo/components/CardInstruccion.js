@@ -1,8 +1,8 @@
-import { View, Text, FlatList, Image, Dimensions, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Image, Dimensions, ScrollView } from "react-native";
 import API_BASE_URL from "../utils/config";
 import { StyleSheet } from "react-native";
-import { Video } from 'expo-av';
-
+import { useVideoPlayer, VideoView } from 'expo-video';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -11,7 +11,6 @@ export default function CardInstruccion({ paso }) {
     <View style={styles.container}>
       <Text style={styles.titulo}>Paso {paso.nroPaso}</Text>
       <Text style={styles.descripcion}>{paso.descripcionPaso}</Text>
-
 
       {paso.multimedia?.length > 0 && (
         <ScrollView
@@ -31,15 +30,18 @@ export default function CardInstruccion({ paso }) {
                 />
               );
             } else if (item.tipo === "video") {
+              const player = useVideoPlayer(uri, player => {
+                player.pause();
+                player.volume = 1;
+              });
+
               return (
-                <Video
+                <VideoView
                   key={index}
-                  source={{ uri }}
                   style={[styles.imagen, { backgroundColor: "#000" }]}
-                  resizeMode="contain"
-                  useNativeControls
-                  isLooping={false}
-                  shouldPlay={false}
+                  player={player}
+                  nativeControls={true}
+                  contentFit="contain"
                 />
               );
             } else {
@@ -48,16 +50,14 @@ export default function CardInstruccion({ paso }) {
           })}
         </ScrollView>
       )}
-
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
-    marginRight:20,
+    marginRight: 20,
     backgroundColor: "#f2f2f2",
     padding: 15,
     borderRadius: 12,

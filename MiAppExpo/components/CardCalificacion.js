@@ -57,6 +57,7 @@ export default function CardCalificacion({ data }) {
       borderRadius: 12,
       padding: 14,
       marginVertical: 8,
+      marginRight:10,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.08,

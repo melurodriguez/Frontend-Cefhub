@@ -11,6 +11,7 @@ import {
 import { sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
+import PopUp from "./PopUp";
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
 
@@ -20,6 +21,9 @@ export default function CardCreatePassword({ email, navigation }) {
       contrasenia:"",
       contrasenia_repetida:""
     })
+    const [popUpInvalida, setPopUpInvalida]=useState(false)
+    const [popUpCoincidencia, setPopUpCoincidencia]=useState(false)
+    const [popUpInesperado, setPopUpInesperado]= useState(false)
 
     const handleChange=(name, value)=>{
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -43,11 +47,13 @@ export default function CardCreatePassword({ email, navigation }) {
 
   const handleThirdStep = async () => {
     if (!esContraseniaValida) {
-      Alert.alert("Contraseña inválida", "Tu contraseña no cumple con los requisitos mínimos.");
+      setPopUpInvalida(true)
+      //Alert.alert("Contraseña inválida", "Tu contraseña no cumple con los requisitos mínimos.");
       return;
     }
     if (!coincidenContrasenias) {
-      Alert.alert("Contraseña inválida", "Las contraseñas no coinciden");
+      setPopUpCoincidencia(true)
+      //Alert.alert("Contraseña inválida", "Las contraseñas no coinciden");
       return;
     }
 
@@ -120,6 +126,10 @@ export default function CardCreatePassword({ email, navigation }) {
           </Pressable>
         </View>
       </View>
+      {popUpInvalida && <PopUp action={"Tu contraseña no cumple con los requisitos mínimos."} visible={popUpInvalida} onClose={()=>setPopUpInvalida(false)} duration={3000}/>}
+      {popUpCoincidencia && <PopUp action={"Contraseña inválida. Las contraseñas no coinciden"} visible={popUpCoincidencia} onClose={()=>setPopUpCoincidencia(false)} duration={3000}/>}
+      {popUpInesperado && <PopUp action={"Error. Ocurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
+        
     </View>
   );
 }
@@ -130,7 +140,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    height: sizes.height * 0.5,
+    minHeight: sizes.height * 0.5,
   },
   form: {
     justifyContent: "center",
@@ -138,7 +148,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 15,
     width: sizes.width * 0.8,
-    height: sizes.height * 0.55,
+    minHeight: sizes.height * 0.55,
   },
   catImage: {
     width: 132,
@@ -156,6 +166,7 @@ const styles = StyleSheet.create({
     fontFamily: "Sora_700Bold",
     fontSize: 24,
     padding: 20,
+    paddingTop:40,
   },
   label: {
     fontFamily: "Sora_600SemiBold",

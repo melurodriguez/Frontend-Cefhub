@@ -13,16 +13,12 @@ export default function TipoUsuarioForm({navigation, email, password}) {
       }else{
         navigation.navigate("RegistroAlumnoScreen", {email: email})
       }
-          
-          
-
-
     }
 
     return(
         <View style={styles.form}>
             <Image source={welcomeIcon} style={styles.img}/>
-            <Text style={styles.title}>Cómo deseas continuar?</Text>
+            <Text style={styles.title}>¿Cómo continuar?</Text>
             <Pressable style={styles.button} onPress={()=>handleTipoUsuario("usuario")}><Text style={styles.btnText}>Usuario</Text></Pressable>
             <Pressable style={styles.button} onPress={()=>handleTipoUsuario("alumno")}><Text style={styles.btnText}>Alumno</Text></Pressable>
         </View>
@@ -50,7 +46,8 @@ const styles = StyleSheet.create({
   title: {
     fontFamily:'Sora_700Bold',
     fontSize: 24,
-    padding: 10,
+    paddingBottom: 10,
+
   },
   text: {
     fontSize: 16,

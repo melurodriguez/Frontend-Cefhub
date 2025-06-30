@@ -15,6 +15,7 @@ import api from '../api/axiosInstance';
 import { ActivityIndicator } from 'react-native';
 import { AuthContext } from '../auth/AuthContext';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import PopUp from './PopUp';
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
@@ -35,6 +36,11 @@ export default function RegistroAlumnoScreen() {
     const [cuentaCorriente, setCuentaCorriente] = useState(0);
     const [dniFrente, setDniFrente] = useState(null);
     const [dniFondo, setDniFondo] = useState(null);
+    const [permisoGaleria, setPermisoGaleria]= useState(false)
+    const [errorSubir, setErrorSubir]=useState(false)
+    const [noToken, setNoToken]=useState(false)
+    const [actualizado, setActualizado]=useState(false)
+    const [desconocido, setDesconocido]=useState(false)
 
 
   const pickImage = async (setter) => {
@@ -42,7 +48,8 @@ export default function RegistroAlumnoScreen() {
     if (!granted) {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso denegado', 'No se puede acceder a la galería');
+        setPermisoGaleria(true)
+        //Alert.alert('Permiso denegado', 'No se puede acceder a la galería');
         return;
       }
     }
@@ -80,7 +87,8 @@ export default function RegistroAlumnoScreen() {
       });
       return res.data.url;
     } catch (error) {
-      Alert.alert('Error al subir imagen', error.response?.data?.detail || error.message);
+      setErrorSubir(true)
+      //Alert.alert('Error al subir imagen', error.response?.data?.detail || error.message);
       return null;
     }
     };
@@ -96,7 +104,8 @@ export default function RegistroAlumnoScreen() {
 
         if (!token) {
           if (!email) {
-            Alert.alert('Error', 'No hay token ni email para identificar al usuario');
+            setNoToken(true)
+            //Alert.alert('Error', 'No hay token ni email para identificar al usuario');
             return;
           }
           datosAlumno.email = email; 
@@ -108,11 +117,13 @@ export default function RegistroAlumnoScreen() {
         if (dniFrente) await subirImagen(dniFrente, 'dniFrente');
         if (dniFondo) await subirImagen(dniFondo, 'dniFondo');
 
-        Alert.alert('Éxito', 'Tu perfil ha sido actualizado a alumno');
+        setActualizado(true)
+        //Alert.alert('Éxito', 'Tu perfil ha sido actualizado a alumno');
         navigation.navigate("LoginPage")
       } catch (error) {
         console.error(error);
-        Alert.alert('Error', error.response?.data?.detail || 'Error desconocido');
+        setDesconocido(true)
+        //Alert.alert('Error', error.response?.data?.detail || 'Error desconocido');
       } finally {
         setLoading(false);
       }
@@ -183,6 +194,11 @@ export default function RegistroAlumnoScreen() {
         </Pressable>
 
       </View>
+      {actualizado && <PopUp action={"Éxito. Tu perfil ha sido actualizado a alumno"} visible={actualizado} onClose={()=>setActualizado(false)} duration={3000}/>}
+      {desconocido && <PopUp action={"Error desconocido."} visible={desconocido} onClose={()=>setDesconocido(false)} duration={1500}/>}
+      {noToken && <PopUp action={"Error. No hay token para identificar al usuario"} visible={noToken} onClose={()=>setNoToken(false)} duration={1500}/>}
+      {errorSubir && <PopUp action={"Error al subir imagen."} visible={errorSubir} onClose={()=>setErrorSubir(false)} duration={1500}/>}
+      {permisoGaleria && <PopUp action={"Permiso denegado. No se puede acceder a la galería." } visible={permisoGaleria} onClose={()=>setPermisoGaleria(false)} duration={3000}/>}
     </View>
   );
 }

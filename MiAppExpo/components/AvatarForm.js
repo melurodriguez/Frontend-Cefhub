@@ -18,6 +18,7 @@ const user_images_row2 = [user4, user5, user6];
 export default function AvatarForm({navigation, email, password}) {
 
   const [chosenAvatar, setChoseAvatar]=useState(0)
+  const [popUpInesperado, setPopUpInesperado]= useState(false)
 
   const handleFourthStep= async()=>{
     try{
@@ -88,6 +89,8 @@ export default function AvatarForm({navigation, email, password}) {
         <Pressable style={styles.button} onPress={handleFourthStep}>
           <Text style={styles.btnText}>Registarme</Text>
         </Pressable>
+        {popUpInesperado && <PopUp action={"Error. Ocurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
+
       </View>
     );
   }
@@ -100,6 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 50,
     paddingHorizontal: 10,
+    maxWidth:"90%"
   },
   content: {
     justifyContent: "center",

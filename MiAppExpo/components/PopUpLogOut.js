@@ -45,16 +45,20 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     elevation: 5,
+    maxWidth:"90%",
+    maxHeight: "40%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: fonts.medium,
     fontFamily:'Sora_700Bold',
   },
   btnContainer:{
-    flexDirection:"row",
+    //flexDirection:"row",
     justifyContent:"center",
     alignItems:"center",
-    paddingVertical:20,
+    //paddingVertical:20,
     margin:10
   },
   btnContinue: {
@@ -62,13 +66,13 @@ const styles = StyleSheet.create({
     paddingVertical:10,
     paddingHorizontal:20,
     borderRadius:15,
-    margin:5
+    margin:5,
   },
   btnLogout: {
     backgroundColor: colors.red,
     paddingVertical:10,
     paddingHorizontal:20,
     borderRadius:15,
-    margin:5
+    margin:5,
   },
 });

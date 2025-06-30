@@ -13,6 +13,8 @@ import { colors } from "../utils/themes.js";
 import RecipeCard from "../components/recipeCard";
 import { ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { KeyboardAvoidingView, Platform } from "react-native";
+
 const menu = require("../assets/menu.png");
 const backArrow = require("../assets/backArrow.png");
 
@@ -159,8 +161,18 @@ export default function TodasRecetas({ navigation }) {
         visible={showFilters}
         onRequestClose={() => setShowFilters(false)}
       >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // ajustable
+        >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
+            <ScrollView
+              contentContainerStyle={{ paddingBottom: 40 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
             <Pressable onPress={() => setShowFilters(false)}>
               <Text style={styles.closeButton}>Cerrar</Text>
             </Pressable>
@@ -305,8 +317,10 @@ export default function TodasRecetas({ navigation }) {
             <Pressable style={styles.applyButton} onPress={limpiarFiltros}>
               <Text style={styles.applyButtonText}>Limpiar filtros</Text>
             </Pressable>
+            </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
@@ -377,7 +391,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: "#f6f8ff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,

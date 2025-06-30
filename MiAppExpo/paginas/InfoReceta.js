@@ -27,6 +27,8 @@ import { colors, fonts, sizes } from "../utils/themes";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardInstruccion from "../components/CardInstruccion";
 import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from "react-native";
+
 
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
@@ -245,6 +247,7 @@ export default function InfoReceta({ navigation }) {
   }
 
  return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
    <ScrollView>
      <View style={styles.container}>
        <ImageBackground
@@ -389,7 +392,8 @@ export default function InfoReceta({ navigation }) {
        { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/> :
         <PopUp action={"La receta ha sido eliminada de favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/>}
      </View>
-   </ScrollView>
+    </ScrollView>
+   </SafeAreaView>
  );
 
 }
@@ -475,10 +479,10 @@ const styles = StyleSheet.create({
   comentariosTitulo: {
     fontFamily: "Sora_700Bold",
     fontSize: fonts.medium,
-    marginHorizontal: 20,
+    //marginHorizontal: 20,
   },
   comentariosLista: {
-    marginHorizontal: 20,
+    //marginHorizontal: 20,
   },
   comentariosVacio: {
     fontFamily: "Sora_400Regular",

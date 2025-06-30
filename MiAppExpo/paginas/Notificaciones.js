@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   title: {
-    fontWeight: fonts.bold,
+    fontFamily:"Sora_700Bold",
     fontSize: fonts.large,
   },
   catImage: {

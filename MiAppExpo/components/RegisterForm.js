@@ -7,12 +7,15 @@ import {
   Pressable,
   TextInput,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Modal
 } from "react-native";
 import { colors, sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";
 import api from "../api/axiosInstance";
 import { MaterialIcons } from '@expo/vector-icons';
+import PopUp from "./PopUp";
+
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
@@ -30,6 +33,11 @@ export default function RegisterForm({ navigation }) {
   const [emailValido, setEmailValido] = useState(null);
   const [cargando, setCargando] = useState(false);
   const nombreYDireccionCompletos = form.nombre.trim() !== "" && form.direccion.trim() !== "";
+  const [popUpAlias, setPopUpAlias]= useState(false)
+  const [popUpCorreo, setPopUpCorreo]= useState(false)
+  const [popUpHbailitado, setPopUpHabilitado]= useState(false)
+  const [popUpInesperado, setPopUpInesperado]= useState(false)
+  const [popUpServidor, setPopUpServidor]= useState(false)
 
 
 
@@ -71,7 +79,7 @@ export default function RegisterForm({ navigation }) {
 
   const handleFirstStep = async () => {
     if (!aliasDisponible) {
-      Alert.alert("Alias inválido", "Por favor, elegí un alias disponible.");
+      setPopUpAlias(true)
       return;
     }
 
@@ -90,25 +98,9 @@ export default function RegisterForm({ navigation }) {
 
       if (data.status === "usuario_existente") {
         if (data.puede_recuperar) {
-          Alert.alert(
-            "Ya tenés una cuenta",
-            "El correo ya está registrado. ¿Querés recuperar tu contraseña?",
-            [
-              {
-                text: "Cancelar",
-                style: "cancel",
-              },
-              {
-                text: "Sí, recuperar",
-                onPress: () => navigation.navigate("ForgotPassword"),
-              },
-            ]
-          );
+          setPopUpCorreo(true)
         } else {
-          Alert.alert(
-            "Cuenta deshabilitada",
-            "El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."
-          );
+          setPopUpHabilitado(true)
         }
         return;
       }
@@ -117,9 +109,11 @@ export default function RegisterForm({ navigation }) {
 
     } catch (err) {
       if (err.response) {
-        Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
+        setPopUpInesperado(true)
+        //Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
       } else {
-        Alert.alert("Error", "No se pudo conectar con el servidor.");
+        setPopUpServidor(true)
+        //Alert.alert("Error", "No se pudo conectar con el servidor.");
       }
     } finally {
       setCargando(false);
@@ -160,6 +154,7 @@ export default function RegisterForm({ navigation }) {
         <Image source={welcomeIcon} style={styles.catImage} />
         <View style={styles.content}>
           <Text style={styles.title}>Registrarme</Text>
+           
 
           {/* NICKNAME (alias) PRIMERO */}
           <View style={{ marginBottom: 8, alignSelf: "flex-start" }}>
@@ -265,9 +260,34 @@ export default function RegisterForm({ navigation }) {
               <Text style={styles.btnText}>Registrarme</Text>
             )}
           </Pressable>
-
+          
         </View>
       </View>
+      {popUpAlias && <PopUp action={"Alias inválido. Por favor, elegí un alias disponible"} visible={popUpAlias} onClose={()=>setPopUpAlias(false)} duration={1500}/>}
+      {popUpCorreo && <Modal
+              animationType="fade"
+              transparent={true}
+              visible={popUpCorreo}
+              onRequestClose={() => setPopUpCorreo(false)}
+            >
+              <View style={styles.overlay}>
+                <View style={styles.popup}>
+                  <Text style={styles.popupTitle}>Correo ya registrado</Text>
+                  <Text style={styles.popupMessage}>¿Querés recuperar tu contraseña?</Text>
+                  <View style={styles.popupButtons}>
+                    <Pressable onPress={() => setPopUpCorreo(false)} style={styles.cancelButton}>
+                      <Text style={styles.cancelText}>Cancelar</Text>
+                    </Pressable>
+                    <Pressable onPress={()=>navigation.navigate("ForgotPassword")} style={styles.deleteButton}>
+                      <Text style={styles.deleteText}>Sí, recuperar</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            </Modal>}
+            {popUpHbailitado && <PopUp action={"Cuenta deshabilitada. El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."} visible={popUpHbailitado} onClose={()=>setPopUpHabilitado(false)} duration={3000}/>}
+            {popUpInesperado && <PopUp action={"Error. Ocurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
+            {popUpServidor && <PopUp action={"Error. No se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
     </View>
   );
 }
@@ -383,5 +403,59 @@ const styles = StyleSheet.create({
     fontFamily:"Sora_700Bold",
     fontSize:14,
     alignSelf:"center"
-  }
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  popup: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  popupTitle: {
+    fontSize: 18,
+    fontFamily: "Sora_700Bold",
+    marginBottom: 10,
+  },
+  popupMessage: {
+    fontSize: 14,
+    fontFamily: "Sora_400Regular",
+    color: "#555",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  popupButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  cancelButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 10,
+    backgroundColor: "#ccc",
+  },
+  cancelText: {
+    fontFamily: "Sora_700Bold",
+    color: "#333",
+  },
+  deleteButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginLeft: 10,
+    backgroundColor: "#d9534f",
+  },
+  deleteText: {
+    fontFamily: "Sora_700Bold",
+    color: "#fff",
+  },
 });

@@ -3,13 +3,17 @@ import { TextInput } from "react-native-paper";
 import { sizes } from "../utils/themes";
 import { useState, useRef } from "react";
 import api from "../api/axiosInstance";
+import PopUp from "./PopUp";
 const welcomeIcon = require("../assets/welcomeIcon.png");
+
 
 export default function CodeForm({email, navigation }) {
 
   const[codeDigits, setCodeDigits]=useState(["","","",""])
   const inputRefs = useRef([]);
-
+  const [popUpIncorrecto, setPopUpIncorrecto]=useState(false)
+  const [popUpInesperado, setPopUpInesperado]=useState(false)
+  const [popUpServidor, setPopUpServidor]=useState(false) 
 
   const handleChange = (value, index) => {
     const newDigits = [...codeDigits];
@@ -49,12 +53,15 @@ export default function CodeForm({email, navigation }) {
     }catch(err){
       if (err.response) {
         if (err.response.status === 403) {
-          Alert.alert("Codigo Incorrecto", "Verifica tu mail.");
+          setPopUpIncorrecto(true)
+          //Alert.alert("Codigo Incorrecto", "Verifica tu mail.");
         } else {
-          Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
+          setPopUpInesperado(true)
+          //Alert.alert("Error", err.response.data?.detail || "Ocurrió un error inesperado.");
         }
       } else {
-        Alert.alert("Error", "No se pudo conectar con el servidor.");
+        setPopUpServidor(true)
+        //Alert.alert("Error", "No se pudo conectar con el servidor.");
       }
       console.log("Error en el envio del codigo: ", err)
     }
@@ -91,6 +98,10 @@ export default function CodeForm({email, navigation }) {
             <Text style={styles.btnText}>Verificar</Text>
           </Pressable>
         </View>
+        {popUpIncorrecto && <PopUp action={"Codigo ingresado incorrecto"} visible={popUpIncorrecto} onClose={()=>setPopUpIncorrecto
+          (false)} duration={1500}/>}
+        {popUpInesperado && <PopUp action={"Ocurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
+        {popUpServidor && <PopUp action={"No se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
       </View>
 
   );

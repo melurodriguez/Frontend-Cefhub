@@ -12,6 +12,7 @@ import Checkbox from "expo-checkbox";
 import { AuthContext } from "../auth/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import { sizes } from "../utils/themes";
+import PopUp from "./PopUp";
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
 const eye_open = require("../assets/eye-check.png");
@@ -30,6 +31,7 @@ export default function LoginForm({ navigation }) {
     rememberMe: false,
   });
   const [visibility, setVisibility] = useState(true);
+  const [popUp, setPopUp]= useState(false)
 
   const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -45,8 +47,8 @@ export default function LoginForm({ navigation }) {
           password: savedPassword,
           rememberMe: true,
         });
-
-        Alert.alert("Autocompletado", "Tus credenciales fueron cargadas.");
+        setPopUp(true)
+        //Alert.alert("Autocompletado", "Tus credenciales fueron cargadas.");
       }
     };
     cargarCredenciales();
@@ -101,6 +103,7 @@ export default function LoginForm({ navigation }) {
    } catch (error) {
      console.log("Error al iniciar sesión:", error);
      Alert.alert("Error", "Credenciales inválidas o problema de red.");
+
    } finally {
      setLoading(false);
    }
@@ -169,6 +172,7 @@ export default function LoginForm({ navigation }) {
         </View>
 
       </View>
+      {popUp && <PopUp action={"Tus credenciales fueron cargadas"} visible={popUp} onClose={()=>setPopUp(false)} duration={3000}/>}
     </View>
   );
 }

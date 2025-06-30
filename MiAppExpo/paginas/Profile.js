@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { Pressable, View, Text, Image, StyleSheet, ScrollView, Alert } from "react-native";
+import { Pressable, View, Text, Image, StyleSheet, ScrollView, Alert, Modal } from "react-native";
 import RecipeCard from "../components/recipeCard";
 import CardCursoInscripcion from "../components/CardCursoInscripcion";
 import api from "../api/axiosInstance";
@@ -32,6 +32,8 @@ export default function Profile({navigation}) {
     require("../assets/user5.png"),    // 4
     require("../assets/user6.png"),    // 5
   ];
+  const[eliminar, setEliminar]=useState(false)
+  const [indexAEliminar, setIndexAEliminar] = useState(null);
 
 
 
@@ -116,26 +118,19 @@ export default function Profile({navigation}) {
       }
     };
 
-    const borrarReceta = (index) => {
-      Alert.alert(
-        "Confirmar eliminación",
-        "¿Querés borrar esta receta descargada?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Borrar",
-            style: "destructive",
-            onPress: () => {
-              const nuevasRecetas = [...recetasDescargadas];
-              nuevasRecetas.splice(index, 1);
-              setRecetasDescargadas(nuevasRecetas);
-              // Opcional: actualizar también en SecureStore si las cargas desde ahí
-              guardarRecetasEnSecureStore(nuevasRecetas);
-            }
-          }
-        ]
-      );
+
+    const confirmarBorrado = (index) => {
+      setIndexAEliminar(index);
+      setEliminar(true);
     };
+    const borrarRecetaConfirmada = () => {
+      const nuevasRecetas = [...recetasDescargadas];
+      nuevasRecetas.splice(indexAEliminar, 1);
+      setRecetasDescargadas(nuevasRecetas);
+      guardarRecetasEnSecureStore(nuevasRecetas);
+      setEliminar(false);
+    };
+
 
   return (
     <ScrollView>
@@ -204,7 +199,7 @@ export default function Profile({navigation}) {
               </View>
             ))
           ) : (
-            <Text style={styles.page}>No estás inscripta a ningún curso</Text>
+            <Text style={styles.page}>No estás inscripto/a a ningún curso</Text>
           )
         )}
 
@@ -214,7 +209,7 @@ export default function Profile({navigation}) {
               <View key={index} style={styles.receta}>
                 <View style={{ position: 'relative' }}>
                   <Pressable
-                    onPress={() => borrarReceta(index)}
+                    onPress={() => confirmarBorrado(index)}
                     style={styles.btnBorrarReceta}
                   >
                     <Text style={styles.textoBorrarReceta}>×</Text>
@@ -244,7 +239,28 @@ export default function Profile({navigation}) {
       />
       { popUpVisible && <PopUpLogOut visible={popUpVisible} onClose={() => setPopUpVisible(false)}/>}
 
-
+      {eliminar && 
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={eliminar}
+        onRequestClose={() => setEliminar(false)}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.popup}>
+            <Text style={styles.popupTitle}>¿Borrar receta?</Text>
+            <Text style={styles.popupMessage}>¿Querés borrar esta receta descargada?</Text>
+            <View style={styles.popupButtons}>
+              <Pressable onPress={() => setEliminar(false)} style={styles.cancelButton}>
+                <Text style={styles.cancelText}>Cancelar</Text>
+              </Pressable>
+              <Pressable onPress={borrarRecetaConfirmada} style={styles.deleteButton}>
+                <Text style={styles.deleteText}>Borrar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>}
     </ScrollView>
   );
 }
@@ -276,7 +292,7 @@ const styles = StyleSheet.create({
     },
     page: {
       fontFamily:'Sora_700Bold',
-      fontSize: 18,
+      fontSize: 24,
       alignSelf:"center"
     },
     userContainer: {
@@ -385,4 +401,59 @@ const styles = StyleSheet.create({
       lineHeight: 18,
       textAlign: 'center',
     },
+
+    overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  popup: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  popupTitle: {
+    fontSize: 18,
+    fontFamily: "Sora_700Bold",
+    marginBottom: 10,
+  },
+  popupMessage: {
+    fontSize: 14,
+    fontFamily: "Sora_400Regular",
+    color: "#555",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  popupButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  cancelButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 10,
+    backgroundColor: "#ccc",
+  },
+  cancelText: {
+    fontFamily: "Sora_700Bold",
+    color: "#333",
+  },
+  deleteButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginLeft: 10,
+    backgroundColor: "#d9534f",
+  },
+  deleteText: {
+    fontFamily: "Sora_700Bold",
+    color: "#fff",
+  },
 });

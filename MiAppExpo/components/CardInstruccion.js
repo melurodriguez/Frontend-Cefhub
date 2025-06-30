@@ -1,7 +1,8 @@
 import { View, Text, FlatList, Image, Dimensions, ScrollView } from "react-native";
 import API_BASE_URL from "../utils/config";
 import { StyleSheet } from "react-native";
-import { Video } from 'expo-av';
+import { Video } from 'expo-video';
+
 
 
 const SCREEN_WIDTH = Dimensions.get("window").width;

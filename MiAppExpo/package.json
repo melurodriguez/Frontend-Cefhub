@@ -36,7 +36,8 @@
     "react-native-web": "^0.20.0",
     "expo-file-system": "~18.1.10",
     "expo-network": "~7.1.5",
-    "expo-av": "~15.1.6"
+    "expo-av": "~15.1.6",
+    "expo-video": "~2.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

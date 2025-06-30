@@ -17,6 +17,7 @@ import PopUp from "./PopUp";
 const welcomeIcon = require("../assets/welcomeIcon.png");
 const eye_open = require("../assets/eye-check.png");
 const eye_closed = require("../assets/eye-closed.png");
+const check= require('../assets/check.png');
 
 export default function LoginForm({ navigation }) {
   const { login } = useContext(AuthContext);
@@ -172,7 +173,7 @@ export default function LoginForm({ navigation }) {
         </View>
 
       </View>
-      {popUp && <PopUp action={"Tus credenciales fueron cargadas"} visible={popUp} onClose={()=>setPopUp(false)} duration={3000}/>}
+      {popUp && <PopUp action={"Tus credenciales fueron cargadas"} visible={popUp} onClose={()=>setPopUp(false)} duration={3000} image={check}/>}
     </View>
   );
 }

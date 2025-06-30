@@ -31,7 +31,7 @@ export default function FormNotLogged({ navigation }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#f1f5f5",
+    backgroundColor: "#fff",
     width: sizes.width * 0.8,
     height: sizes.height * 0.33,
     borderRadius: 15,
@@ -42,14 +42,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: 266,
     height: 50,
-    margin: 15,
+    marginVertical: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonContainer: {
     position: "absolute",
     top: 75,
-    left: 15,
+    left:20
   },
   title: {
     fontFamily:'Sora_700Bold',

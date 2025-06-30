@@ -286,8 +286,8 @@ export default function RegisterForm({ navigation }) {
               </View>
             </Modal>}
             {popUpHbailitado && <PopUp action={"Cuenta deshabilitada. El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."} visible={popUpHbailitado} onClose={()=>setPopUpHabilitado(false)} duration={3000}/>}
-            {popUpInesperado && <PopUp action={"Error. Ocurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
-            {popUpServidor && <PopUp action={"Error. No se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
+            {popUpInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
+            {popUpServidor && <PopUp action={"Error. \n\nNo se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
     </View>
   );
 }
@@ -314,6 +314,7 @@ const styles = StyleSheet.create({
     width: sizes.width * 0.8,
     paddingVertical: 20,
     minHeight: sizes.height * 0.45,
+    marginVertical:10
   },
   inputWithIcon: {
     flexDirection: "row",
@@ -363,8 +364,8 @@ const styles = StyleSheet.create({
 
 
   catImage: {
-    width: 132,
-    height: 133,
+    width: 120,
+    height: 120,
     position: "absolute",
     top: -90,
     alignSelf: "center",
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     marginRight: 10,
-    backgroundColor: "#ccc",
+    backgroundColor: "#f1f5f5",
   },
   cancelText: {
     fontFamily: "Sora_700Bold",
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     marginLeft: 10,
-    backgroundColor: "#d9534f",
+    backgroundColor: colors.red,
   },
   deleteText: {
     fontFamily: "Sora_700Bold",

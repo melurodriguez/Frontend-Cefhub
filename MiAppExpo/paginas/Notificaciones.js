@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     paddingVertical: 20,
+    alignItems:"center"
   },
   title: {
     fontFamily:"Sora_700Bold",

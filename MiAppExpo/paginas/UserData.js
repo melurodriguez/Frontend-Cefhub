@@ -9,9 +9,10 @@ export default function UserData() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={flyingCat} style={styles.image} />
+        <Image source={flyingCat} style={styles.image} />
 
-      <Text style={styles.title}>Mis Datos</Text>
+        <Text style={styles.title}>Mis Datos</Text>
+      
 
       <View style={styles.card}>
         <View style={styles.row}>
@@ -50,14 +51,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   image: {
-    width: 180,
-    height: 180,
+    width: 100,
+    height: 100,
     resizeMode: "contain",
     marginBottom: 10,
   },
   title: {
     fontSize: 26,
-    fontWeight: "700",
+    fontFamily:"Sora_700Bold",
     color: "#333",
     marginBottom: 25,
   },
@@ -85,10 +86,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 2,
+    fontFamily:"Sora_400Regular"
   },
   value: {
     fontSize: 16,
     fontWeight: "500",
     color: "#222",
+    fontFamily:"Sora_400Regular"
   },
+
 });

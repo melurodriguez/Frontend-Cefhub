@@ -445,13 +445,15 @@ const styles = StyleSheet.create({
   },
   descripcion: {
     fontFamily: "Sora_400Regular",
+    marginRight:10
   },
   botones: {
     flexDirection: "row",
     justifyContent: "center",
-    left: -20,
+    marginRight:10,
     paddingTop: height * 0.03,
     paddingBottom: height * 0.03,
+    alignSelf:"center"
   },
   btn: {
     backgroundColor: "#f1f5f5",

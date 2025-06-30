@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Modal, Pressable } from "react-native";
+import { View, Text, StyleSheet, Modal, Pressable , Image} from "react-native";
 import React, { useEffect } from "react";
 import { colors } from "../utils/themes";
 
-export default function PopUp({ action, visible, onClose, duration }) {
+export default function PopUp({ action, visible, onClose, duration, image }) {
   useEffect(() => {
     let timer;
     if (visible && duration<3000) {
@@ -17,6 +17,7 @@ export default function PopUp({ action, visible, onClose, duration }) {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.popup}>
+          {image && <Image source={image} style={styles.img}/>}
           <Text style={styles.action}>{action}</Text>
           {duration > 2999 && <Pressable onPress={()=>onClose()} style={styles.btn}><Text style={styles.btnText}>OK</Text></Pressable>}
         </View>
@@ -42,18 +43,26 @@ const styles = StyleSheet.create({
   },
   action: {
     fontFamily:'Sora_700Bold',
-    fontSize: 16,
+    fontSize: 15,
+    alignSelf:"center"
   },
   btn:{
     alignSelf:"flex-end",
-    backgroundColor:colors.primary,
+    //backgroundColor:colors.primary,
     paddingHorizontal:20,
     paddingVertical:10,
     borderRadius:15,
+    marginTop:20
   },
   btnText:{
     fontFamily:"Sora_700Bold",
-    color:"#fff"
+    color:colors.primary
+  },
+  img:{
+    width:50,
+    height:50,
+    alignSelf:"center",
+    marginVertical:20,
   }
 
 });

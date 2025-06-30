@@ -20,7 +20,7 @@ export default function PopUpLogOut({visible, onClose}) {
               <Text style={{ fontSize: fonts.small, fontFamily:'Sora_400Regular', }}>No, continuar en la app</Text>
             </Pressable>
             <Pressable style={styles.btnLogout} onPress={()=>{logout(); onClose();}}>
-              <Text style={{ fontSize: fonts.small, color: colors.white, fontFamily:'Sora_400Regular', }}>
+              <Text style={{ fontSize: fonts.small, color: colors.white, fontFamily:'Sora_400Regular', alignSelf:"center"}}>
                 Cerrar sesión
               </Text>
             </Pressable>
@@ -74,5 +74,6 @@ const styles = StyleSheet.create({
     paddingHorizontal:20,
     borderRadius:15,
     margin:5,
+    width:240
   },
 });

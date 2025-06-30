@@ -66,9 +66,7 @@ export default function InfoReceta({ navigation }) {
             setIngredientesCalc(recetaData.ingredientes || []);
             const conversionesRes = await api.get("/recetas/conversiones");
             setConversiones(conversionesRes.data);
-            const comentariosRes = await api.get(`/recetas/${id}/calificaciones`);
-            setComentarios(comentariosRes.data);
-
+            cargarComentarios();
             if (token) {
               await verificarLike();
             }
@@ -81,6 +79,16 @@ export default function InfoReceta({ navigation }) {
         fetchData();
       }, [id, token])
     );
+
+  const cargarComentarios = async () => {
+    try {
+      const res = await api.get(`/recetas/${id}/calificaciones`);
+      setComentarios(res.data);
+    } catch (err) {
+      console.error("Error al cargar comentarios", err);
+    }
+  };
+
 
   // Recalcular ingredientes según cantidad de porciones
   function recalcularIngredientes(nuevaPorcion) {
@@ -369,7 +377,15 @@ export default function InfoReceta({ navigation }) {
 
          <CardCreator alias={receta.nickname}  avatar={avatar}/>
 
-         {token && <CalificarReceta idReceta={id} token={token} />}
+         {token && (
+           <CalificarReceta
+             idReceta={id}
+             token={token}
+             onCalificacionExitosa={cargarComentarios}
+           />
+         )}
+
+
 
          <View style={styles.comentariosContainer}>
            <Text style={styles.comentariosTitulo}>Comentarios</Text>

@@ -35,11 +35,8 @@ export default function Profile({navigation}) {
   const[eliminar, setEliminar]=useState(false)
   const [indexAEliminar, setIndexAEliminar] = useState(null);
 
-
-
-
   const buttons = user?.tipo_usuario === "Alumno"
-      ? ["Favoritos", "Mis Cursos", "Descargas"]
+      ? ["Favoritos", "Mis Cursos", "Asistencia", "Descargas"]
       : ["Favoritos", "Descargas"];
 
   function handleClick(index) {
@@ -201,6 +198,16 @@ export default function Profile({navigation}) {
           ) : (
             <Text style={styles.page}>No estás inscripto/a a ningún curso</Text>
           )
+        )}
+
+        //Asistencia
+
+        {buttons[pressed] === "Asistencia" && (
+          <Pressable onPress={() => navigation.navigate("Asistencia")} >
+            <Text style={{ color: "white", fontFamily: "Sora_700Bold", fontSize: 16 }}>
+              Ir a Asistencia
+            </Text>
+          </Pressable>
         )}
 
         {buttons[pressed] === "Descargas" && (

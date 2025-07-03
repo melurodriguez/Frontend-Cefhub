@@ -36,6 +36,7 @@ import CodeForgotPassword from "./paginas/CodeForgotPassword";
 import ForgotPassword from "./paginas/ForgotPassword";
 import ResetPassword from "./paginas/ResetPassword";
 import NoConexion from "./paginas/NoConexion";
+import Asistencia from './pantallas/Asistencia';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -234,6 +235,7 @@ function AppNavigator() {
                 <>
                   {/* Si está logueado */}
                   <Stack.Screen name="OfertasCursos" component={OfertasCursos} />
+                  <Stack.Screen name="Asistencia" component={Asistencia} />
                   <Stack.Screen name="Perfil" component={Profile} />
                   <Stack.Screen name="Menú" component={DrawerNavigator} />
                   <Stack.Screen name="Main" component={DrawerNavigator} />

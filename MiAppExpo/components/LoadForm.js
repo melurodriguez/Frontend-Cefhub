@@ -17,7 +17,8 @@ import api from "../api/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
 import { colors } from "../utils/themes";
 import UploadingScreen from "../components/UploadingScreen";
-
+import NetInfo from "@react-native-community/netinfo";
+import * as SecureStore from "expo-secure-store";
 
 
 export default function LoadForm() {
@@ -52,6 +53,15 @@ export default function LoadForm() {
       .get("/recetas/ingredientes")
       .then((res) => setIngredientesDisponibles(res.data));
     api.get("/recetas/unidades").then((res) => setUnidades(res.data));
+    //verifica cuando vuelve señal
+    const unsubscribe = NetInfo.addEventListener(state => {
+        if (state.isConnected) {
+          console.log("Conexión recuperada. Intentando enviar recetas pendientes...");
+          reintentarEnvioRecetasPendientes(navigation);
+        }
+      });
+
+      return () => unsubscribe();
   }, []);
 
 
@@ -336,7 +346,37 @@ export default function LoadForm() {
   };
 
   ///////////////////////////////////////////////////////////////////////////////////////////
+//para poder subir la receta, cuando vuelva el internet
+async function reintentarEnvioRecetasPendientes(navigation) {
+  const estadoRed = await NetInfo.fetch();
 
+  if (!estadoRed.isConnected) {
+    console.log("Sin conexión, no se puede reintentar.");
+    return;
+  }
+
+  const pendientesJson = await SecureStore.getItemAsync("recetas_pendientes");
+  if (!pendientesJson) return;
+
+  let pendientes = JSON.parse(pendientesJson);
+  if (pendientes.length === 0) return;
+
+  for (let i = 0; i < pendientes.length; i++) {
+    const recetaObj = pendientes[i];
+    try {
+      const res = await api.post("/recetas/", recetaObj);
+      console.log(`Receta pendiente enviada. ID: ${res.data.idReceta}`);
+      // Aquí podés agregar el envío de fotos y multimedia si querés
+    } catch (e) {
+      console.log("Error enviando receta pendiente:", e.message);
+      continue;
+    }
+  }
+
+  await SecureStore.setItemAsync("recetas_pendientes", JSON.stringify([]));
+  Alert.alert("Conexión recuperada", "Se enviaron las recetas pendientes.");
+  navigation.navigate("LoadedRecipe");
+ }
 
   //CREAR o actualizar receta
   async function submitRecipe(navigation) {
@@ -344,108 +384,127 @@ export default function LoadForm() {
         Alert.alert("Error", "Por favor, completá todos los campos obligatorios.");
         return;
     }
-    try {
-      setLoadingMedia(true);
+    const recetaObj = {
+            nombreReceta: recipe.nombreReceta,
+            descripcionReceta: recipe.descripcionReceta,
+            porciones: parseInt(recipe.porciones),
+            cantidadPersonas: parseInt(recipe.cantidadPersonas),
+            tipo: recipe.tipo,
+            ingredientes: recipe.ingredientes.map((ing) => ({
+              nombre: ing.nombre,
+              cantidad: parseFloat(ing.cantidad),
+              idUnidad: ing.idUnidad,
+              observaciones: ing.observaciones,
+            })),
+            pasos: recipe.pasos.map((p) => ({
+              nroPaso: p.nroPaso,
+              texto: p.texto,
+            }))
+          };
+    const estadoRed = await NetInfo.fetch();
 
-      const recetaObj = {
-        nombreReceta: recipe.nombreReceta,
-        descripcionReceta: recipe.descripcionReceta,
-        porciones: parseInt(recipe.porciones),
-        cantidadPersonas: parseInt(recipe.cantidadPersonas),
-        tipo: recipe.tipo,
-        ingredientes: recipe.ingredientes.map((ing) => ({
-          nombre: ing.nombre,
-          cantidad: parseFloat(ing.cantidad),
-          idUnidad: ing.idUnidad,
-          observaciones: ing.observaciones,
-        })),
-        pasos: recipe.pasos.map((p) => ({
-          nroPaso: p.nroPaso,
-          texto: p.texto,
-        }))
-      };
-      let res;
-      let idReceta;
+    if (!estadoRed.isConnected) {
+        const pendientesJson = await SecureStore.getItemAsync("recetas_pendientes");
+        let pendientes = pendientesJson ? JSON.parse(pendientesJson) : [];
 
-      if (modoReemplazo) {
-        res = await api.put(`/recetas/reemplazar/${recipeId}`, recetaObj);
-        idReceta = res.data.idReceta;
-      } else if (modoEdicion && recipeId) {
-        res = await api.put(`/recetas/${recipeId}`, recetaObj);
-        idReceta = recipeId;
-      } else {
-        console.log("Creando nueva receta...");
-        res = await api.post("/recetas/", recetaObj);
-        idReceta = res.data.idReceta;
-        console.log("Receta creada. ID:", idReceta);
-      }
+        pendientes.push(recetaObj);
+        await SecureStore.setItemAsync("recetas_pendientes", JSON.stringify(pendientes));
 
-      const config = {
-        headers: { "Content-Type": "multipart/form-data" },
-        transformRequest: (data) => data,
-      };
-
-      if (recipe.fotoPrincipal?.startsWith("file://")) {
-        const fotoData = new FormData();
-        fotoData.append("archivo", {
-          uri: recipe.fotoPrincipal,
-          type: "image/jpeg",
-          name: "fotoPrincipal.jpg",
-        });
-        await api.post(`/recetas/${idReceta}/foto-principal`, fotoData, config);
-      }
-
-      for (let i = 0; i < recipe.fotosAdicionales.length; i++) {
-        const f = recipe.fotosAdicionales[i];
-        if (f.urlFoto?.startsWith("file://")) {
-          const fotoData = new FormData();
-          fotoData.append("archivo", {
-            uri: f.urlFoto,
-            type: "image/jpeg",
-            name: `fotoAdicional_${i}.jpg`,
-          });
-          await api.post(`/recetas/${idReceta}/foto-adicional`, fotoData, config);
-        }
-      }
-
-      for (let i = 0; i < recipe.pasos.length; i++) {
-        const paso = recipe.pasos[i];
-        for (let j = 0; j < paso.multimedia.length; j++) {
-          const media = paso.multimedia[j];
-          if (media.urlContenido?.startsWith("file://")) {
-            const mediaData = new FormData();
-            mediaData.append("archivo", {
-              uri: media.urlContenido,
-              type: media.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
-              name: `paso_${i}_media_${j}.${media.tipo_contenido === "video" ? "mp4" : "jpg"}`,
-            });
-            await api.post(
-              `/recetas/${idReceta}/paso/${i}/media`,
-              mediaData,
-              config
-            );
-          }
-        }
-      }
-      navigation.navigate("LoadedRecipe");
-      limpiarFormulario();
-    } catch (e) {
-      console.log("Error en submitRecipe:", {
-        message: e.message,
-        config: e.config,
-        request: e.request,
-        response: e.response?.data,
-        status: e.response?.status,
-      });
-      Alert.alert("Error", "No se pudo guardar la receta.");
+        Alert.alert("Sin conexión", "Receta guardada localmente hasta recuperar señal.");
+        return;
     }
-    finally {
-      setLoadingMedia(false);
-    }
-  }
+    Alert.alert(
+        "Tipo de conexión",
+        `Estás conectado por: ${estadoRed.type}. ¿Querés guardar la receta con esta conexión?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Sí, guardar", onPress: async () => {
+                try {
 
-  if (loadingMedia) {
-    return <UploadingScreen />;
+                      setLoadingMedia(true);
+                      let res;
+                      let idReceta;
+
+                      if (modoReemplazo) {
+                        res = await api.put(`/recetas/reemplazar/${recipeId}`, recetaObj);
+                        idReceta = res.data.idReceta;
+                      } else if (modoEdicion && recipeId) {
+                        res = await api.put(`/recetas/${recipeId}`, recetaObj);
+                        idReceta = recipeId;
+                      } else {
+                        console.log("Creando nueva receta...");
+                        res = await api.post("/recetas/", recetaObj);
+                        idReceta = res.data.idReceta;
+                        console.log("Receta creada. ID:", idReceta);
+                      }
+
+                      const config = {
+                        headers: { "Content-Type": "multipart/form-data" },
+                        transformRequest: (data) => data,
+                      };
+
+                      if (recipe.fotoPrincipal?.startsWith("file://")) {
+                        const fotoData = new FormData();
+                        fotoData.append("archivo", {
+                          uri: recipe.fotoPrincipal,
+                          type: "image/jpeg",
+                          name: "fotoPrincipal.jpg",
+                        });
+                        await api.post(`/recetas/${idReceta}/foto-principal`, fotoData, config);
+                      }
+
+                      for (let i = 0; i < recipe.fotosAdicionales.length; i++) {
+                        const f = recipe.fotosAdicionales[i];
+                        if (f.urlFoto?.startsWith("file://")) {
+                          const fotoData = new FormData();
+                          fotoData.append("archivo", {
+                            uri: f.urlFoto,
+                            type: "image/jpeg",
+                            name: `fotoAdicional_${i}.jpg`,
+                          });
+                          await api.post(`/recetas/${idReceta}/foto-adicional`, fotoData, config);
+                        }
+                      }
+
+                      for (let i = 0; i < recipe.pasos.length; i++) {
+                        const paso = recipe.pasos[i];
+                        for (let j = 0; j < paso.multimedia.length; j++) {
+                          const media = paso.multimedia[j];
+                          if (media.urlContenido?.startsWith("file://")) {
+                            const mediaData = new FormData();
+                            mediaData.append("archivo", {
+                              uri: media.urlContenido,
+                              type: media.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
+                              name: `paso_${i}_media_${j}.${media.tipo_contenido === "video" ? "mp4" : "jpg"}`,
+                            });
+                            await api.post(
+                              `/recetas/${idReceta}/paso/${i}/media`,
+                              mediaData,
+                              config
+                            );
+                          }
+                        }
+                      }
+                      navigation.navigate("LoadedRecipe");
+                      limpiarFormulario();
+                    } catch (e) {
+                      console.log("Error en submitRecipe:", {
+                        message: e.message,
+                        config: e.config,
+                        request: e.request,
+                        response: e.response?.data,
+                        status: e.response?.status,
+                      });
+                      Alert.alert("Error", "No se pudo guardar la receta.");
+                    }
+                    finally {
+                      setLoadingMedia(false);
+                    }
+                },
+             },
+           ]
+      );
   }
 
 

@@ -1,199 +1,181 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert, Pressable, ScrollView, Modal } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import * as SecureStore from 'expo-secure-store';
-import { colors, fonts } from "../utils/themes";
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, StatusBar } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import api from "../api/axiosInstance";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Asistencia() {
-  const [tienePermiso, setTienePermiso] = useState(null);
-  const [mostrarScanner, setMostrarScanner] = useState(false);
-  const [escaneado, setEscaneado] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [historial, setHistorial] = useState([]);
+export default function QRScanner() {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+  const alertActive = useRef(false); // Flag para evitar múltiples alertas
 
   useEffect(() => {
-    (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setTienePermiso(status === 'granted');
-    })();
-  }, []);
+    if (!permission || !permission.granted) {
+      requestPermission();
+    }
+  }, [permission]);
 
-  const manejarEscaneo = async ({ data }) => {
-    setEscaneado(true);
-    setMostrarScanner(false);
-    await guardarAsistenciaDesdeQR(data);
+  const KEY_SEDE = 'idSede';
+
+  const registrarAsistencia = async (sedeId, cursoId) => {
+    const queryParams = [];
+
+    if (sedeId) queryParams.push(`sede_id=${sedeId}`);
+    if (cursoId) queryParams.push(`curso_id=${cursoId}`);
+
+    const queryString = queryParams.join("&");
+
+    try {
+      const response = await api.post(`/user/me/asistencia?${queryString}`);
+      Alert.alert("Asistencia registrada", "¡Listo! Tu asistencia fue registrada correctamente.", [
+        { text: "OK", onPress: () => setScanned(false) },
+      ]);
+      await AsyncStorage.removeItem("idSede");
+    } catch (err) {
+      console.error("Error al registrar asistencia:", err);
+      Alert.alert("Error", "No se pudo registrar la asistencia.");
+      setScanned(false);
+    }
   };
 
-  const verHistorial = async () => {
-    const json = await SecureStore.getItemAsync("asistencias");
-    const asistencias = json ? JSON.parse(json) : [];
-    setHistorial(asistencias.reverse());
-    setModalVisible(true);
+
+  const handleBarcodeScanned = async ({ data }) => {
+    if (scanned || alertActive.current) return;
+
+    setScanned(true);
+    alertActive.current = true;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(data);
+    } catch {
+      Alert.alert("Error", "El código QR no contiene datos válidos", [
+        {
+          text: "OK",
+          onPress: () => {
+            alertActive.current = false;
+            setScanned(false);
+          },
+        },
+      ]);
+      return;
+    }
+
+    // 📍 Caso 1: Escanear una sede
+    if (parsed.idSede) {
+      try {
+        await AsyncStorage.setItem(KEY_SEDE, String(parsed.idSede));
+        console.log("Sede guardada localmente:", parsed.idSede);
+
+        Alert.alert(
+          "Sede guardada",
+          `ID Sede: ${parsed.idSede}\nPodés salir o ir a otra sección.\nCuando escanees el curso, se registrará la asistencia.`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                alertActive.current = false;
+                setScanned(false);
+              },
+            },
+          ]
+        );
+      } catch (e) {
+        Alert.alert("Error", "No se pudo guardar la sede localmente", [
+          {
+            text: "OK",
+            onPress: () => {
+              alertActive.current = false;
+              setScanned(false);
+            },
+          },
+        ]);
+      }
+
+    // 📍 Caso 2: Escanear un curso
+    } else if (parsed.idCurso) {
+      try {
+        const storedSede = await AsyncStorage.getItem(KEY_SEDE);
+        if (!storedSede) {
+          Alert.alert("Error", "Primero debés escanear una sede.", [
+            {
+              text: "OK",
+              onPress: () => {
+                alertActive.current = false;
+                setScanned(false);
+              },
+            },
+          ]);
+          return;
+        }
+
+        console.log("Curso escaneado:", parsed.idCurso);
+        await registrarAsistencia(storedSede, parsed.idCurso); // 👈 Reutilizás la función
+      } catch (error) {
+        console.error("Error general al procesar el curso:", error);
+        Alert.alert("Error", "No se pudo registrar la asistencia.", [
+          {
+            text: "OK",
+            onPress: () => {
+              alertActive.current = false;
+              setScanned(false);
+            },
+          },
+        ]);
+      }
+
+    // 📍 Caso 3: QR inválido
+    } else {
+      Alert.alert("QR inválido", "El código QR no contiene ni idSede ni idCurso.", [
+        {
+          text: "OK",
+          onPress: () => {
+            alertActive.current = false;
+            setScanned(false);
+          },
+        },
+      ]);
+    }
   };
+
+
+  if (!permission) return <View style={styles.center}><Text>Solicitando permisos...</Text></View>;
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.center}>
+        <Text>Se requieren permisos de cámara</Text>
+        <TouchableOpacity onPress={requestPermission} style={styles.button}>
+          <Text style={styles.btnText}>Conceder permiso</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titulo}>Asistencia</Text>
-
-      {tienePermiso === null && <Text>Solicitando permiso de cámara...</Text>}
-      {tienePermiso === false && <Text>No se tiene acceso a la cámara.</Text>}
-
-      {tienePermiso && (
-        <>
-          {!mostrarScanner && (
-            <>
-              <Pressable style={styles.boton} onPress={() => {
-                setEscaneado(false);
-                setMostrarScanner(true);
-              }}>
-                <Text style={styles.textoBoton}> Escanear código QR</Text>
-              </Pressable>
-
-              <Pressable style={[styles.boton, { backgroundColor: colors.secondary }]} onPress={verHistorial}>
-                <Text style={styles.textoBoton}> Ver historial</Text>
-              </Pressable>
-            </>
-          )}
-
-          {mostrarScanner && (
-            <View style={styles.scannerContainer}>
-              <BarCodeScanner
-                onBarCodeScanned={escaneado ? undefined : manejarEscaneo}
-                style={StyleSheet.absoluteFillObject}
-              />
-            </View>
-          )}
-        </>
+    <View style={styles.container}>
+      {Platform.OS === 'android' && <StatusBar hidden />}
+      <CameraView
+        style={styles.camera}
+        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+        barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+      />
+      {scanned && (
+        <TouchableOpacity onPress={() => {
+          alertActive.current = false;
+          setScanned(false);
+        }} style={styles.button}>
+          <Text style={styles.btnText}>Escanear de nuevo</Text>
+        </TouchableOpacity>
       )}
-
-      {/* Modal de historial */}
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
-        <ScrollView style={styles.modalContainer}>
-          <Text style={styles.titulo}>Historial de Asistencia</Text>
-          {historial.length === 0 ? (
-            <Text style={styles.sinAsistencias}>Aún no registraste asistencias.</Text>
-          ) : (
-            historial.map((asistencia, index) => (
-              <View key={index} style={styles.historialItem}>
-                <Text style={styles.textoHistorial}> Curso: {asistencia.idCurso}</Text>
-                <Text style={styles.textoHistorial}> Fecha: {new Date(asistencia.fechaEscaneo).toLocaleString()}</Text>
-              </View>
-            ))
-          )}
-          <Pressable style={styles.botonCerrar} onPress={() => setModalVisible(false)}>
-            <Text style={styles.textoBoton}>Cerrar</Text>
-          </Pressable>
-        </ScrollView>
-      </Modal>
-    </ScrollView>
+    </View>
   );
 }
 
-// Funciones auxiliares
-function parsearQRInsert(sql) {
-  const regex = /VALUES\s*\(\s*(\d+),\s*(\d+),\s*'([\d-]+)',\s*'([\d-]+)',\s*(\d+)\s*\)/i;
-  const match = sql.match(regex);
-  if (!match) return null;
-  return {
-    idSede: parseInt(match[1]),
-    idCurso: parseInt(match[2]),
-    fechaInicio: match[3],
-    fechaFin: match[4],
-    vacantesDisponibles: parseInt(match[5]),
-  };
-}
-
-async function guardarAsistenciaDesdeQR(qrData) {
-  const curso = parsearQRInsert(qrData);
-  if (!curso) {
-    Alert.alert(" Error", "El código QR no tiene el formato correcto.");
-    return;
-  }
-
-  const idUsuario = await SecureStore.getItemAsync("idUsuario");
-  if (!idUsuario) {
-    Alert.alert(" Error", "No se encontró el usuario en la app.");
-    return;
-  }
-
-  const nuevaAsistencia = {
-    idUsuario: parseInt(idUsuario),
-    fechaEscaneo: new Date().toISOString(),
-    ...curso,
-  };
-
-  const asistenciasPreviasJson = await SecureStore.getItemAsync("asistencias");
-  const asistenciasPrevias = asistenciasPreviasJson ? JSON.parse(asistenciasPreviasJson) : [];
-
-  asistenciasPrevias.push(nuevaAsistencia);
-  await SecureStore.setItemAsync("asistencias", JSON.stringify(asistenciasPrevias));
-
-  Alert.alert(
-    "Asistencia registrada",
-    `Usuario: ${idUsuario}\nCurso: ${curso.idCurso}\nFecha: ${nuevaAsistencia.fechaEscaneo}`
-  );
-}
-
-// Estilos
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: "#fff",
-    flexGrow: 1,
-  },
-  titulo: {
-    fontFamily: "Sora_700Bold",
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: "center",
-    color: colors.primary,
-  },
-  boton: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 12,
-    marginVertical: 10,
-    alignItems: "center",
-  },
-  textoBoton: {
-    color: "white",
-    fontSize: 16,
-    fontFamily: "Sora_600SemiBold",
-  },
-  scannerContainer: {
-    height: 400,
-    borderRadius: 15,
-    overflow: "hidden",
-    marginTop: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  historialItem: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 8,
-  },
-  textoHistorial: {
-    fontFamily: "Sora_400Regular",
-    fontSize: 14,
-    color: "#333",
-  },
-  botonCerrar: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  sinAsistencias: {
-    fontFamily: "Sora_400Regular",
-    textAlign: "center",
-    marginTop: 20,
-    color: "#888",
-  }
+  container: { flex: 1 },
+  camera: { flex: 1 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  button: { position: 'absolute', bottom: 40, alignSelf: 'center', backgroundColor: '#fff', padding: 12, borderRadius: 8 },
+  btnText: { fontSize: 16, fontWeight: 'bold' },
 });

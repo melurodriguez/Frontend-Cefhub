@@ -32,10 +32,12 @@ export default function RecipeCard({ data, onPress }) {
             <Image source={avatars[parseInt(data.avatar)]} style={styles.icon} />
             <Text style={styles.userText}>{data.nickname}</Text>
           </View>
+          {data.estado === "aprobado" && (
           <View style={styles.rating}>
-            <Text style={styles.ratingText}>{data.promedioCalificacion}</Text>
-            <Image source={star} style={styles.icon} />
+              <Text style={styles.ratingText}>{data.promedioCalificacion}</Text>
+              <Image source={star} style={styles.icon} />
           </View>
+          )}
         </View>
 
         {data.estado && data.estado !== "aprobado" && (

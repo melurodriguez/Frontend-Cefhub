@@ -36,8 +36,7 @@ import CodeForgotPassword from "./paginas/CodeForgotPassword";
 import ForgotPassword from "./paginas/ForgotPassword";
 import ResetPassword from "./paginas/ResetPassword";
 import NoConexion from "./paginas/NoConexion";
-import QRScanner from "./components/QRScanner";
-//import Asistencia from './paginas/Asistencia';
+import Asistencia from "./paginas/Asistencia";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,10 +66,10 @@ function DrawerNavigator() {
       />
     <Drawer.Screen
       name="Asistencia"
-      component={HomePage}
+      component={Asistencia}
       options={{
         drawerIcon: ({ color }) => (
-          <Ionicons name="checkmark-circle-outline" size={22} color={color}/>
+          <Ionicons name="qr-code-outline" size={22} color={color}/>
         ),
       }}
     />
@@ -252,7 +251,6 @@ function AppNavigator() {
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
                   <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
-                  <Stack.Screen name="QRScanner" component={QRScanner}/>
                 </>
               )}
             </Stack.Navigator>

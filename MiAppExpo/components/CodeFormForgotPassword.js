@@ -3,12 +3,16 @@ import { TextInput } from "react-native-paper";
 import { sizes } from "../utils/themes";
 import { useState, useRef } from "react";
 import api from "../api/axiosInstance";
+import PopUp from "./PopUp";
 const welcomeIcon = require("../assets/welcomeIcon.png");
 
 export default function CodeFormForgotPassword({email, navigation }) {
 
   const[codeDigits, setCodeDigits]=useState(["","","",""])
   const [isLoading, setIsLoading] = useState(false);
+  const [popUpDigits, setPopUpDigits]=useState(false);
+  const [popUpInvalidCode, setPopUpInvalidCode]=useState(false)
+  const [popUpErrorInesperado, setPopUpErrorInesperado]=useState(false)
     const inputRefs = useRef([]);
 
     const handleChange = (value, index) => {
@@ -38,6 +42,7 @@ export default function CodeFormForgotPassword({email, navigation }) {
       console.log("Código ingresado:", code);
 
       if (code.length !== 4) {
+        setPopUpDigits(true)
         console.log("Debe tener 4 dígitos");
         return;
       }
@@ -51,6 +56,11 @@ export default function CodeFormForgotPassword({email, navigation }) {
         console.log("Respuesta del backend:", res);
         navigation.navigate("ResetPassword", { email: email });
       } catch (err) {
+        if(err.response?.status === 403){
+          setPopUpInvalidCode(true)
+        }else{
+          setPopUpErrorInesperado(true)
+        }
         console.log("Error en el envío del código: ", err);
       } finally {
         setIsLoading(false);
@@ -90,6 +100,9 @@ export default function CodeFormForgotPassword({email, navigation }) {
             )}
           </Pressable>
         </View>
+        {popUpDigits && <PopUp action={"El código debe contener 4 dígitos"} visible={popUpDigits} onClose={()=>setPopUpDigits(false)} duration={2000}/>}
+        {popUpInvalidCode && <PopUp action={"Código Inválido. \n\nEl código ingresado es incorrecto."} visible={popUpInvalidCode} onClose={()=>setPopUpInvalidCode(false)} duration={2000}/>}
+        {popUpErrorInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado."} visible={popUpErrorInesperado} onClose={()=>setPopUpErrorInesperado(false)} duration={2000}/>}
       </View>
     );
   }

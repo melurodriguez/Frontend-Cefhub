@@ -19,6 +19,9 @@ import { colors } from "../utils/themes";
 import UploadingScreen from "../components/UploadingScreen";
 import NetInfo from "@react-native-community/netinfo";
 import * as SecureStore from "expo-secure-store";
+import PopUp from "./PopUp";
+import PopUpExistingRecipe from "./PopUpExistingRecipe";
+import PopUpConexion from "./PopUpConexion";
 
 
 export default function LoadForm() {
@@ -44,6 +47,18 @@ export default function LoadForm() {
     fotosAdicionales: [],
   });
   const [loadingMedia, setLoadingMedia] = useState(false);
+  const [popUpDenied, setPopUpDenied]=useState(false);
+  const [popUpLoadingError, setPopUpLoadingError]=useState(false);
+  const [popUpNewRecipe, setPopUpNewRecipe]=useState(false);
+  const [popUpExistingRecipe, setPopUpExistingRecipe]=useState(false);
+  const [popUpVerificationError, setPopUpVerificationError]=useState(false);
+  const [popUpRecoverConnection, setPopUpRecoverConnection]=useState(false);
+  const [popUpIncomplete, setPopUpIncomplete]=useState(false)
+  const [popUpNoConnection,setPopUpNoConnection]=useState(false)
+  const [popUpConnectionType, setPopUpConnectionType]=useState(false)
+  const [popUpNotSaved, setPopUpNotSaved]=useState(false)
+  const [botones, setBotones]=useState([])
+  const [botonesConexion, setBotonesConexion]= useState([])
 
 
 
@@ -157,7 +172,7 @@ export default function LoadForm() {
     if (!granted) {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso denegado', 'No se puede acceder a la galería');
+        setPopUpDenied(true)
         return;
       }
     }
@@ -180,7 +195,7 @@ export default function LoadForm() {
     if (!granted) {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso denegado', 'No se puede acceder a la galería');
+        setPopUpDenied(true)
         return;
       }
     }
@@ -213,7 +228,7 @@ export default function LoadForm() {
     if (!granted) {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso denegado', 'No se puede acceder a la galería');
+        setPopUpDenied(true)
         return;
       }
     }
@@ -281,7 +296,7 @@ export default function LoadForm() {
       setCamposHabilitados(true);
     } catch (error) {
       console.error("Error al cargar receta:", error);
-      Alert.alert("Error", "No se pudo cargar la receta.");
+      setPopUpLoadingError(true)
     }
   }
 
@@ -291,42 +306,40 @@ export default function LoadForm() {
         const response = await api.post(`/recetas/verificar/${encodeURIComponent(nombre)}`);
 
         // Si no hay conflicto, es receta nueva
-        Alert.alert("Nueva receta", response.data.mensaje);
+        setPopUpNewRecipe(true)
         setCamposHabilitados(true);
 
       } catch (error) {
         if (error.response && error.response.status === 409) {
           const data = error.response.data?.detail || {};
 
-          Alert.alert(
-            "Receta existente",
-            data.mensaje || "Ya existe una receta con este nombre.",
-            [
-              {
-                text: "Modificar",
-                onPress: () => {
-                  console.log("Modificar receta existente:", data.receta_id);
-                  cargarReceta(data.receta_id);
-                },
+          setBotones([
+            {
+              text: "Modificar",
+              onPress: async() => {
+                console.log("Modificar receta existente:", data.receta_id);
+                cargarReceta(data.receta_id);
               },
-              {
-                text: "Reemplazar",
-                onPress: () => {
-                  setRecipeId(data.receta_id);
-                  setModoReemplazo(true);
-                  setCamposHabilitados(true);
-                },
+            },
+            {
+              text: "Reemplazar",
+              onPress: () => {
+                setRecipeId(data.receta_id);
+                setModoReemplazo(true);
+                setCamposHabilitados(true);
               },
-              {
-                text: "Cancelar",
-                style: "cancel",
-              },
-            ],
-            { cancelable: true }
-          );
+            },
+            {
+              text: "Cancelar",
+              style: "cancel",
+            },
+          ]);
+          setPopUpExistingRecipe(true)
+          
+          
         } else {
           console.console("Error inesperado:", error);
-          Alert.alert("Error", "No se pudo verificar el nombre.");
+          setPopUpVerificationError(true)
         }
       }
     }
@@ -374,14 +387,14 @@ async function reintentarEnvioRecetasPendientes(navigation) {
   }
 
   await SecureStore.setItemAsync("recetas_pendientes", JSON.stringify([]));
-  Alert.alert("Conexión recuperada", "Se enviaron las recetas pendientes.");
+  setPopUpRecoverConnection(true)
   navigation.navigate("LoadedRecipe");
  }
 
   //CREAR o actualizar receta
   async function submitRecipe(navigation) {
     if (!validarFormulario()) {
-        Alert.alert("Error", "Por favor, completá todos los campos obligatorios.");
+      setPopUpIncomplete(true)
         return;
     }
     const recetaObj = {
@@ -410,101 +423,103 @@ async function reintentarEnvioRecetasPendientes(navigation) {
         pendientes.push(recetaObj);
         await SecureStore.setItemAsync("recetas_pendientes", JSON.stringify(pendientes));
 
-        Alert.alert("Sin conexión", "Receta guardada localmente hasta recuperar señal.");
+        setPopUpNoConnection(true)
         return;
     }
-    Alert.alert(
-        "Tipo de conexión",
-        `Estás conectado por: ${estadoRed.type}. ¿Querés guardar la receta con esta conexión?`,
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Sí, guardar", onPress: async () => {
-                try {
+    setBotonesConexion([
+      {
+        text:"Sí, guardar",
+        onPress:async()=>{
+          try {
 
-                      setLoadingMedia(true);
-                      let res;
-                      let idReceta;
+            setLoadingMedia(true);
+            let res;
+            let idReceta;
 
-                      if (modoReemplazo) {
-                        res = await api.put(`/recetas/reemplazar/${recipeId}`, recetaObj);
-                        idReceta = res.data.idReceta;
-                      } else if (modoEdicion && recipeId) {
-                        res = await api.put(`/recetas/${recipeId}`, recetaObj);
-                        idReceta = recipeId;
-                      } else {
-                        console.log("Creando nueva receta...");
-                        res = await api.post("/recetas/", recetaObj);
-                        idReceta = res.data.idReceta;
-                        console.log("Receta creada. ID:", idReceta);
-                      }
+            if (modoReemplazo) {
+              res = await api.put(`/recetas/reemplazar/${recipeId}`, recetaObj);
+              idReceta = res.data.idReceta;
+            } else if (modoEdicion && recipeId) {
+              res = await api.put(`/recetas/${recipeId}`, recetaObj);
+              idReceta = recipeId;
+            } else {
+              console.log("Creando nueva receta...");
+              res = await api.post("/recetas/", recetaObj);
+              idReceta = res.data.idReceta;
+              console.log("Receta creada. ID:", idReceta);
+            }
 
-                      const config = {
-                        headers: { "Content-Type": "multipart/form-data" },
-                        transformRequest: (data) => data,
-                      };
+            const config = {
+              headers: { "Content-Type": "multipart/form-data" },
+              transformRequest: (data) => data,
+            };
 
-                      if (recipe.fotoPrincipal?.startsWith("file://")) {
-                        const fotoData = new FormData();
-                        fotoData.append("archivo", {
-                          uri: recipe.fotoPrincipal,
-                          type: "image/jpeg",
-                          name: "fotoPrincipal.jpg",
-                        });
-                        await api.post(`/recetas/${idReceta}/foto-principal`, fotoData, config);
-                      }
+            if (recipe.fotoPrincipal?.startsWith("file://")) {
+              const fotoData = new FormData();
+              fotoData.append("archivo", {
+                uri: recipe.fotoPrincipal,
+                type: "image/jpeg",
+                name: "fotoPrincipal.jpg",
+              });
+              await api.post(`/recetas/${idReceta}/foto-principal`, fotoData, config);
+            }
 
-                      for (let i = 0; i < recipe.fotosAdicionales.length; i++) {
-                        const f = recipe.fotosAdicionales[i];
-                        if (f.urlFoto?.startsWith("file://")) {
-                          const fotoData = new FormData();
-                          fotoData.append("archivo", {
-                            uri: f.urlFoto,
-                            type: "image/jpeg",
-                            name: `fotoAdicional_${i}.jpg`,
-                          });
-                          await api.post(`/recetas/${idReceta}/foto-adicional`, fotoData, config);
-                        }
-                      }
+            for (let i = 0; i < recipe.fotosAdicionales.length; i++) {
+              const f = recipe.fotosAdicionales[i];
+              if (f.urlFoto?.startsWith("file://")) {
+                const fotoData = new FormData();
+                fotoData.append("archivo", {
+                  uri: f.urlFoto,
+                  type: "image/jpeg",
+                  name: `fotoAdicional_${i}.jpg`,
+                });
+                await api.post(`/recetas/${idReceta}/foto-adicional`, fotoData, config);
+              }
+            }
 
-                      for (let i = 0; i < recipe.pasos.length; i++) {
-                        const paso = recipe.pasos[i];
-                        for (let j = 0; j < paso.multimedia.length; j++) {
-                          const media = paso.multimedia[j];
-                          if (media.urlContenido?.startsWith("file://")) {
-                            const mediaData = new FormData();
-                            mediaData.append("archivo", {
-                              uri: media.urlContenido,
-                              type: media.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
-                              name: `paso_${i}_media_${j}.${media.tipo_contenido === "video" ? "mp4" : "jpg"}`,
-                            });
-                            await api.post(
-                              `/recetas/${idReceta}/paso/${i}/media`,
-                              mediaData,
-                              config
-                            );
-                          }
-                        }
-                      }
-                      navigation.navigate("LoadedRecipe");
-                      limpiarFormulario();
-                    } catch (e) {
-                      console.log("Error en submitRecipe:", {
-                        message: e.message,
-                        config: e.config,
-                        request: e.request,
-                        response: e.response?.data,
-                        status: e.response?.status,
-                      });
-                      Alert.alert("Error", "No se pudo guardar la receta.");
-                    }
-                    finally {
-                      setLoadingMedia(false);
-                    }
-                },
-             },
-           ]
-      );
+            for (let i = 0; i < recipe.pasos.length; i++) {
+              const paso = recipe.pasos[i];
+              for (let j = 0; j < paso.multimedia.length; j++) {
+                const media = paso.multimedia[j];
+                if (media.urlContenido?.startsWith("file://")) {
+                  const mediaData = new FormData();
+                  mediaData.append("archivo", {
+                    uri: media.urlContenido,
+                    type: media.tipo_contenido === "video" ? "video/mp4" : "image/jpeg",
+                    name: `paso_${i}_media_${j}.${media.tipo_contenido === "video" ? "mp4" : "jpg"}`,
+                  });
+                  await api.post(
+                    `/recetas/${idReceta}/paso/${i}/media`,
+                    mediaData,
+                    config
+                  );
+                }
+              }
+            }
+            navigation.navigate("LoadedRecipe");
+            limpiarFormulario();
+          } catch (e) {
+            console.log("Error en submitRecipe:", {
+              message: e.message,
+              config: e.config,
+              request: e.request,
+              response: e.response?.data,
+              status: e.response?.status,
+            });
+            setPopUpNotSaved(true)
+          }
+          finally {
+            setLoadingMedia(false);
+          }
+        }
+      },
+      {
+        text: "Cancelar",
+        style:"cancel"
+      }
+    ])
+    setPopUpConnectionType(true)
+    
   }
 
 
@@ -731,6 +746,16 @@ async function reintentarEnvioRecetasPendientes(navigation) {
             </>
           )}
         </ScrollView>
+        {popUpDenied && <PopUp action={"Permiso denegado. \n\nNo se puede acceder a la galería"} visible={popUpDenied} onClose={()=>setPopUpDenied(false)} duration={2000}/>}
+        {popUpLoadingError && <PopUp action={"Error. \n\nNo se pudo cargar la receta"} visible={popUpLoadingError} onClose={()=>setPopUpLoadingError(false)} duration={2000}/>}
+        {popUpNewRecipe && <PopUp action={"Nueva Receta. \n\nReceta nueva. Podés comenzar a cargarla"} visible={popUpNewRecipe} onClose={()=>setPopUpNewRecipe(false)} duration={2000}/> }
+        {popUpExistingRecipe && <PopUpExistingRecipe visible={popUpExistingRecipe} onClose={()=>setPopUpExistingRecipe(false)} botones={botones} />}
+        {popUpVerificationError && <PopUp action={"Error. \n\nNo se pude verificar el nombre"} visible={popUpVerificationError} onClose={()=>setPopUpVerificationError(false)} duration={2000}/>}
+        {popUpRecoverConnection && <PopUp action={"Conexión recuperada. \n\nSe enviaron las recetas pendientes"} visible={popUpRecoverConnection} onClose={()=>setPopUpRecoverConnection(false)} duration={2000}/>}
+        {popUpIncomplete && <PopUp action={"Error. \n\nPor favor, completá todos los campos"} visible={popUpIncomplete} onClose={()=>setPopUpIncomplete(false)} duration={2000}/>}
+        {popUpNoConnection && <PopUp action={"Sin conexión. \n\nReceta guardada localmente hasta recuperar señal"} visible={popUpNoConnection} onClose={()=>setPopUpNoConnection(false)} duration={3000}/>}
+        {popUpConnectionType && <PopUpConexion visible={popUpConnectionType} onClose={()=>setPopUpConnectionType(false)} botones={botonesConexion}/>}
+        {popUpNotSaved && <PopUp action={"Error. \n\nNo se pude guardar la receta"} visible={popUpNotSaved} onClose={()=>setPopUpNotSaved(false)} duration={3000}/>}
       </View>
   );
 }

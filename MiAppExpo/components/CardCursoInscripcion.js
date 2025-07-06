@@ -1,6 +1,3 @@
-import InfoCurso from "../paginas/InfoCurso";
-import API_BASE_URL from "../utils/config";
-import { Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import api from "../api/axiosInstance";
 import { colors } from "../utils/themes";

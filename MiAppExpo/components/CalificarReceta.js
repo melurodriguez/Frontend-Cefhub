@@ -2,14 +2,20 @@ import React, { useState } from "react";
 import { View, Text, Image, Pressable, TextInput, StyleSheet, Alert } from "react-native";
 import api from "../api/axiosInstance"; // ajusta la ruta si es necesario
 import { colors, fonts } from "../utils/themes";
+import PopUp from './PopUp';
 
+const check=require('../assets/check.png')
 export default function CalificarReceta({ idReceta, token, onCalificacionExitosa }) {
   const [rating, setRating] = useState(0);
   const [comentario, setComentario] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [popUpInvalidInput, setPopUpInvalidInput]=useState(false)
+  const [popUpExito, setPopUpExito]=useState(false)
+  const [popUpError, setPopUpError]=useState(false)
+ 
   const enviarCalificacion = async () => {
     if (rating === 0) {
+      setPopUpInvalidInput(true)
       Alert.alert("Error", "Por favor seleccioná una calificación");
       return;
     }
@@ -25,12 +31,14 @@ export default function CalificarReceta({ idReceta, token, onCalificacionExitosa
           },
         }
       );
+      setPopUpExito(true)
       Alert.alert("Éxito", response.data.mensaje);
       setRating(0);
       setComentario("");
       if (onCalificacionExitosa) onCalificacionExitosa();
     } catch (error) {
       console.log(error);
+      setPopUpError(true)
       Alert.alert(
         "Error",
         error.response?.data?.detail || "Error enviando la calificación"
@@ -89,6 +97,9 @@ export default function CalificarReceta({ idReceta, token, onCalificacionExitosa
           {loading ? "Enviando..." : "Enviar"}
         </Text>
       </Pressable>
+      {popUpInvalidInput && <PopUp action={"Error. \n\nPor favor, seleccioná una calificación."} visible={popUpInvalidInput} onClose={()=>setPopUpInvalidInput(false)} duration={2000}/>}
+      {popUpExito && <PopUp action={"Su calificaión ha sido enviada"} visible={popUpExito} onClose={()=>setPopUpExito(false)} duration={2000} image={check}/>}
+      {popUpError && <PopUp action={"Error. \n\nOcurrió un error inesperado"} visible={popUpError} onClose={()=>setPopUpError(false)} duration={2000}/>}
     </View>
   );
 

@@ -4,7 +4,7 @@
     "slug": "ChefHub",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/iconn.png",
+    "icon": "./assets/LogoChefHub.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "schema": "chefhub",
@@ -18,18 +18,33 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/iconn.png",
+        "foregroundImage": "./assets/LogoChefHub.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.ChefHub"
     },
     "web": {
-      "favicon": "./assets/iconn.png"
+      "favicon": "./assets/LogoChefHub.png"
     },
     "plugins": [
       "expo-secure-store",
       "expo-font",
-      "expo-video"
-    ]
+      "expo-video",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f2517d28-c1b5-4870-824a-106c49b06c6a"
+      }
+    },
+    "owner": "melurodriguez"
   }
 }

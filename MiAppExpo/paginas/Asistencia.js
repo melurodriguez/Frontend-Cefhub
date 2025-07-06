@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+/*import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert, Pressable, ScrollView, Modal } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as SecureStore from 'expo-secure-store';
@@ -66,7 +66,7 @@ export default function Asistencia() {
         </>
       )}
 
-      {/* Modal de historial */}
+      {// Modal de historial }
       <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
         <ScrollView style={styles.modalContainer}>
           <Text style={styles.titulo}>Historial de Asistencia</Text>
@@ -196,4 +196,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: "#888",
   }
-});
+});*/

@@ -200,7 +200,7 @@ export default function Profile({navigation}) {
           )
         )}
 
-        //Asistencia
+        
 
         {buttons[pressed] === "Asistencia" && (
           <Pressable onPress={() => navigation.navigate("Asistencia")} >

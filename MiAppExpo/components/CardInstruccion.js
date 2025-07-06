@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { View, Text, Image, Dimensions, ScrollView } from "react-native";
 import API_BASE_URL from "../utils/config";
 import { StyleSheet } from "react-native";

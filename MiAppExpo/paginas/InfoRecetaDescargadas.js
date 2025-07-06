@@ -9,11 +9,7 @@ import {
   Pressable,
   ImageBackground,
   Dimensions,
-  ScrollView,
-  TextInput,
-  FlatList,
-  Button ,
-  Alert
+  ScrollView
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
 import PopUp from "../components/PopUp";

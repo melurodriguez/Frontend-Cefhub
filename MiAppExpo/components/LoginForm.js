@@ -6,7 +6,6 @@ import {
   Image,
   TextInput,
   Pressable,
-  Alert,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { AuthContext } from "../auth/AuthContext";
@@ -18,6 +17,8 @@ const welcomeIcon = require("../assets/welcomeIcon.png");
 const eye_open = require("../assets/eye-check.png");
 const eye_closed = require("../assets/eye-closed.png");
 const check= require('../assets/check.png');
+const errorImg=require('../assets/error.png');
+const doubt = require('../assets/doubt.png');
 
 export default function LoginForm({ navigation }) {
   const { login } = useContext(AuthContext);
@@ -32,7 +33,9 @@ export default function LoginForm({ navigation }) {
     rememberMe: false,
   });
   const [visibility, setVisibility] = useState(true);
-  const [popUp, setPopUp]= useState(false)
+  const [popUp, setPopUp]= useState(false);
+  const [popUpInvalidCredentials, setPopUpInvalidCredentials]=useState(false);
+  const [popUpErrorInesperado, setPopUpErrorInesperado]=useState(false);
 
   const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -102,8 +105,14 @@ export default function LoginForm({ navigation }) {
        navigation.navigate("Menú");
      }
    } catch (error) {
-     console.log("Error al iniciar sesión:", error);
-     Alert.alert("Error", "Credenciales inválidas o problema de red.");
+    if (error.response?.status ===401){
+      setPopUpInvalidCredentials(true)
+    }else{
+      setPopUpErrorInesperado(true)
+    }
+    
+    console.log("Error al iniciar sesión:", error);
+   
 
    } finally {
      setLoading(false);
@@ -174,6 +183,8 @@ export default function LoginForm({ navigation }) {
 
       </View>
       {popUp && <PopUp action={"Tus credenciales fueron cargadas"} visible={popUp} onClose={()=>setPopUp(false)} duration={3000} image={check}/>}
+      {popUpInvalidCredentials && <PopUp action={"Email o Contraseña incorrecto."} visible={popUpInvalidCredentials} onClose={()=>setPopUpInvalidCredentials(false)} duration={2000} image={errorImg}/>}
+      {popUpErrorInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado."} visible={popUpErrorInesperado} onClose={()=>setPopUpErrorInesperado(false)} duration={2000} image={doubt}/>}
     </View>
   );
 }

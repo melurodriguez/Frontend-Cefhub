@@ -14,7 +14,7 @@ export default function HomePage({ navigation }) {
       useCallback(() => {
         api
           .get("/recetas/?ordenar_por=reciente&limite=3")
-          .then((res) => setRecetas(res.data))
+          .then((res) =>setRecetas(res.data))
           .catch((err) => {
             console.error("Error al obtener recetas:", err);
           });

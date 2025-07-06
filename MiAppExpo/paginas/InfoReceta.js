@@ -34,6 +34,7 @@ const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
 const favClicked = require("../assets/favClicked.png");
 import * as SecureStore from 'expo-secure-store';
+import PopUpReemplazarReceta from "../components/PopUpReemplazarReceta";
 
 const { width, height } = Dimensions.get("window"); //CAMBIAR
 const download=require("../assets/cloud-download-outline.png")
@@ -53,6 +54,12 @@ export default function InfoReceta({ navigation }) {
   const [porciones, setPorciones] = useState(1);
   const [cantidadPersonas, setCantidadPersonas] = useState(1);
   const [ingredientesCalc, setIngredientesCalc] = useState([]);
+  const [popUpExitoReemplazo, setPopUpExitoReemplazo]=useState(false)
+  const [showReemplazar, setShowReemplazar]=useState(false)
+  const [replaceButtons, setReplaceButtons]=useState([])
+  const [popUpLimit, setPopUpLimit]=useState(false)
+  const [popUpError, setPopUpError]=useState(false)
+  const [popUpExito, setPopUpExito]= useState(false)
 
    useFocusEffect(
       useCallback(() => {
@@ -154,10 +161,7 @@ export default function InfoReceta({ navigation }) {
 
         // Si ya existe
         if (indexExistente !== -1) {
-          Alert.alert(
-            "Receta ya guardada",
-            "¿Querés reemplazar la receta guardada?",
-            [
+            setReplaceButtons([
               {
                 text: "Cancelar",
                 style: "cancel"
@@ -167,26 +171,26 @@ export default function InfoReceta({ navigation }) {
                 onPress: async () => {
                   recetasGuardadas[indexExistente] = recetaParaGuardar;
                   await SecureStore.setItemAsync('recetas_guardadas', JSON.stringify(recetasGuardadas));
-                  Alert.alert("Éxito", "La receta fue reemplazada correctamente.");
+                  setPopUpExitoReemplazo(true)
                 }
               }
-            ]
-          );
+            ])
+            setShowReemplazar(true)
           return;
         }
 
         // Si no existe y hay espacio
         if (recetasGuardadas.length >= 10) {
-          Alert.alert("Límite alcanzado", "Solo podés guardar hasta 10 recetas localmente.");
+          setPopUpLimit(true)
           return;
         }
 
         recetasGuardadas.push(recetaParaGuardar);
         await SecureStore.setItemAsync('recetas_guardadas', JSON.stringify(recetasGuardadas));
-        Alert.alert("Éxito", "Receta guardada localmente.");
+        setPopUpExito(true)
       } catch (error) {
         console.error("Error al guardar receta localmente:", error);
-        Alert.alert("Error", "No se pudo guardar la receta localmente.");
+        setPopUpError(true)
       }
     };
 
@@ -408,6 +412,11 @@ export default function InfoReceta({ navigation }) {
        { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/> :
         <PopUp action={"La receta ha sido eliminada de favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/>}
      </View>
+     {showReemplazar && <PopUpReemplazarReceta visibile={showReemplazar} botones={replaceButtons} onClose={()=>setShowReemplazar(false)}/>}
+     {popUpExitoReemplazo && <PopUp action={"Éxito. \n\nLa receta fue reemplazada correctamente."} visible={popUpExitoReemplazo} onClose={()=>setPopUpExitoReemplazo(false)} duration={2500}/>}
+      {popUpLimit && <PopUp action={"Límite alcanzado. \n\nSolo podes guardar hasta 10 recetas localmente."} visible={popUpLimit} onClose={()=>setPopUpLimit(false)} duration={3000}/>}
+      {popUpError && <PopUp action={"Error. \n\nNo se pudo guardar la receta localmente"} visible={popUpError} onClose={()=>setPopUpError(false)} duration={3000}/>}
+      {popUpExito && <PopUp action={"Éxito. \n\nLa receta fue guardada localmente."} visible={popUpExito} onClose={()=>setPopUpExito(false)} duration={2500}/>}
     </ScrollView>
    </SafeAreaView>
  );

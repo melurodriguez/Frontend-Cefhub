@@ -1,4 +1,4 @@
-import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, Image, Pressable, StyleSheet } from "react-native";
 import { TextInput } from "react-native-paper";
 import { sizes } from "../utils/themes";
 import { useState, useRef } from "react";

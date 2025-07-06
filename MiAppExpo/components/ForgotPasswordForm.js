@@ -10,13 +10,17 @@ import {
 } from "react-native";
 import api from "../api/axiosInstance";
 import { sizes } from "../utils/themes";
+import PopUp from "./PopUp";
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
+const detective=require('../assets/detective.png')
 
 export default function ForgotPasswordForm({navigation}) {
 
   const[email, setEmail]=useState("");
-  const [isLoading, setIsLoading] = useState(false);;
+  const [isLoading, setIsLoading] = useState(false);
+  const [popUpInvalidEmail, setPopUpInvalidEmail]=useState(false);
+  const [popUpErrorInesperado, setPopUpErrorInesperado]=useState(false);
 
   const sendCode= async () =>{
     if (!email) return;
@@ -24,11 +28,18 @@ export default function ForgotPasswordForm({navigation}) {
     try{
       const res= await api.post('/forgot_password', JSON.stringify(email), {
       headers: { 'Content-Type': 'application/json' }
-    })
+      })
       console.log("codigo enviado")
       navigation.navigate('CodeForgotPassword', {email:email})
     }catch(err){
+      if(err.response?.status===404){
+        setPopUpInvalidEmail(true)
+      }else{
+        setPopUpErrorInesperado(true)
+      }
       console.error("error al enviar mail/codigo", err.response?.data || err.message || err)
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -37,7 +48,7 @@ export default function ForgotPasswordForm({navigation}) {
         <View style={styles.form}>
           <Image source={welcomeIcon} style={styles.catImage} />
           <View style={styles.content}>
-            <Text style={styles.title}>Ingresa tu Correo</Text>
+            <Text style={styles.title}>Ingresá tu Correo</Text>
             <Text style={{ fontFamily: "Sora_400Regular", paddingBottom: 20, marginHorizontal: 20 }}>
               Enviaremos un código de verificación a tu correo.
             </Text>
@@ -62,6 +73,8 @@ export default function ForgotPasswordForm({navigation}) {
             </Pressable>
           </View>
         </View>
+        {popUpInvalidEmail && <PopUp action={"Error. \n\nEmail no encontrado."} visible={popUpInvalidEmail} onClose={()=>setPopUpInvalidEmail(false)} duration={2000} image={detective}/>}
+        {popUpErrorInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado."} visible={popUpErrorInesperado} onClose={()=>setPopUpErrorInesperado(false)} duration={2000}/>}
       </View>
     );
   }
@@ -94,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontWeight: "700",
+    fontFamily:"Sora_700Bold",
     fontSize: 24,
     padding: 20,
   },
@@ -119,6 +132,6 @@ const styles = StyleSheet.create({
     },
     btnText: {
       color: "#fff",
-      fontWeight: "700", // Arreglado: estaba sin comillas
+      fontFamily:"Sora_700Bold", // Arreglado: estaba sin comillas
     },
 });

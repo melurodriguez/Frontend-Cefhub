@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Image,
   Pressable,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';

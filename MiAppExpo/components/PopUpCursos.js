@@ -2,24 +2,14 @@ import { View, Text, StyleSheet, Modal, Pressable , Image} from "react-native";
 import React, { useEffect } from "react";
 import { colors } from "../utils/themes";
 
-export default function PopUp({ action, visible, onClose, duration, image }) {
-  useEffect(() => {
-    let timer;
-    if (visible && duration<3000) {
-      timer = setTimeout(() => {
-        onClose();
-      }, duration);
-    }
-    return () => clearTimeout(timer);
-  }, [visible]);
-
+export default function PopUpCursos({ action, visible, onClose, image , onPress}) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.popup}>
           {image && <Image source={image} style={styles.img}/>}
           <Text style={styles.action}>{action}</Text>
-          {duration > 2999 && <Pressable onPress={()=>onClose()} style={styles.btn}><Text style={styles.btnText}>OK</Text></Pressable>}
+          {duration > 2999 && <Pressable onPress={()=>{ onPress(); onClose()}} style={styles.btn}><Text style={styles.btnText}>OK</Text></Pressable>}
         </View>
         
       </View>

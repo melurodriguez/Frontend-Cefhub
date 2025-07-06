@@ -6,7 +6,6 @@ import {
   Image,
   Pressable,
   TextInput,
-  Alert,
 } from "react-native";
 import { sizes } from "../utils/themes";
 import API_BASE_URL from "../utils/config";

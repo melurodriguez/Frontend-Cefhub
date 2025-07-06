@@ -12,6 +12,8 @@ import { sizes } from "../utils/themes";
 import api from "../api/axiosInstance";
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
+const eye_open = require("../assets/eye-check.png");
+const eye_closed = require("../assets/eye-closed.png");
 
 export default function ResetPasswordForm({email, navigation}) {
 
@@ -20,6 +22,8 @@ export default function ResetPasswordForm({email, navigation}) {
         contrasenia_repetida:""
     })
     const [isLoading, setIsLoading] = useState(false);
+    const [visibility, setVisibility] = useState(true);
+    const[popUpErrorInesperado, setPopUpErrorInesperado]=useState(false);
 
       const passwordRules = [
         { label: "Mínimo 8 caracteres", test: (pw) => pw.length >= 8 },
@@ -52,6 +56,9 @@ export default function ResetPasswordForm({email, navigation}) {
           console.log("Respuesta del backend:", res);
           navigation.navigate("LoginPage");
         } catch (err) {
+          if(err.response?.status === 500){
+            setPopUpErrorInesperado(true)
+          }
           console.log("Error al crear contraseña: ", err);
         } finally {
           setIsLoading(false);
@@ -64,22 +71,46 @@ export default function ResetPasswordForm({email, navigation}) {
           <View style={styles.form}>
             <Image source={welcomeIcon} style={styles.catImage} />
             <View style={styles.content}>
-              <Text style={styles.title}>Registrarme</Text>
-
-              <TextInput
-                value={form.contrasenia}
-                placeholder="Contraseña"
-                onChangeText={(value) => handleChange("contrasenia", value)}
-                style={styles.input}
-                secureTextEntry
-              />
-              <TextInput
-                value={form.contrasenia_repetida}
-                placeholder="Repetí tu contraseña"
-                onChangeText={(value) => handleChange("contrasenia_repetida", value)}
-                style={styles.input}
-                secureTextEntry
-              />
+              <View style={{alignItems:"center"}}>
+                <Text style={styles.title}>Creá una nueva contraseña</Text>
+              </View>
+              
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  value={form.contrasenia}
+                  secureTextEntry={visibility}
+                  placeholder="Contraseña"
+                  textContentType="password"
+                  onChangeText={(value) => {
+                    handleChange("contrasenia", value);
+                  }}
+                />
+                <Pressable onPress={() => setVisibility(!visibility)} style={styles.eyeButton}>
+                  <Image
+                    source={visibility ? eye_open : eye_closed}
+                    style={styles.eyeIcon}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  value={form.contrasenia_repetida}
+                  secureTextEntry={visibility}
+                  placeholder="Repetí tu contraseña"
+                  textContentType="password"
+                  onChangeText={(value) => {
+                    handleChange("contrasenia_repetida", value);
+                  }}
+                />
+                <Pressable onPress={() => setVisibility(!visibility)} style={styles.eyeButton}>
+                  <Image
+                    source={visibility ? eye_open : eye_closed}
+                    style={styles.eyeIcon}
+                  />
+                </Pressable>
+              </View>
               {/* Checklist de validación */}
                 <View style={{ alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 }}>
                   {passwordRules.map(({ label, test }, i) => (
@@ -99,7 +130,7 @@ export default function ResetPasswordForm({email, navigation}) {
 
                 {/* Mensaje de error si no coinciden */}
                 {!coincidenContrasenias && form.contrasenia_repetida.length > 0 && (
-                  <Text style={{ color: "red", alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 }}>
+                  <Text style={{ color: "red", alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 , fontFamily:"Sora_700Bold"}}>
                     Las contraseñas no coinciden
                   </Text>
                 )}
@@ -117,6 +148,7 @@ export default function ResetPasswordForm({email, navigation}) {
               </Pressable>
             </View>
           </View>
+          {popUpErrorInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado."} visible={popUpErrorInesperado} onClose={()=>setPopUpErrorInesperado(false)} duration={2000}/>}
         </View>
       );
     }
@@ -126,7 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    height: sizes.height * 0.6,
+    paddingVertical:20,
   },
   form: {
     justifyContent: "center",
@@ -134,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 15,
     width: sizes.width * 0.8,
-    height: sizes.height * 0.55,
+    paddingBottom: 30,
   },
   catImage: {
     width: 132,
@@ -150,8 +182,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily:'Sora_700Bold',
-    fontSize: 24,
-    padding: 20,
+    fontSize: 20,
+    paddingTop:60,
+    paddingBottom:20,
+    textAlign:"center",
+    maxWidth:"60%"
   },
   input: {
     width: 277,
@@ -175,6 +210,35 @@ const styles = StyleSheet.create({
   btnText: {
     color: "#fff",
     fontFamily:'Sora_700Bold',
-    fontSize: 20,
+    fontSize: 16,
+  },
+    passwordContainer: {
+    width: 277,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#d9d9d9",
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: "#f1f5f5",
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    position: "relative",
+  },
+    passwordInput: {
+    flex: 1,
+    height: "100%",
+    fontSize: 16,
+  },
+    eyeButton: {
+    padding: 5,
+    position: 'absolute',
+    right: 10,
+  },
+
+  eyeIcon: {
+    width: 20,
+    height: 20,
+    tintColor: "#666",
   },
 });

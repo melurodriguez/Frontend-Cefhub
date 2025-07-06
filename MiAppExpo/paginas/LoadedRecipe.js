@@ -29,34 +29,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF9F0",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontFamily:"Sora_700Bold",
     marginBottom: 8,
     color: "#333",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 16,
     color: "#555",
     textAlign: "center",
+    fontFamily:"Sora_700Bold"
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 145,
+    height: 145,
     marginBottom: 24,
+    marginTop:24
   },
   message: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: "center",
     marginBottom: 32,
     paddingHorizontal: 10,
     color: "#444",
+    fontFamily:"Sora_400Regular"
   },
   button: {
     backgroundColor: "#505C86",
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 10,
+    borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FFF",
-    fontWeight: "bold",
+    fontFamily:"Sora_700Bold",
     fontSize: 16,
   },
 });

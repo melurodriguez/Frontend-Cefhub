@@ -767,6 +767,13 @@ const styles = StyleSheet.create({
     color: "#7a0b0b",
     fontWeight: "700",
   },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    resizeMode: 'cover',
+  },
+
   videoPlaceholder: {
     width: 100,
     height: 100,

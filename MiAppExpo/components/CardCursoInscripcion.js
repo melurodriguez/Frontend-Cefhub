@@ -36,6 +36,14 @@ export default function CardCursoInscripcion({ data, onPress, onPopUp }) {
             <MaterialIcons name="location-on" size={18} color="#555" />
             <Text style={styles.etiqueta}> Sede: </Text>
             <Text style={styles.horario}>{data.nombreSede}</Text>
+            <Text style={styles.etiqueta}>| Sede ID: </Text>
+            <Text style={styles.horario}>{data.idSede}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <MaterialIcons name="location-on" size={18} color="#555" />
+            <Text style={styles.etiqueta}> Curso ID: </Text>
+            <Text style={styles.horario}>{data.idCurso}</Text>
           </View>
 
           <View style={styles.infoRow}>

@@ -27,16 +27,45 @@ export default function QRScanner() {
 
     try {
       const response = await api.post(`/user/me/asistencia?${queryString}`);
-      Alert.alert("Asistencia registrada", "¡Listo! Tu asistencia fue registrada correctamente.", [
-        { text: "OK", onPress: () => setScanned(false) },
-      ]);
-      await AsyncStorage.removeItem("idSede");
+
+      // Manejo de éxito
+      if (response.status === 200 && response.data.ok) {
+        Alert.alert("Asistencia registrada", response.data.mensaje || "¡Listo!", [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
+        await AsyncStorage.removeItem("idSede");
+      }
+
     } catch (err) {
       console.error("Error al registrar asistencia:", err);
-      Alert.alert("Error", "No se pudo registrar la asistencia.");
-      setScanned(false);
+
+      if (err.response) {
+        const { status, data } = err.response;
+
+        if (status === 403) {
+          Alert.alert("No autorizado", data.detail || "No estás inscripto en este curso.", [
+            { text: "OK", onPress: () => setScanned(false) },
+          ]);
+        } else if (status === 500) {
+          Alert.alert("Error del sistema", data.detail || "Hubo un problema interno al registrar la asistencia.", [
+            { text: "OK", onPress: () => setScanned(false) },
+          ]);
+        } else {
+          Alert.alert("Error", data.detail || "No se pudo registrar la asistencia.", [
+            { text: "OK", onPress: () => setScanned(false) },
+          ]);
+        }
+
+      } else {
+        Alert.alert("Error de red", "No se pudo conectar con el servidor.", [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
+      }
+    } finally {
+      alertActive.current = false;
     }
   };
+
 
 
   const handleBarcodeScanned = async ({ data }) => {
@@ -110,7 +139,7 @@ export default function QRScanner() {
         }
 
         console.log("Curso escaneado:", parsed.idCurso);
-        await registrarAsistencia(storedSede, parsed.idCurso); // 👈 Reutilizás la función
+        await registrarAsistencia(storedSede, parsed.idCurso);
       } catch (error) {
         console.error("Error general al procesar el curso:", error);
         Alert.alert("Error", "No se pudo registrar la asistencia.", [
@@ -152,7 +181,7 @@ export default function QRScanner() {
     );
   }
 
-  return (
+  return ( //LEE UN JSON CON ESTE FORMATO: {"idSede": 1} o {"idCurso": 2} EN EL QR
     <View style={styles.container}>
       {Platform.OS === 'android' && <StatusBar hidden />}
       <CameraView

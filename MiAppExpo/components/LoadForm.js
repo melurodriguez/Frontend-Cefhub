@@ -17,7 +17,6 @@ import api from "../api/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
 import { colors } from "../utils/themes";
 import UploadingScreen from "../components/UploadingScreen";
-
 import NetInfo from "@react-native-community/netinfo";
 import * as SecureStore from "expo-secure-store";
 import PopUp from "./PopUp";
@@ -351,6 +350,42 @@ export default function LoadForm() {
   };
 
   ///////////////////////////////////////////////////////////////////////////////////////////
+
+    async function checkConnectionBeforeSubmit() {
+      const state = await NetInfo.fetch();
+
+      if (!state.isConnected) {
+        // Sin conexión: guardar local y mostrar popup
+        guardarRecetaLocalmente();
+        setPopUpNoConnection(true);
+        return;
+      }
+
+      if (state.type === "wifi") {
+        // Conexión gratuita: enviar receta
+        submitRecipe(navigation);
+      } else {
+        // Red móvil o de costo: preguntar al usuario
+        setBotonesConexion([
+          {
+            text: "Usar red actual",
+            onPress: () => submitRecipe(navigation),
+          },
+          {
+            text: "Esperar Wi-Fi",
+            onPress: () => {
+              guardarRecetaLocalmente();
+              setPopUpNoConnection(true);
+            },
+            style: "cancel",
+          },
+        ]);
+        setPopUpConnectionType(true);
+      }
+    }
+
+
+
     async function submitRecipe(navigation) {
       if (!validarFormulario()) {
         Alert.alert("Error", "Por favor, completá todos los campos obligatorios.");
@@ -464,6 +499,20 @@ export default function LoadForm() {
         setLoadingMedia(false);
       }
     }
+
+    async function guardarRecetaLocalmente() {
+      try {
+        const recetasGuardadas = await SecureStore.getItemAsync("recetasPendientes");
+        const lista = recetasGuardadas ? JSON.parse(recetasGuardadas) : [];
+
+        lista.push(recipe);
+        await SecureStore.setItemAsync("recetasPendientes", JSON.stringify(lista));
+      } catch (error) {
+        console.error("Error guardando receta localmente:", error);
+        setPopUpNotSaved(true);
+      }
+    }
+
 
     if (loadingMedia) {
     return <UploadingScreen />;
@@ -686,7 +735,7 @@ export default function LoadForm() {
                 ))}
 
               </ScrollView>
-              <Pressable style={styles.save} onPress={() => submitRecipe(navigation)}>
+              <Pressable style={styles.save} onPress={checkConnectionBeforeSubmit}>
                 <Text style={styles.addButtonText}>Guardar Receta</Text>
               </Pressable>
             </>

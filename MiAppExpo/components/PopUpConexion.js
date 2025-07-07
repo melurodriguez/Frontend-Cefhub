@@ -10,7 +10,7 @@ export default function PopUpConexion({  visible, onClose, botones = [], image }
                 <View style={styles.popup}>
                   {image && <Image source={image} style={styles.img}/>}
                   <Text style={styles.action}>Tipo de conexión</Text>
-                  <Text style={styles.action}>Estás conectado por: wifi</Text>
+                  <Text style={styles.action}>Estás conectado por: Red Paga</Text>
                   <Text style={styles.action}>¿Querés guardar la receta con esta conexión?</Text>
                   <View>
                     {botones.map((btn, index) => (

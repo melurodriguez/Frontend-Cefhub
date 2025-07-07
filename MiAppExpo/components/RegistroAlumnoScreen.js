@@ -27,7 +27,8 @@ export default function RegistroAlumnoScreen() {
   const [vencimiento, setVencimiento] = useState('');
   const [cvv, setCvv] = useState('');
   const [loading, setLoading] = useState(false);
-  const {token}=useContext(AuthContext)
+  const { token, logout } = useContext(AuthContext);
+
 
   //datos que se guardan
     const [numeroTarjeta, setNumeroTarjeta] = useState('');
@@ -117,8 +118,17 @@ export default function RegistroAlumnoScreen() {
         if (dniFondo) await subirImagen(dniFondo, 'dniFondo');
 
         setActualizado(true)
-        //Alert.alert('Éxito', 'Tu perfil ha sido actualizado a alumno');
-        navigation.navigate("LoginPage")
+
+        if (token) {
+          await logout();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "LoginPage" }],
+          });
+        } else {
+          navigation.navigate("LoginPage");
+        }
+
       } catch (error) {
         console.error(error);
         setDesconocido(true)

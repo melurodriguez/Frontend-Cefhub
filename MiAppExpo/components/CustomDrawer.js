@@ -49,13 +49,17 @@ const CustomDrawer = (props) => {
         )
         }
 
-        <DrawerItem
-          label="Asistencia"
-          onPress={()=>{navigation.navigate("QRScanner")}}
-          icon={({color, size})=>(
-            <Ionicons name="checkmark-circle-outline" size={22} color={color}/>
-          )}
-        />
+        {user?.tipo_usuario === "Alumno" && (
+            <DrawerItem
+              label="Asistencia"
+              onPress={() => navigation.navigate("Asistencia")}
+                icon={({ color, size }) => (
+                  <Ionicons name="qr-code-outline" size={22} color={color}/>
+                )}
+
+            />
+
+        )}
 
         <DrawerItem
           label="Mis Datos"

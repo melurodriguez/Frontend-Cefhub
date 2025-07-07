@@ -64,16 +64,6 @@ function DrawerNavigator() {
           ),
         }}
       />
-    <Drawer.Screen
-      name="Asistencia"
-      component={Asistencia}
-      options={{
-        drawerIcon: ({ color }) => (
-          <Ionicons name="qr-code-outline" size={22} color={color}/>
-        ),
-      }}
-    />
-    
   </Drawer.Navigator>)
 }
 
@@ -250,6 +240,7 @@ function AppNavigator() {
                   <Stack.Screen name="LoadedRecipe" component={LoadedRecipe} />
                   <Stack.Screen name="SearchPage" component={SearchPage} />
                   <Stack.Screen name="RegistroAlumnoScreen" component={RegistroAlumnoScreen} />
+                  <Stack.Screen name="Asistencia" component={Asistencia} />
                   <Stack.Screen name="NoConexion" component={NoConexion} options={{ headerShown: false }} />
                 </>
               )}

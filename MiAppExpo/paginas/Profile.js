@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     },
     page: {
       fontFamily:'Sora_700Bold',
-      fontSize: 24,
+      fontSize: 18,
       alignSelf:"center"
     },
     userContainer: {
@@ -301,7 +301,12 @@ const styles = StyleSheet.create({
       padding: 20,
       width:"90%",
       marginBottom: 20,
-      alignSelf:"center"
+      alignSelf:"center",
+      elevation: 8,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
     },
     avatar: {
       width: 60,

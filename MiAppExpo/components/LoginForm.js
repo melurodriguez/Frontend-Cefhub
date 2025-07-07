@@ -198,6 +198,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#000",
     borderRadius: sizes.radius,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   error: {
     color: "red",
@@ -262,6 +267,11 @@ const styles = StyleSheet.create({
     width: 277,
     height: 50,
     margin: 20,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   btnText: {
     color: "#fff",

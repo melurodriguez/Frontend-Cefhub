@@ -34,7 +34,7 @@ export default function RegisterForm({ navigation }) {
   const nombreYDireccionCompletos = form.nombre.trim() !== "" && form.direccion.trim() !== "";
   const [popUpAlias, setPopUpAlias]= useState(false)
   const [popUpCorreo, setPopUpCorreo]= useState(false)
-  const [popUpHbailitado, setPopUpHabilitado]= useState(false)
+  const [popUpHabilitado, setPopUpHabilitado]= useState(false)
   const [popUpInesperado, setPopUpInesperado]= useState(false)
   const [popUpServidor, setPopUpServidor]= useState(false)
 
@@ -277,14 +277,14 @@ export default function RegisterForm({ navigation }) {
                     <Pressable onPress={() => setPopUpCorreo(false)} style={styles.cancelButton}>
                       <Text style={styles.cancelText}>Cancelar</Text>
                     </Pressable>
-                    <Pressable onPress={()=>navigation.navigate("ForgotPassword")} style={styles.deleteButton}>
+                    <Pressable onPress={()=>{navigation.navigate("ForgotPassword"); setPopUpCorreo(false)}} style={styles.deleteButton}>
                       <Text style={styles.deleteText}>Sí, recuperar</Text>
                     </Pressable>
                   </View>
                 </View>
               </View>
             </Modal>}
-            {popUpHbailitado && <PopUp action={"Cuenta deshabilitada. El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."} visible={popUpHbailitado} onClose={()=>setPopUpHabilitado(false)} duration={3000}/>}
+            {popUpHabilitado && <PopUp action={"Cuenta deshabilitada. El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."} visible={popUpHabilitado} onClose={()=>setPopUpHabilitado(false)} duration={3000}/>}
             {popUpInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
             {popUpServidor && <PopUp action={"Error. \n\nNo se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
     </View>
@@ -313,7 +313,12 @@ const styles = StyleSheet.create({
     width: sizes.width * 0.8,
     paddingVertical: 20,
     minHeight: sizes.height * 0.45,
-    marginVertical:10
+    marginVertical:10,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   inputWithIcon: {
     flexDirection: "row",
@@ -387,6 +392,11 @@ const styles = StyleSheet.create({
     width: 277,
     height: 50,
     margin: 20,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   btnText: {
     color: "#fff",

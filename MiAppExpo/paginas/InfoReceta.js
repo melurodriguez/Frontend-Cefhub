@@ -7,11 +7,7 @@ import {
   Pressable,
   ImageBackground,
   Dimensions,
-  ScrollView,
-  TextInput,
-  FlatList,
-  Button ,
-  Alert
+  ScrollView
 } from "react-native";
 import CardIngredient from "../components/CardIngredient";
 import CardCalificacion from "../components/CardCalificacion";
@@ -24,7 +20,6 @@ import API_BASE_URL from "../utils/config";
 import { useContext, useCallback  } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { colors, fonts, sizes } from "../utils/themes";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardInstruccion from "../components/CardInstruccion";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native";
@@ -33,6 +28,12 @@ import { SafeAreaView } from "react-native";
 const cancel = require("../assets/cancel.png");
 const fav = require("../assets/fav.png");
 const favClicked = require("../assets/favClicked.png");
+const check=require('../assets/check.png')
+const likeImg=require('../assets/like.png')
+const dislikeImg=require('../assets/dislike.png')
+const errorImg=require('../assets/error.png')
+const limit=require('../assets/limit.png')
+
 import * as SecureStore from 'expo-secure-store';
 import PopUpReemplazarReceta from "../components/PopUpReemplazarReceta";
 
@@ -409,14 +410,14 @@ export default function InfoReceta({ navigation }) {
            </View>
          </View>
        </View>
-       { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/> :
-        <PopUp action={"La receta ha sido eliminada de favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500}/>}
+       { like ?<PopUp action={"La receta ha sido añadida a favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500} image={likeImg}/> :
+        <PopUp action={"La receta ha sido eliminada de favoritos"} visible={visible} onClose={() => setPopUpVisible(false)} duration={1500} image={dislikeImg}/>}
      </View>
      {showReemplazar && <PopUpReemplazarReceta visibile={showReemplazar} botones={replaceButtons} onClose={()=>setShowReemplazar(false)}/>}
-     {popUpExitoReemplazo && <PopUp action={"Éxito. \n\nLa receta fue reemplazada correctamente."} visible={popUpExitoReemplazo} onClose={()=>setPopUpExitoReemplazo(false)} duration={2500}/>}
-      {popUpLimit && <PopUp action={"Límite alcanzado. \n\nSolo podes guardar hasta 10 recetas localmente."} visible={popUpLimit} onClose={()=>setPopUpLimit(false)} duration={3000}/>}
-      {popUpError && <PopUp action={"Error. \n\nNo se pudo guardar la receta localmente"} visible={popUpError} onClose={()=>setPopUpError(false)} duration={3000}/>}
-      {popUpExito && <PopUp action={"Éxito. \n\nLa receta fue guardada localmente."} visible={popUpExito} onClose={()=>setPopUpExito(false)} duration={2500}/>}
+     {popUpExitoReemplazo && <PopUp action={"Éxito. \n\nLa receta fue reemplazada correctamente."} visible={popUpExitoReemplazo} onClose={()=>setPopUpExitoReemplazo(false)} duration={2500} image={check}/>}
+      {popUpLimit && <PopUp action={"Límite alcanzado. \n\nSolo podes guardar hasta 10 recetas localmente."} visible={popUpLimit} onClose={()=>setPopUpLimit(false)} duration={3000} image={limit}/>}
+      {popUpError && <PopUp action={"Error. \n\nNo se pudo guardar la receta localmente"} visible={popUpError} onClose={()=>setPopUpError(false)} duration={3000} image={errorImg}/>}
+      {popUpExito && <PopUp action={"Éxito. \n\nLa receta fue guardada localmente."} visible={popUpExito} onClose={()=>setPopUpExito(false)} duration={2500} image={check}/>}
     </ScrollView>
    </SafeAreaView>
  );

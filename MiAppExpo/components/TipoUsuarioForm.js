@@ -33,6 +33,11 @@ const styles = StyleSheet.create({
     borderRadius:15,
     width: sizes.width * 0.8,
     height: sizes.height * 0.45,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
 
   img:{
@@ -71,6 +76,11 @@ const styles = StyleSheet.create({
     width: 277,
     height: 50,
     margin: 20,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   btnText: {
     color: "#fff",

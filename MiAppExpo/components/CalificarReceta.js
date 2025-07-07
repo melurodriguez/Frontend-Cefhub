@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, Pressable, TextInput, StyleSheet, Alert } from "react-native";
+import { View, Text, Image, Pressable, TextInput, StyleSheet } from "react-native";
 import api from "../api/axiosInstance"; // ajusta la ruta si es necesario
 import { colors, fonts } from "../utils/themes";
 import PopUp from './PopUp';
@@ -16,7 +16,6 @@ export default function CalificarReceta({ idReceta, token, onCalificacionExitosa
   const enviarCalificacion = async () => {
     if (rating === 0) {
       setPopUpInvalidInput(true)
-      Alert.alert("Error", "Por favor seleccioná una calificación");
       return;
     }
 
@@ -32,17 +31,12 @@ export default function CalificarReceta({ idReceta, token, onCalificacionExitosa
         }
       );
       setPopUpExito(true)
-      Alert.alert("Éxito", response.data.mensaje);
       setRating(0);
       setComentario("");
       if (onCalificacionExitosa) onCalificacionExitosa();
     } catch (error) {
       console.log(error);
       setPopUpError(true)
-      Alert.alert(
-        "Error",
-        error.response?.data?.detail || "Error enviando la calificación"
-      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +113,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   titulo: {
-    fontWeight: fonts.bold,
+    fontFamily:"Sora_700Bold",
     fontSize: fonts.medium,
     marginBottom: 15,
     fontFamily: "Sora_700Bold",

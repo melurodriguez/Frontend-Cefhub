@@ -13,6 +13,8 @@ import api from "../api/axiosInstance";
 import PopUp from "./PopUp";
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
+const eye_open = require("../assets/eye-check.png");
+const eye_closed = require("../assets/eye-closed.png");
 
 export default function CardCreatePassword({ email, navigation }) {
 
@@ -23,6 +25,8 @@ export default function CardCreatePassword({ email, navigation }) {
     const [popUpInvalida, setPopUpInvalida]=useState(false)
     const [popUpCoincidencia, setPopUpCoincidencia]=useState(false)
     const [popUpInesperado, setPopUpInesperado]= useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+const [showRepeatPassword, setShowRepeatPassword] = useState(false)
 
     const handleChange=(name, value)=>{
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -81,22 +85,32 @@ export default function CardCreatePassword({ email, navigation }) {
           <Text style={styles.title}>Crear contraseña</Text>
 
           <Text style={styles.label}>Contraseña</Text>
-          <TextInput
-            value={form.contrasenia}
-            placeholder="Contraseña"
-            onChangeText={(value) => handleChange("contrasenia", value)}
-            style={styles.input}
-            secureTextEntry
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              value={form.contrasenia}
+              placeholder="Contraseña"
+              onChangeText={(value) => handleChange("contrasenia", value)}
+              style={styles.input}
+              secureTextEntry={!showPassword}
+            />
+            <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+              <Image source={showPassword ? eye_open : eye_closed} style={{ width: 20, height: 20 }} />
+            </Pressable>
+          </View>
 
           <Text style={styles.label}>Repetí tu contraseña</Text>
-          <TextInput
-            value={form.contrasenia_repetida}
-            placeholder="Repetí tu contraseña"
-            onChangeText={(value) => handleChange("contrasenia_repetida", value)}
-            style={styles.input}
-            secureTextEntry
-          />
+          <View style={styles.inputWrapper}>
+            <TextInput
+              value={form.contrasenia_repetida}
+              placeholder="Repetí tu contraseña"
+              onChangeText={(value) => handleChange("contrasenia_repetida", value)}
+              style={styles.input}
+              secureTextEntry={!showRepeatPassword}
+            />
+            <Pressable onPress={() => setShowRepeatPassword(!showRepeatPassword)} style={styles.eyeIcon}>
+              <Image source={showRepeatPassword ? eye_open : eye_closed} style={{ width: 20, height: 20 }} />
+            </Pressable>
+          </View>
           {/* Checklist validación */}
             <View style={{ alignSelf: "flex-start", marginLeft: 15, marginBottom: 10 }}>
               {passwordRules.map(({ label, test }, i) => (
@@ -170,16 +184,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginLeft: 15,
     marginBottom: 5,
-  },
-  input: {
-    width: 277,
-    height: 50,
-    borderColor: "#d9d9d9",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    backgroundColor: "#f1f5f5",
+    paddingLeft:10
   },
   button: {
     backgroundColor: "#505c86",
@@ -195,4 +200,23 @@ const styles = StyleSheet.create({
     fontFamily: "Sora_700Bold",
     fontSize: 20,
   },
+  inputWrapper: {
+  width: 277,
+  height: 50,
+  borderColor: "#d9d9d9",
+  borderWidth: 1,
+  borderRadius: 15,
+  backgroundColor: "#f1f5f5",
+  marginBottom: 10,
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 10,
+},
+input: {
+  flex: 1,
+  height: "100%",
+},
+eyeIcon: {
+  paddingHorizontal: 5,
+},
 });

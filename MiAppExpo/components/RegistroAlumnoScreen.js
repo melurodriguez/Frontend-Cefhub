@@ -236,6 +236,11 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 80,
     position: 'relative',
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   img: {
     width: 132,
@@ -284,6 +289,11 @@ const styles = StyleSheet.create({
     width: 277,
     height: 50,
     marginTop: 10,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   btnText: {
     color: '#fff',

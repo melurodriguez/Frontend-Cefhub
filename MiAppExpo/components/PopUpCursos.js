@@ -9,7 +9,7 @@ export default function PopUpCursos({ action, visible, onClose, image , onPress}
         <View style={styles.popup}>
           {image && <Image source={image} style={styles.img}/>}
           <Text style={styles.action}>{action}</Text>
-          {duration > 2999 && <Pressable onPress={()=>{ onPress(); onClose()}} style={styles.btn}><Text style={styles.btnText}>OK</Text></Pressable>}
+          <Pressable onPress={()=>{ onPress(); onClose()}} style={styles.btn}><Text style={styles.btnText}>OK</Text></Pressable>
         </View>
         
       </View>

@@ -12,12 +12,12 @@ import CardSedes from "../components/CardSedes";
 import { useRoute } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
 import api from "../api/axiosInstance";
-import { Alert } from "react-native";
-import { colors, fonts, sizes } from "../utils/themes";
 import { AuthContext } from "../auth/AuthContext";
 const flyingCat = require("../assets/readingCat.png");
 import PopUp from "../components/PopUp";
 import PopUpCursos from "../components/PopUpCursos";
+import { CommonActions } from '@react-navigation/native';
+
 
 const { height, width } = Dimensions.get("window");
 
@@ -92,11 +92,11 @@ export default function InfoCurso({ navigation }) {
     }
   }, [error]);
 
-  if (!curso && !error) {
+  if (!curso ) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando curso...</Text>
-      </View>
+      <>
+       
+      </>
     );
   }
 
@@ -180,16 +180,68 @@ export default function InfoCurso({ navigation }) {
             onClose={() => setPopUpVisible(false)}
             duration={2000}
           />
+           {popUpAutenticado && (
+          <PopUpCursos
+            action={"Acceso Restringido. \n\nDebes estar autenticado para ver esta información."}
+            visible={popUpAutenticado}
+            onClose={() => {
+              setPopUpAutenticado(false);
+
+
+            }}
+            onPress={() => {
+              setPopUpAutenticado(false);
+            }}
+          />
+        )}
+        {popUpRestricted && (
+          <PopUpCursos
+            action={"Acceso Restringido. \n\nDebes ser alumno para ver esta información."}
+            visible={popUpRestricted}
+            onClose={() => {
+              setPopUpRestricted(false);
+
+            }}
+            onPress={() => {
+              setPopUpRestricted(false);
+
+
+            }}
+          />
+        )}
+        {popUpNotFound && (
+          <PopUpCursos
+            action={"Error. \n\nCurso no encontrado."}
+            visible={popUpNotFound}
+            onClose={() => {
+              setPopUpNotFound(false);
+
+
+            }}
+            onPress={() => {
+              setPopUpNotFound(false);
+
+
+            }}
+          />
+        )}
+        {popUpError && (
+          <PopUpCursos
+            action={"Error. \n\nOcurrió un error inesperado."}
+            visible={popUpError}
+            onClose={() => {
+              setPopUpError(false);
+
+
+            }}
+            onPress={() => {
+              setPopUpError(false);
+
+            }}
+          />
+        )}
         </View>
-
       </ScrollView>
-        {popUpAutenticado && <PopUpCursos action={"Acceso Restringido. \n\nDebes estar autenticado para ver esta información."} visible={popUpAutenticado} onClose={()=>setPopUpAutenticado(false)} onPress={()=>navigation.goBack()}/>}
-
-        {popUpError && <PopUpCursos action={"Error. \n\nOcurrio un error inesperado.."} visible={popUpError} onClose={()=>setPopUpError(false)} onPress={()=>navigation.goBack()}/>}
-
-        {popUpNotFound && <PopUpCursos action={"Error. \n\nCurso no encontrado."} visible={popUpNotFound} onClose={()=>setPopUpNotFound(false)} onPress={()=>navigation.goBack()}/>}
-
-        {popUpRestricted && <PopUpCursos action={"Acceso Restringido. \n\nDebes ser alumno para ver esta información."} visible={popUpRestricted} onClose={()=>setPopUpRestricted(false)} onPress={()=>navigation.goBack()}/>}
     </View>
   );
 }

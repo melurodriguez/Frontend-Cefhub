@@ -13,7 +13,7 @@ import { sizes } from "../utils/themes";
 import PopUp from "./PopUp";
 
 const welcomeIcon=require('../assets/welcomeIcon.png')
-const detective=require('../assets/detective.png')
+const notfound=require('../assets/notfound.png')
 
 export default function ForgotPasswordForm({navigation}) {
 
@@ -73,7 +73,7 @@ export default function ForgotPasswordForm({navigation}) {
             </Pressable>
           </View>
         </View>
-        {popUpInvalidEmail && <PopUp action={"Error. \n\nEmail no encontrado."} visible={popUpInvalidEmail} onClose={()=>setPopUpInvalidEmail(false)} duration={2000} image={detective}/>}
+        {popUpInvalidEmail && <PopUp action={"Error. \n\nEmail no encontrado."} visible={popUpInvalidEmail} onClose={()=>setPopUpInvalidEmail(false)} duration={2000} image={notfound}/>}
         {popUpErrorInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado."} visible={popUpErrorInesperado} onClose={()=>setPopUpErrorInesperado(false)} duration={2000}/>}
       </View>
     );
@@ -93,6 +93,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: sizes.width * 0.8,
     height: sizes.height * 0.45,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   catImage: {
     width: 132,

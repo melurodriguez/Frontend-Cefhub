@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
@@ -12,17 +12,22 @@ import RecipeCard from "../components/recipeCard";
 import CardCurso from "../components/CardCurso";
 import { ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import SideMenu from "../components/CustomDrawer.js";
 import { colors } from "../utils/themes.js";
 import api from "../api/axiosInstance";
-const searchIcon = require("../assets/search.png");
-const filter = require("../assets/filter.png");
-const backArrow = require("../assets/backArrow.png");
+import { AuthContext } from "../auth/AuthContext.js";
+import PopUpCursos from "../components/PopUpCursos.js";
+
 
 export default function SearchPage({ navigation }) {
   const [search, setSearch] = useState("");
   const [recetas, setRecetas] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [popUpAutenticado,setPopUpAutenticado]=useState(false)
+  const [popUpNotFound, setPopUpNotFound]=useState(false)
+  const [popUpRestricted,setPopUpRestricted]=useState(false)
+  const [popUpError, setPopUpError]=useState(false)
+
+  const {token, user}=useContext(AuthContext)
 
   useFocusEffect(
       useCallback(() => {
@@ -44,7 +49,7 @@ export default function SearchPage({ navigation }) {
     );
 
   const porNombre = () => {
-          api.get(`/recetas/?nombre_receta${search}`)
+          api.get(`/recetas/?nombre_receta=${search}`)
           .then((res) => setRecetas(res.data))
           .catch((err) => console.error("Error al aplicar filtros:", err));
 
@@ -55,16 +60,42 @@ export default function SearchPage({ navigation }) {
 
   };
 
-  const handleMenu = () => {
-    setVisible(!visible);
-  };
 
-  const searchCurso = async (curso) => {
+
+  const handleCursos= async (curso)=>{
+    if (!token) {
+      setPopUpAutenticado(true);
+      return;
+    }
+
+    if (!user || user["tipo_usuario"] === "Usuario") {
+      setPopUpRestricted(true);
+      return;
+    }
+
     try {
-      const res = await axios.get(`${API_BASE_URL}/curso/${curso.id}`);
-      const data = await res.json();
-    } catch (err) {}
-  };
+      // Validamos que el curso exista y que el usuario tenga acceso
+      const res = await api.get(`/curso/${curso.idCurso}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 200) {
+        navigation.navigate("InfoCurso", { id: curso.idCurso });
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setPopUpNotFound(true);
+      } else if (err.response?.status === 403) {
+        setPopUpRestricted(true);
+      } else if (err.response?.status === 401) {
+        setPopUpAutenticado(true);
+      } else {
+        console.error("Error al validar acceso al curso:", err.message);
+        setPopUpError(true);
+      }
+    }
+
+  }
 
    return (
      <ScrollView>
@@ -123,11 +154,71 @@ export default function SearchPage({ navigation }) {
            <View style={styles.card} key={index}>
              <CardCurso
                data={curso}
-               onPress={() => navigation.navigate("InfoCurso", { id: curso.idCurso })}
+               onPress={() => handleCursos(curso)}
              />
            </View>
          ))}
        </View>
+       {popUpAutenticado && (
+                 <PopUpCursos
+                   action={"Acceso Restringido. \n\nDebes estar autenticado para ver esta información."}
+                   visible={popUpAutenticado}
+                   onClose={() => {
+                     setPopUpAutenticado(false);
+       
+       
+                   }}
+                   onPress={() => {
+                     setPopUpAutenticado(false);
+                   }}
+                 />
+               )}
+               {popUpRestricted && (
+                 <PopUpCursos
+                   action={"Acceso Restringido. \n\nDebes ser alumno para ver esta información."}
+                   visible={popUpRestricted}
+                   onClose={() => {
+                     setPopUpRestricted(false);
+       
+                   }}
+                   onPress={() => {
+                     setPopUpRestricted(false);
+       
+       
+                   }}
+                 />
+               )}
+               {popUpNotFound && (
+                 <PopUpCursos
+                   action={"Error. \n\nCurso no encontrado."}
+                   visible={popUpNotFound}
+                   onClose={() => {
+                     setPopUpNotFound(false);
+       
+       
+                   }}
+                   onPress={() => {
+                     setPopUpNotFound(false);
+       
+       
+                   }}
+                 />
+               )}
+               {popUpError && (
+                 <PopUpCursos
+                   action={"Error. \n\nOcurrió un error inesperado."}
+                   visible={popUpError}
+                   onClose={() => {
+                     setPopUpError(false);
+       
+       
+                   }}
+                   onPress={() => {
+                     setPopUpError(false);
+       
+                   }}
+                 />
+               )}
      </ScrollView>
    );
 }

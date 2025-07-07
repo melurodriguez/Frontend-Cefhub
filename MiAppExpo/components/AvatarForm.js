@@ -103,7 +103,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 50,
     paddingHorizontal: 10,
-    maxWidth:"90%"
+    maxWidth:"90%",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   content: {
     justifyContent: "center",
@@ -156,6 +161,11 @@ const styles = StyleSheet.create({
     width: 277,
     height: 50,
     margin: 20,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   btnText: {
     color: "#fff",

@@ -17,6 +17,7 @@ import PopUp from "./PopUp";
 
 
 const welcomeIcon = require("../assets/welcomeIcon.png");
+const errorImg=require('../assets/error.png')
 
 export default function RegisterForm({ navigation }) {
    const [form, setForm] = useState({
@@ -285,8 +286,8 @@ export default function RegisterForm({ navigation }) {
               </View>
             </Modal>}
             {popUpHabilitado && <PopUp action={"Cuenta deshabilitada. El correo ya está registrado, pero no podés recuperar tu contraseña automáticamente.\n\nContactanos a chefhubemail@gmail.com para recibir ayuda."} visible={popUpHabilitado} onClose={()=>setPopUpHabilitado(false)} duration={3000}/>}
-            {popUpInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500}/>}
-            {popUpServidor && <PopUp action={"Error. \n\nNo se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500}/>}
+            {popUpInesperado && <PopUp action={"Error. \n\nOcurrió un error inesperado"} visible={popUpInesperado} onClose={()=>setPopUpInesperado(false)} duration={1500} image={errorImg}/>}
+            {popUpServidor && <PopUp action={"Error. \n\nNo se pudo conectar con el servidor."} visible={popUpServidor} onClose={()=>setPopUpServidor(false)} duration={1500} image={errorImg}/>}
     </View>
   );
 }

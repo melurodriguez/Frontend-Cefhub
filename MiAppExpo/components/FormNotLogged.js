@@ -36,6 +36,11 @@ const styles = StyleSheet.create({
     height: sizes.height * 0.33,
     borderRadius: 15,
     position: "relative",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   button: {
     backgroundColor: "#505c86",
@@ -45,6 +50,11 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     justifyContent: "center",
     alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   buttonContainer: {
     position: "absolute",

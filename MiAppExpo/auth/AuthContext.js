@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;
       const userData = response.data.user;
-
+      
       setToken(accessToken);
       setUser(userData);
       await saveTokens(accessToken, refreshToken, rememberMe);

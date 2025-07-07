@@ -17,6 +17,8 @@ const flyingCat = require("../assets/readingCat.png");
 import PopUp from "../components/PopUp";
 import PopUpCursos from "../components/PopUpCursos";
 import { CommonActions } from '@react-navigation/native';
+import { ActivityIndicator } from "react-native-paper";
+import { colors } from "../utils/themes";
 
 
 const { height, width } = Dimensions.get("window");
@@ -32,10 +34,7 @@ export default function InfoCurso({ navigation }) {
   const { token } = useContext(AuthContext);
   const [isIncripto, setIsInscripto] = useState(false);
   const [visible, setPopUpVisible] = useState(false);
-  const [popUpAutenticado,setPopUpAutenticado]=useState(false)
-  const [popUpNotFound, setPopUpNotFound]=useState(false)
-  const [popUpRestricted,setPopUpRestricted]=useState(false)
-  const [popUpError, setPopUpError]=useState(false)
+
 
   useEffect(() => {
     api
@@ -74,31 +73,15 @@ export default function InfoCurso({ navigation }) {
       });
   }, [id, token]);
 
-
-  useEffect(() => {
-    if (error) {
-      let title = "";
-      let message = "";
-
-      if (error === "403") {
-        setPopUpRestricted(true)
-      } else if (error === "404") {
-        setPopUpNotFound(true)
-      } else if (error === "401") {
-        setPopUpAutenticado(true)
-      } else {
-        setPopUpError(true)
-      }
-    }
-  }, [error]);
-
-  if (!curso ) {
-    return (
-      <>
-       
-      </>
-    );
-  }
+  if (!curso) {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      
+      <Text style={{ fontSize: 18 }}>Cargando curso...</Text>
+      <ActivityIndicator size="large" color={colors.primary}/>
+    </View>
+  );
+}
 
   return (
     <View style={styles.container}>
@@ -180,66 +163,7 @@ export default function InfoCurso({ navigation }) {
             onClose={() => setPopUpVisible(false)}
             duration={2000}
           />
-           {popUpAutenticado && (
-          <PopUpCursos
-            action={"Acceso Restringido. \n\nDebes estar autenticado para ver esta información."}
-            visible={popUpAutenticado}
-            onClose={() => {
-              setPopUpAutenticado(false);
-
-
-            }}
-            onPress={() => {
-              setPopUpAutenticado(false);
-            }}
-          />
-        )}
-        {popUpRestricted && (
-          <PopUpCursos
-            action={"Acceso Restringido. \n\nDebes ser alumno para ver esta información."}
-            visible={popUpRestricted}
-            onClose={() => {
-              setPopUpRestricted(false);
-
-            }}
-            onPress={() => {
-              setPopUpRestricted(false);
-
-
-            }}
-          />
-        )}
-        {popUpNotFound && (
-          <PopUpCursos
-            action={"Error. \n\nCurso no encontrado."}
-            visible={popUpNotFound}
-            onClose={() => {
-              setPopUpNotFound(false);
-
-
-            }}
-            onPress={() => {
-              setPopUpNotFound(false);
-
-
-            }}
-          />
-        )}
-        {popUpError && (
-          <PopUpCursos
-            action={"Error. \n\nOcurrió un error inesperado."}
-            visible={popUpError}
-            onClose={() => {
-              setPopUpError(false);
-
-
-            }}
-            onPress={() => {
-              setPopUpError(false);
-
-            }}
-          />
-        )}
+           
         </View>
       </ScrollView>
     </View>
